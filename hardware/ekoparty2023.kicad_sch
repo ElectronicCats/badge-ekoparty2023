@@ -3689,8 +3689,8 @@
     (pin "1" (uuid 7cbdeaac-7a1a-4db4-9050-365a59e1205e))
     (pin "2" (uuid fb821464-1289-4722-bb0d-fd9456e006b0))
     (pin "3" (uuid 334c8710-1f8a-415f-a00a-b65a4a22e0a7))
-    (pin "4" (uuid f2af2faf-2c22-4eb9-83de-233ffc5d94bf))
-    (pin "4" (uuid f2af2faf-2c22-4eb9-83de-233ffc5d94bf))
+    (pin "4" (uuid f2af2faf-2c22-4eb9-83de-233ffc5d94c0))
+    (pin "4" (uuid f2af2faf-2c22-4eb9-83de-233ffc5d94c0))
     (instances
       (project "ekoparty2023"
         (path "/7698cad5-62ba-4b78-a0b3-4b9e419fd18c"
@@ -5445,6 +5445,9 @@
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "LCSC#" "" (at 219.71 145.542 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "manf#" "JS102011SAQN" (at 219.71 145.542 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 1197a308-9998-458c-9340-ea7103296c61))
