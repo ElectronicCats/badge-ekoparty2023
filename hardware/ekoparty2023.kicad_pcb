@@ -145,7 +145,7 @@
 
   (footprint "Footprint_eko:03_Ekoparty_Contorno" (layer "F.Cu")
     (tstamp 02edb7ae-e63a-450f-916e-7656ff16b780)
-    (at 214.3 87.224036)
+    (at 139.88 100.429036)
     (attr through_hole)
     (fp_text reference "Ref**" (at 0 0) (layer "F.SilkS") hide
         (effects (font (size 1.27 1.27) (thickness 0.15)))
@@ -6641,7 +6641,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 0eb53c92-71af-46e7-9a54-dd82dc51801e)
-    (at 188.56 77.07 -90)
+    (at 114.14 90.275 -90)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C103661")
@@ -6696,7 +6696,7 @@
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3342" (layer "F.Cu")
     (tstamp 2f2e086c-d21b-4b4c-bc23-d603ab643c95)
-    (at 236.224477 117.581812 48)
+    (at 161.804477 130.786812 48)
     (descr "Low-profile SMD Tactile Switch, https://www.e-switch.com/system/asset/product_line/data_sheet/165/TL3342.pdf")
     (tags "SPST Tactile Switch")
     (property "LCSC#" "C318889")
@@ -6825,7 +6825,7 @@
 
   (footprint "" (layer "F.Cu")
     (tstamp 448b78c5-880f-4ba3-a144-f5d813278295)
-    (at 251.49 90.19)
+    (at 177.07 103.395)
     (fp_text reference "" (at 0 0) (layer "F.SilkS")
         (effects (font (size 1.27 1.27) (thickness 0.15)))
       (tstamp 73dff260-6d99-4bf2-ab0c-a2254b22415b)
@@ -6839,7 +6839,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp 473234ca-4b7c-4acc-815b-38cdbb0a9518)
-    (at 180.22 80.38)
+    (at 105.8 93.585)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -6894,7 +6894,7 @@
 
   (footprint "LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm" (layer "F.Cu")
     (tstamp 48fff10e-3da6-45b1-95d9-bdc6a78d49ae)
-    (at 186.81 81.26)
+    (at 112.39 94.465)
     (descr "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf")
     (tags "LED RGB NeoPixel Mini")
     (property "LCSC#" "C527089")
@@ -6956,14 +6956,14 @@
       (net 12 "Net-(D1-DIN)") (pinfunction "DIN") (pintype "input") (tstamp 89375869-f62b-4027-8329-4a6e399d949c))
     (model "${KIPRJMOD}/Library/3D/WS2812B_WDS.step"
       (offset (xyz 0 0 0))
-      (scale (xyz 0.9 0.5 1))
+      (scale (xyz 0.8 0.5 1))
       (rotate (xyz 0 0 0))
     )
   )
 
   (footprint "Ekoparty:Display OLED 128 x32" (layer "F.Cu")
     (tstamp 4ae56c60-0a5b-401d-844b-f9a721ae7859)
-    (at 194.515 97.99)
+    (at 120.095 111.195)
     (descr "Through hole straight pin header, 1x04, 2.54mm pitch, single row")
     (tags "Through hole pin header THT 1x04 2.54mm single row")
     (property "Sheetfile" "ekoparty2023.kicad_sch")
@@ -7041,7 +7041,7 @@
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3342" (layer "F.Cu")
     (tstamp 4cb908d5-ebfb-4807-80d3-2cfe6710bec8)
-    (at 244.25 108.74 48)
+    (at 169.83 121.945 48)
     (descr "Low-profile SMD Tactile Switch, https://www.e-switch.com/system/asset/product_line/data_sheet/165/TL3342.pdf")
     (tags "SPST Tactile Switch")
     (property "LCSC#" "C318889")
@@ -7170,7 +7170,7 @@
 
   (footprint "" (layer "F.Cu")
     (tstamp 5d7a3ab5-4c63-4c52-9485-74f97d15ca8b)
-    (at 172.11 90.73)
+    (at 97.69 103.935)
     (fp_text reference "" (at 0 0) (layer "F.SilkS")
         (effects (font (size 1.27 1.27) (thickness 0.15)))
       (tstamp 3da3a639-579c-48c9-a556-3e72da3eee26)
@@ -7184,7 +7184,7 @@
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3342" (layer "F.Cu")
     (tstamp 80a5a36f-c5a1-492a-b15c-8e3b1ee0e704)
-    (at 187.3 117.67 -48)
+    (at 112.88 130.875 -48)
     (descr "Low-profile SMD Tactile Switch, https://www.e-switch.com/system/asset/product_line/data_sheet/165/TL3342.pdf")
     (tags "SPST Tactile Switch")
     (property "LCSC#" "C318889")
@@ -7313,7 +7313,7 @@
 
   (footprint "LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm" (layer "F.Cu")
     (tstamp 843358ca-5d4a-4185-bb61-7840337a1378)
-    (at 211.801988 81.258713)
+    (at 137.381988 94.463713)
     (descr "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf")
     (tags "LED RGB NeoPixel Mini")
     (property "LCSC#" "C527089")
@@ -7375,14 +7375,14 @@
       (net 11 "Net-(D1-DOUT)") (pinfunction "DIN") (pintype "input") (tstamp fa1454c5-9d3e-4aea-9b5a-1cab39d54ee2))
     (model "${KIPRJMOD}/Library/3D/WS2812B_WDS.step"
       (offset (xyz 0 0 0))
-      (scale (xyz 0.9 0.5 1))
+      (scale (xyz 0.8 0.5 1))
       (rotate (xyz 0 0 0))
     )
   )
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3342" (layer "F.Cu")
     (tstamp 8689b977-ca70-41aa-940d-c9951c67419d)
-    (at 179.11 108.58 -48)
+    (at 104.69 121.785 -48)
     (descr "Low-profile SMD Tactile Switch, https://www.e-switch.com/system/asset/product_line/data_sheet/165/TL3342.pdf")
     (tags "SPST Tactile Switch")
     (property "LCSC#" "C318889")
@@ -7511,7 +7511,7 @@
 
   (footprint "LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm" (layer "F.Cu")
     (tstamp 93fd2446-e782-4330-bfd7-ebf0741d2d2f)
-    (at 235.42 81.29 180)
+    (at 161 94.495 180)
     (descr "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf")
     (tags "LED RGB NeoPixel Mini")
     (property "LCSC#" "C527089")
@@ -7573,14 +7573,14 @@
       (net 13 "Net-(D2-DOUT)") (pinfunction "DIN") (pintype "input") (tstamp 78f65dae-0b7f-4284-a283-ba6658c10730))
     (model "${KIPRJMOD}/Library/3D/WS2812B_WDS.step"
       (offset (xyz 0 0 0))
-      (scale (xyz 0.9 0.5 1))
+      (scale (xyz 0.8 0.5 1))
       (rotate (xyz 0 0 0))
     )
   )
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp aa308451-6c05-4ae3-a403-043702f698b7)
-    (at 241.5 82.16 180)
+    (at 167.08 95.365 180)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -7635,7 +7635,7 @@
 
   (footprint "" (layer "F.Cu")
     (tstamp b9d3b5ec-e0d6-44dd-9318-96ede011794d)
-    (at 251.31 71.92)
+    (at 176.89 85.125)
     (fp_text reference "" (at 0 0) (layer "F.SilkS")
         (effects (font (size 1.27 1.27) (thickness 0.15)))
       (tstamp da15ef7b-4662-4935-88b7-c2b72160a5c2)
@@ -7649,7 +7649,7 @@
 
   (footprint "" (layer "F.Cu")
     (tstamp c73befed-884c-4a93-a2db-177d96de2445)
-    (at 211.69 46.23)
+    (at 137.27 59.435)
     (fp_text reference "" (at 0 0) (layer "F.SilkS")
         (effects (font (size 1.27 1.27) (thickness 0.15)))
       (tstamp 0e9d3534-a4c8-46d7-b74d-2a59c3fc4275)
@@ -7663,7 +7663,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "F.Cu")
     (tstamp d59ad735-abfd-4258-87c0-aad98a4c85b0)
-    (at 205.955788 80.382113)
+    (at 131.535788 93.587113)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -7718,7 +7718,7 @@
 
   (footprint "Ekoparty:Tornillo" (layer "F.Cu")
     (tstamp def56b5e-adcd-41fd-acee-6a0049fd9d91)
-    (at 172.04 77.25)
+    (at 97.62 90.455)
     (attr smd)
     (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.1)))
@@ -7737,7 +7737,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 003574ef-9b29-4c31-9f0d-5586c50532ea)
-    (at 189.62 103.07)
+    (at 115.2 116.275)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C25804")
@@ -7792,7 +7792,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 0c9bd61d-1be9-4fc8-be78-f733963f7562)
-    (at 180.8 75.45)
+    (at 106.38 88.655)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C376773")
@@ -7847,7 +7847,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 11510188-71d4-44dd-b0cc-7679fbeacf7e)
-    (at 177.5 85.38 180)
+    (at 103.08 98.585 180)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -7902,7 +7902,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 17b0e287-15cd-4ce4-891f-98e1eaa617a9)
-    (at 176.3925 82.33)
+    (at 101.9725 95.535)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C23186")
@@ -7958,7 +7958,7 @@
 
   (footprint "Ekoparty:Crystal_SMD_2016-4Pin_2.0x1.6mm" (layer "B.Cu")
     (tstamp 2052b00b-1806-4407-aad4-302ea49540ba)
-    (at 185.535 88.09 180)
+    (at 111.115 101.295 180)
     (descr "SMD Crystal SERIES SMD2016/4 http://www.q-crystal.com/upload/5/2015552223166229.pdf, 2.0x1.6mm^2 package")
     (tags "SMD SMT crystal")
     (property "LCSC#" "C648964")
@@ -8018,16 +8018,16 @@
       (net 39 "/XIN") (pinfunction "3") (pintype "passive") (tstamp c85869a3-68d2-4953-b483-b160eb5d2908))
     (pad "4" smd rect (at 0.7 -0.55 180) (size 0.9 0.8) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 2 "GND") (pinfunction "4") (pintype "passive") (tstamp 2537da01-01d1-4903-8488-2a34d62550ae))
-    (model ":KICAD7_3DMODEL_DIR:Crystal.3dshapes/Crystal_SMD_0603-4Pin_6.0x3.5mm.step"
+    (model ":KICAD7_3DMODEL_DIR:Crystal.3dshapes/Crystal_SMD_EuroQuartz_MT-4Pin_3.2x2.5mm_HandSoldering.wrl"
       (offset (xyz 0 0 0))
-      (scale (xyz 0.3 0.4 0.2))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
 
   (footprint "Package_TO_SOT_SMD:SOT-223" (layer "B.Cu")
     (tstamp 2be51b61-037c-4511-aceb-b390b135b98d)
-    (at 228.24 52.465 180)
+    (at 153.82 65.67 180)
     (descr "module CMS SOT223 4 pins")
     (tags "CMS SOT")
     (property "LCSC#" "C150716")
@@ -8092,7 +8092,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 2cce775b-58d0-4fb2-8569-62e4f46f24f3)
-    (at 187.745 86.73 -90)
+    (at 113.325 99.935 -90)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -8147,7 +8147,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 2d4c93d6-71a7-4115-8143-182db56f29fb)
-    (at 177.495 83.86 180)
+    (at 103.075 97.065 180)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -8202,7 +8202,7 @@
 
   (footprint "Ekoparty:CH32V208CBU6" (layer "B.Cu")
     (tstamp 2f9f8499-d6ff-4ad6-b82e-534e1408ac5a)
-    (at 183.68 81.07 180)
+    (at 109.26 94.275 180)
     (descr "QFN, 48 Pin (https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf#page=38), generated with kicad-footprint-generator ipc_noLead_generator.py")
     (tags "QFN NoLead")
     (property "Sheetfile" "ekoparty2023.kicad_sch")
@@ -8361,7 +8361,7 @@
 
   (footprint "RF_Antenna:Texas_SWRA117D_2.4GHz_Left" (layer "B.Cu")
     (tstamp 5d0a4088-0761-4a29-812f-6b284b6b8791)
-    (at 180.258813 52.319289 -132)
+    (at 105.838813 65.524289 -132)
     (descr "http://www.ti.com/lit/an/swra117d/swra117d.pdf")
     (tags "PCB antenna")
     (property "Sheetfile" "ekoparty2023.kicad_sch")
@@ -8476,7 +8476,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 61047435-77b1-4378-bdb1-fb5066eda19d)
-    (at 176.3925 79.33)
+    (at 101.9725 92.535)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C23186")
@@ -8532,7 +8532,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 64e0f714-7719-4118-97fc-f365c3892afa)
-    (at 181.485 72.7 90)
+    (at 107.065 85.905 90)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C964019")
@@ -8587,7 +8587,7 @@
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3342" (layer "B.Cu")
     (tstamp 6cd7bebf-ecb0-4371-b0f6-ed5994534648)
-    (at 179.090263 108.560442 132)
+    (at 104.670263 121.765442 132)
     (descr "Low-profile SMD Tactile Switch, https://www.e-switch.com/system/asset/product_line/data_sheet/165/TL3342.pdf")
     (tags "SPST Tactile Switch")
     (property "LCSC#" "C318889")
@@ -8717,7 +8717,7 @@
 
   (footprint "Ekoparty:BAT_12BH331P-GR" (layer "B.Cu")
     (tstamp 7e303a33-320b-4252-86bb-e3ac8272f4ea)
-    (at 221.07 87.159863 90)
+    (at 146.65 100.364863 90)
     (property "Sheetfile" "ekoparty2023.kicad_sch")
     (property "Sheetname" "")
     (property "ki_description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)")
@@ -8784,7 +8784,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "B.Cu")
     (tstamp 8ade0099-ca83-4367-868e-32e4c9bfec5d)
-    (at 220.79 51.71 90)
+    (at 146.37 64.915 90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor")
     (property "LCSC#" "C8032")
@@ -8840,7 +8840,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "B.Cu")
     (tstamp 8d285ddb-0da5-45b6-ab44-7fd8e5d6dd70)
-    (at 183.035 74.69 90)
+    (at 108.615 87.895 90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor")
     (property "LCSC#" "C5673")
@@ -8895,7 +8895,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 8e42b923-f764-4989-8548-7e4163446bc7)
-    (at 183.195 91.835 -90)
+    (at 108.775 105.04 -90)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C376767")
@@ -8950,7 +8950,7 @@
 
   (footprint "Package_TO_SOT_SMD:SOT-23" (layer "B.Cu")
     (tstamp 9441d560-0bf2-4871-9140-5ad899b286f4)
-    (at 225.9425 45.705 180)
+    (at 151.5225 58.91 180)
     (descr "SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOT TO_SOT_SMD")
     (property "LCSC#" "C96616")
@@ -9014,7 +9014,7 @@
 
   (footprint "Button_Switch_SMD:SW_SPST_TL3342" (layer "B.Cu")
     (tstamp 96d30f08-02d1-4c97-962c-90511cade535)
-    (at 187.300263 117.650442 132)
+    (at 112.880263 130.855442 132)
     (descr "Low-profile SMD Tactile Switch, https://www.e-switch.com/system/asset/product_line/data_sheet/165/TL3342.pdf")
     (tags "SPST Tactile Switch")
     (property "LCSC#" "C318889")
@@ -9144,7 +9144,7 @@
 
   (footprint "Capacitor_SMD:C_0603_1608Metric" (layer "B.Cu")
     (tstamp 97ec3d24-e54b-4def-83e3-73d67a56b1a2)
-    (at 234.75 53.475 90)
+    (at 160.33 66.68 90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor")
     (property "LCSC#" "C8032")
@@ -9200,7 +9200,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 9b19eac7-4816-4cc3-b9ee-c58b9c8795cd)
-    (at 180.695 91.84 -90)
+    (at 106.275 105.045 -90)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C376767")
@@ -9255,7 +9255,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp 9c62d0e0-c685-46b7-b78f-5f535c8b1905)
-    (at 180.8 69.99)
+    (at 106.38 83.195)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C376773")
@@ -9310,7 +9310,7 @@
 
   (footprint "Ekoparty:JS102011SAQN" (layer "B.Cu")
     (tstamp c155da95-8c74-4ac3-bec9-afcab83a4bab)
-    (at 242.051347 47.311865 -48)
+    (at 167.631347 60.516865 -48)
     (descr "JS102011SAQN")
     (tags "Switch")
     (property "LCSC#" "")
@@ -9320,15 +9320,15 @@
     (property "ki_keywords" "switch single-pole double-throw spdt ON-ON")
     (path "/c804276c-8811-4f7f-bdd0-888867782ab9")
     (attr through_hole)
-    (fp_text reference "SW3" (at -0.43 -1.647 132) (layer "B.SilkS")
+    (fp_text reference "SW3" (at -0.43 -1.646999 132) (layer "B.SilkS")
         (effects (font (size 1.27 1.27) (thickness 0.254)) (justify mirror))
       (tstamp f1bd1fd6-ded2-4bac-bf4d-db9b422088fd)
     )
-    (fp_text value "SW_SPDT" (at -0.43 -1.647 132) (layer "B.SilkS") hide
+    (fp_text value "SW_SPDT" (at -0.43 -1.646999 132) (layer "B.SilkS") hide
         (effects (font (size 1.27 1.27) (thickness 0.254)) (justify mirror))
       (tstamp f73688e6-3d40-4862-801a-4ff464e37075)
     )
-    (fp_text user "${REFERENCE}" (at -0.43 -1.647 132) (layer "B.Fab")
+    (fp_text user "${REFERENCE}" (at -0.43 -1.646999 132) (layer "B.Fab")
         (effects (font (size 1.27 1.27) (thickness 0.254)) (justify mirror))
       (tstamp 5921d7ec-b7b8-4b5d-a8c9-99e9267095b0)
     )
@@ -9383,7 +9383,7 @@
 
   (footprint "Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm" (layer "B.Cu")
     (tstamp c415694f-696e-4d20-b4b4-c6876c8bc517)
-    (at 181.945 87.96)
+    (at 107.525 101.165)
     (descr "SMD Crystal FC-135 https://support.epson.biz/td/api/doc_check.php?dl=brief_FC-135R_en.pdf")
     (tags "SMD SMT Crystal")
     (property "LCSC#" "C97604")
@@ -9429,16 +9429,16 @@
       (net 6 "/X32OUT") (pinfunction "1") (pintype "passive") (tstamp a4326583-d47f-48ba-a6ee-afc3a16b2103))
     (pad "2" smd rect (at -1.25 0) (size 1 1.8) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 5 "/X32IN") (pinfunction "2") (pintype "passive") (tstamp eba8c42e-4af0-430a-9f72-8f3e6248ec8f))
-    (model ":KICAD7_3DMODEL_DIR:Crystal.3dshapes/Crystal_SMD_0603-2Pin_6.0x3.5mm.step"
+    (model ":KICAD7_3DMODEL_DIR:Crystal.3dshapes/Crystal_SMD_MicroCrystal_CC7V-T1A-2Pin_3.2x1.5mm.step"
       (offset (xyz 0 0 0))
-      (scale (xyz 0.5 0.5 1))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp cb85e84f-dbf0-4bc8-b187-603a9b9a07cd)
-    (at 189.295 79.48)
+    (at 114.875 92.685)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -9493,7 +9493,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp d5206db7-c806-4fd9-837d-12d0e2d70fd7)
-    (at 183.5397 112.911987 42)
+    (at 109.1197 126.116987 42)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C42998")
@@ -9503,11 +9503,11 @@
     (property "ki_keywords" "cap capacitor")
     (path "/34d12047-7af5-4146-8451-986c56bd8534")
     (attr smd)
-    (fp_text reference "C3" (at 0.000001 1.43 42) (layer "B.SilkS")
+    (fp_text reference "C3" (at 0.000002 1.43 42) (layer "B.SilkS")
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp df5898e6-fdb5-4c05-af18-b730d9b64edd)
     )
-    (fp_text value "0.1uF" (at -0.000001 -1.43 42) (layer "B.Fab")
+    (fp_text value "0.1uF" (at -0.000002 -1.43 42) (layer "B.Fab")
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp f6e75adc-1a93-418c-9d10-a51bb91631ab)
     )
@@ -9548,7 +9548,7 @@
 
   (footprint "Diode_SMD:D_SOD-123F" (layer "B.Cu")
     (tstamp d70fc6ff-f9f9-4101-abef-8a27f810e9d4)
-    (at 230.205 45.6725 90)
+    (at 155.785 58.8775 90)
     (descr "D_SOD-123F")
     (tags "D_SOD-123F")
     (property "LCSC#" "C130880")
@@ -9620,7 +9620,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp e2ec8c09-0983-4dd3-bddb-c5fc7a964f5f)
-    (at 232.155 43.4025 90)
+    (at 157.735 56.6075 90)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C15458")
@@ -9676,7 +9676,7 @@
 
   (footprint "Ekoparty:PinHeader_1x04_P2.54mm_Vertical" (layer "B.Cu")
     (tstamp e43960a5-4215-4f75-b242-0a7713047597)
-    (at 194.46 69.83)
+    (at 120.04 83.035)
     (descr "Through hole straight pin header, 1x04, 2.54mm pitch, single row")
     (tags "Through hole pin header THT 1x04 2.54mm single row")
     (property "Sheetfile" "ekoparty2023.kicad_sch")
@@ -9739,7 +9739,7 @@
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")
     (tstamp f726114c-e5c5-45a7-aad5-4b7eb8f9a37d)
-    (at 189.62 105.61)
+    (at 115.2 118.815)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor")
     (property "LCSC#" "C25804")
@@ -9794,7 +9794,7 @@
 
   (footprint "Connectors:C393939" (layer "B.Cu")
     (tstamp fc5e4825-6eaa-492d-b81e-e16a7a78a241)
-    (at 171.405 81.1 90)
+    (at 96.985 94.305 90)
     (property "LCSC#" "C2760486")
     (property "Sheetfile" "ekoparty2023.kicad_sch")
     (property "Sheetname" "")

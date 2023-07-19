@@ -1,4 +1,0 @@
-(sym_lib_table
-  (version 7)
-  (lib (name "ekoparty2023")(type "KiCad")(uri "${KIPRJMOD}/Library/ekoparty2023.kicad_sym")(options "")(descr ""))
-)
