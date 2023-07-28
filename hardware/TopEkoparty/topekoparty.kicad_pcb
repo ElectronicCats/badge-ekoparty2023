@@ -3381,4 +3381,8 @@
       (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp e437ffcd-7da4-4256-8f25-02fc1af73b24))
   )
 
+  (gr_text "thickness 0.7mm" (at 125.95 71.97) (layer "Eco1.User") (tstamp 2f8bb584-e7f0-4b81-b627-7439e1b1fc7b)
+    (effects (font (size 4 4) (thickness 0.3) bold) (justify left bottom))
+  )
+
 )
