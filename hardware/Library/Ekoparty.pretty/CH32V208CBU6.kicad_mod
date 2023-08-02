@@ -48,6 +48,7 @@
   (pad "" smd roundrect (at 1.23 -1.23) (size 0.99 0.99) (layers "F.Paste") (roundrect_rratio 0.25) (tstamp cf641655-0c2e-46ec-ba2a-53b1e2b21970))
   (pad "" smd roundrect (at 1.23 0) (size 0.99 0.99) (layers "F.Paste") (roundrect_rratio 0.25) (tstamp 905eb1d0-c26b-49a3-b7e4-f5aea95ad680))
   (pad "" smd roundrect (at 1.23 1.23) (size 0.99 0.99) (layers "F.Paste") (roundrect_rratio 0.25) (tstamp 60cd9f99-1a20-4f05-a62d-e235aa70a513))
+  (pad "0" smd rect (at 0 0) (size 3.7 3.7) (layers "F.Cu" "F.Mask") (tstamp f1a23d4e-b309-4833-bb24-d8669085ab34))
   (pad "1" smd roundrect (at 1.575 2.45) (size 0.2 0.8) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25) (tstamp 6dd7a8a8-2847-4d7a-ab32-4c11c3e393bd))
   (pad "2" smd roundrect (at 1.225 2.45) (size 0.2 0.8) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25) (tstamp acdad40d-e01b-4e05-bbfe-94a953f814c8))
   (pad "3" smd roundrect (at 0.875 2.45) (size 0.2 0.8) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25) (tstamp 28426b7d-d721-4f22-999f-74cd92c501aa))
@@ -96,7 +97,6 @@
   (pad "46" smd roundrect (at 2.45 1.575) (size 0.8 0.2) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25) (tstamp c620f854-35eb-4a78-b091-39ec27110630))
   (pad "47" smd roundrect (at 2.45 1.925) (size 0.8 0.2) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25) (tstamp b17671d0-0070-46f1-8928-cac9f53274ba))
   (pad "48" smd roundrect (at 2.45 2.275) (size 0.8 0.2) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.25) (tstamp f9298fb6-5d2f-4aef-bcb7-274014df7f0d))
-  (pad "49" smd rect (at 0 0) (size 3.7 3.7) (layers "F.Cu" "F.Mask") (tstamp f1a23d4e-b309-4833-bb24-d8669085ab34))
   (model "${KICAD6_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/QFN-48-1EP_5x5mm_P0.35mm_EP3.7x3.7mm.wrl"
     (offset (xyz 0 0 0))
     (scale (xyz 1 1 1))
