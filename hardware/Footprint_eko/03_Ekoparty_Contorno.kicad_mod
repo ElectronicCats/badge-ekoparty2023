@@ -2748,8 +2748,8 @@
     )
 
     (stroke (width 0.01) (type solid)) (fill solid) (layer "F.SilkS") (tstamp 05dd49e6-4fae-4e6c-a950-1278a5c9b0c6))
-  (fp_line (start -36.152742 -18.206969) (end -16.298823 -40.26034)
-    (stroke (width 0.05) (type default)) (layer "Dwgs.User") (tstamp a606920a-ea8c-4bec-89c9-5954ef8f366a))
+  (fp_line (start -38.516959 -20.783314) (end -18.66304 -42.836685)
+    (stroke (width 0.05) (type default)) (layer "Dwgs.User") (tstamp 7319908f-69c3-4816-8d41-04ef2d3dcc04))
   (fp_line (start -47.686304 0.733052) (end -47.686299 0.175455)
     (stroke (width 0.1) (type default)) (layer "Edge.Cuts") (tstamp e92d2bab-ba66-4055-a82f-b772c100f03b))
   (fp_line (start -47.686299 0.175455) (end -47.686157 -0.380136)
