@@ -16139,6 +16139,12 @@
     (stroke (width 0.15) (type default)) (fill none) (layer "Edge.Cuts") (tstamp 2633458e-6325-4fc9-a623-cb95658f8eb3))
   (gr_rect (start 95.36 100.2137) (end 100.36 110.7137)
     (stroke (width 0.15) (type default)) (fill none) (layer "Edge.Cuts") (tstamp 6099e788-c8a0-444f-85f0-d7f8ff324f29))
+  (gr_text "Parce\nSerote\nChe\n" (at 119 71.83) (layer "B.SilkS") (tstamp 2a8032f7-a216-43fb-bf75-9f1576610b5d)
+    (effects (font (size 1.2 1.2) (thickness 0.1875)) (justify left bottom mirror))
+  )
+  (gr_text "Version \nBeta" (at 106.29 109.33) (layer "B.SilkS") (tstamp c25ff856-c66a-4496-bff2-b8dd149547e3)
+    (effects (font (size 1 1) (thickness 0.15)) (justify left bottom mirror))
+  )
 
   (segment (start 106.95 66.62) (end 106.03 65.7) (width 0.5) (layer "B.Cu") (net 1) (tstamp 25299e77-20b7-4e74-aa8e-f12a16ebedb0))
   (segment (start 105.854289 65.524289) (end 106.03 65.7) (width 0.4) (layer "B.Cu") (net 1) (tstamp 611a7972-3ab3-440b-a5c5-9245b6323782))
