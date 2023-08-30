@@ -3620,11 +3620,11 @@
     (tags "kb_params=eyJBbGlnbm1lbnRDaG9pY2UiOiAiQ2VudGVyIiwgIkNhcExlZnRDaG9pY2UiOiAiKCIsICJDYXBSaWdodENob2ljZSI6ICIpIiwgIkZvbnRDb21ib0JveCI6ICJVYnVudHVNb25vLUIiLCAiSGVpZ2h0Q3RybCI6ICIxLjUiLCAiTGF5ZXJDb21ib0JveCI6ICJGLlNpbGtTIiwgIk11bHRpTGluZVRleHQiOiAiTUkgQ1JJTUVOIEVTIExBIENVUklPU0lEQUQiLCAiUGFkZGluZ0JvdHRvbUN0cmwiOiAiMSIsICJQYWRkaW5nTGVmdEN0cmwiOiAiMSIsICJQYWRkaW5nUmlnaHRDdHJsIjogIjEiLCAiUGFkZGluZ1RvcEN0cmwiOiAiMSIsICJXaWR0aEN0cmwiOiAiMS41In0=")
     (attr board_only exclude_from_pos_files exclude_from_bom)
     (fp_text reference "kibuzzard-64EF9158" (at 0 -3.916363) (layer "F.SilkS") hide
-        (effects (font (size 0 0)))
+        (effects (font (size 0 0) (thickness 0.15)))
       (tstamp e840dedf-00c6-4f85-a2c4-19a31175c3c8)
     )
     (fp_text value "G***" (at 0 3.916363) (layer "F.SilkS") hide
-        (effects (font (size 0 0)))
+        (effects (font (size 0 0) (thickness 0.15)))
       (tstamp ccf76d55-c816-4e52-b38e-018437a21086)
     )
     (fp_poly
@@ -4417,11 +4417,11 @@
     (tags "kb_params=eyJBbGlnbm1lbnRDaG9pY2UiOiAiQ2VudGVyIiwgIkNhcExlZnRDaG9pY2UiOiAiLyIsICJDYXBSaWdodENob2ljZSI6ICIvIiwgIkZvbnRDb21ib0JveCI6ICJVYnVudHVNb25vLUIiLCAiSGVpZ2h0Q3RybCI6ICIxLjUiLCAiTGF5ZXJDb21ib0JveCI6ICJGLlNpbGtTIiwgIk11bHRpTGluZVRleHQiOiAiSGFja2VhbmRvIGRlc2RlIGVsIDIwMDFcbiAgICAgRXprcmFjaG8gVGVhbSIsICJQYWRkaW5nQm90dG9tQ3RybCI6ICIxIiwgIlBhZGRpbmdMZWZ0Q3RybCI6ICIxIiwgIlBhZGRpbmdSaWdodEN0cmwiOiAiMSIsICJQYWRkaW5nVG9wQ3RybCI6ICIxIiwgIldpZHRoQ3RybCI6ICIxLjUifQ==")
     (attr board_only exclude_from_pos_files exclude_from_bom)
     (fp_text reference "kibuzzard-64EFAD16" (at 0 -5.477043) (layer "F.SilkS") hide
-        (effects (font (size 0 0)))
+        (effects (font (size 0 0) (thickness 0.15)))
       (tstamp c2257ba6-51cc-4615-9160-fdc3d5f993d6)
     )
     (fp_text value "G***" (at 0 5.477043) (layer "F.SilkS") hide
-        (effects (font (size 0 0)))
+        (effects (font (size 0 0) (thickness 0.15)))
       (tstamp 17a08dac-1b25-406c-9a7d-efcd10fef875)
     )
     (fp_poly
@@ -7287,7 +7287,7 @@
     (pad "1" smd rect (at 0 0 228) (size 0.501 0.5) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 1 "Net-(AE1-A)") (pinfunction "A") (pintype "input") (tstamp 87c3a438-e6ae-4642-8775-18642b92453e))
     (pad "2" smd rect (at 2.1 0 228) (size 0.901 0.5) (layers "B.Cu" "B.Paste" "B.Mask")
-      (zone_connect 2) (tstamp 00591ccf-2c8c-440a-9a23-0bfca3b1c355))
+      (net 2 "GND") (zone_connect 2) (tstamp 00591ccf-2c8c-440a-9a23-0bfca3b1c355))
   )
 
   (footprint "Resistor_SMD:R_0603_1608Metric" (layer "B.Cu")

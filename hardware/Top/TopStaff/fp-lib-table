@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "TopStaff")(type "KiCad")(uri "${KIPRJMOD}/TopStaff.pretty")(options "")(descr ""))
+)
