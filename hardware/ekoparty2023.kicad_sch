@@ -4040,7 +4040,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_01x07") (at 157.8356 71.2978 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid 06a2b18f-1a15-4f6a-829a-b7882113e525)
     (property "Reference" "J4" (at 159.893 70.0278 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -4187,7 +4187,7 @@
   )
 
   (symbol (lib_id "Connector_Generic:Conn_01x04") (at 154.178 106.68 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
+    (in_bom yes) (on_board yes) (dnp yes) (fields_autoplaced)
     (uuid 1614f071-17d6-449d-8b88-98d0f35fd761)
     (property "Reference" "J3" (at 156.845 107.315 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -4582,7 +4582,7 @@
   )
 
   (symbol (lib_id "Device:R") (at 259.969 104.394 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board yes) (dnp yes)
     (uuid 42b7a03a-1a55-4990-8ab2-1b3c5bfdb9c9)
     (property "Reference" "R4" (at 255.27 102.87 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -4596,7 +4596,7 @@
     (property "Datasheet" "~" (at 259.969 104.394 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC#" "C25804" (at 259.969 104.394 0)
+    (property "LCSC#" "C25995" (at 259.969 104.394 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid ae158913-22ac-4fd6-b232-7546d359c299))
@@ -6577,7 +6577,7 @@
   )
 
   (symbol (lib_id "Device:R") (at 265.303 104.394 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
+    (in_bom yes) (on_board yes) (dnp yes)
     (uuid e305b1cf-bfe7-43ae-ae68-4d53ddcb9b4d)
     (property "Reference" "R5" (at 261.747 103.378 0)
       (effects (font (size 1.27 1.27)) (justify left))
@@ -6591,7 +6591,7 @@
     (property "Datasheet" "~" (at 265.303 104.394 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "LCSC#" "C25804" (at 265.303 104.394 0)
+    (property "LCSC#" "C25995" (at 265.303 104.394 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid d2ed1844-a83f-4c25-a987-07f8fbd60b4d))
