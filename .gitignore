@@ -29,3 +29,6 @@ hardware/Template-KiCAD-Project-CI-backups/
 *.zip
 
 *.lck
+
+# Firmware binaries
+/firmware/CH32V208WBU6_I2C_Test/obj/
