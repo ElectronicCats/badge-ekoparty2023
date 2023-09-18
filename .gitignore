@@ -30,5 +30,38 @@ hardware/Template-KiCAD-Project-CI-backups/
 
 *.lck
 
-# Firmware binaries
-/firmware/CH32V208WBU6_I2C_Test/obj/
+### C++ ###
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+firmware/CH32V208WBU6/obj/
