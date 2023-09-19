@@ -65,3 +65,5 @@ hardware/Template-KiCAD-Project-CI-backups/
 *.app
 
 firmware/CH32V208WBU6/obj/
+
+hardware/panel/ekoBadgePanel.kicad_pro

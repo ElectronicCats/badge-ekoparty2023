@@ -1,0 +1,19 @@
+{
+    "layout": {
+        "hspace": "3mm",
+        "vspace": "5mm",
+        "rows": "2",
+        "cols": "2",
+        "vbonecut": "False"
+    },
+    "tabs": {
+        "type": "corner",
+        "width": "5mm"
+    },
+    "cuts": {
+        "type": "mousebites"
+    },
+    "framing": {
+        "type": "frame"
+    }
+}
