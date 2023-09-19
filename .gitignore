@@ -64,4 +64,5 @@ hardware/Template-KiCAD-Project-CI-backups/
 *.out
 *.app
 
-firmware/CH32V208WBU6/obj/
+# Firmware binaries
+firmware/**/obj/

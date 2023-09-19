@@ -1,3 +1,10 @@
 eclipse.preferences.version=1
+encoding//Debug/debug.h=GBK
+encoding//Peripheral/inc/ch32v20x.h=UTF-8
+encoding//Peripheral/inc/ch32v20x_rcc.h=GBK
 encoding//Peripheral/src/ch32v20x_i2c.c=GBK
+encoding//User/bomb.h=GBK
+encoding//User/ch32v003fun.h=GBK
 encoding//User/main.c=GBK
+encoding//User/ssd1306.h=GBK
+encoding//User/ssd1306_i2c.h=GBK
