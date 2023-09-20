@@ -785,11 +785,6 @@ ErrorStatus I2C_CheckEvent(I2C_TypeDef *I2Cx, uint32_t I2C_EVENT)
 
     if((lastevent & I2C_EVENT) == I2C_EVENT)
     {
-        printf("flag1: %d\n", flag1);
-        printf("flag2: %d\n", flag2);
-        printf("lastevent: %d\n", lastevent);
-        printf("lastevent & I2C_EVENT: %d\n", lastevent & I2C_EVENT);
-        printf("I2C_EVENT: %d\n", I2C_EVENT);
         status = READY;
     }
     else

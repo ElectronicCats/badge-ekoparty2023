@@ -282,7 +282,7 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 	}
 
 	// wait for tx complete
-	timeout = TIMEOUT_MAX * 10;
+	timeout = TIMEOUT_MAX;
 	while((!ssd1306_i2c_chk_evt(SSD1306_I2C_EVENT_MASTER_BYTE_TRANSMITTED)) && (timeout--));
 	if(timeout==-1) {
 		printf("Here\n");
@@ -316,47 +316,6 @@ uint8_t ssd1306_pkt_send(uint8_t *data, uint8_t sz, uint8_t cmd)
 		memcpy(&pkt[1], data, sz);
 	}
 	return ssd1306_i2c_send(SSD1306_I2C_ADDR, pkt, sz+1);
-}
-
-/*
- * init I2C and GPIO
- */
-uint8_t ssd1306_i2c_init(void)
-{
-	// Enable GPIOC and I2C
-	RCC->APB2PCENR |= RCC_APB2Periph_GPIOC;
-	RCC->APB1PCENR |= RCC_APB1Periph_I2C2;
-	
-	// PC1 is SDA, 10MHz Output, alt func, open-drain
-	GPIOC->CFGLR &= ~(0xf<<(4*1));
-	// GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_CNF_OUT_OD_AF)<<(4*1);
-	GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_Mode_AF_OD)<<(4*1);
-	
-	// PC2 is SCL, 10MHz Output, alt func, open-drain
-	GPIOC->CFGLR &= ~(0xf<<(4*2));
-	// GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_CNF_OUT_OD_AF)<<(4*2);
-	GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_Mode_AF_OD)<<(4*2);
-	
-#ifdef IRQ_DIAG
-	// GPIO diags on PC3/PC4
-	GPIOC->CFGLR &= ~(0xf<<(4*3));
-	GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_CNF_OUT_PP)<<(4*3);
-	GPIOC->BSHR = (1<<(16+3));
-	GPIOC->CFGLR &= ~(0xf<<(4*4));
-	GPIOC->CFGLR |= (GPIO_Speed_10MHz | GPIO_CNF_OUT_PP)<<(4*4);
-	GPIOC->BSHR = (1<<(16+4));
-#endif
-
-	// load I2C regs
-	ssd1306_i2c_setup();
-	
-#if 0
-	// test if SSD1306 is on the bus by sending display off command
-	uint8_t command = 0xAF;
-	return ssd1306_pkt_send(&command, 1, 1);
-#else
-	return 0;
-#endif
 }
 
 /*
