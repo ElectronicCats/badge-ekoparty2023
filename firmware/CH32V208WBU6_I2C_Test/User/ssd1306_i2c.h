@@ -42,15 +42,15 @@ void ssd1306_i2c_setup(void)
 {
 	uint16_t tempreg;
 	
-	// Reset I2C1 to init all regs
-	RCC->APB1PRSTR |= RCC_APB1Periph_I2C1;
-	RCC->APB1PRSTR &= ~RCC_APB1Periph_I2C1;
+	// Reset I2C2 to init all regs
+	RCC->APB1PRSTR |= RCC_APB1Periph_I2C2;
+	RCC->APB1PRSTR &= ~RCC_APB1Periph_I2C2;
 	
 	// set freq
-	tempreg = I2C1->CTLR2;
+	tempreg = I2C2->CTLR2;
 	tempreg &= ~I2C_CTLR2_FREQ;
 	tempreg |= (FUNCONF_SYSTEM_CORE_CLOCK/SSD1306_I2C_PRERATE)&I2C_CTLR2_FREQ;
-	I2C1->CTLR2 = tempreg;
+	I2C2->CTLR2 = tempreg;
 	
 	// Set clock config
 	tempreg = 0;
@@ -69,21 +69,21 @@ void ssd1306_i2c_setup(void)
 #endif
 	tempreg |= I2C_CKCFGR_FS;
 #endif
-	I2C1->CKCFGR = tempreg;
+	I2C2->CKCFGR = tempreg;
 
 #ifdef SSD1306_I2C_IRQ
 	// enable IRQ driven operation
-	NVIC_EnableIRQ(I2C1_EV_IRQn);
+	NVIC_EnableIRQ(I2C2_EV_IRQn);
 	
 	// initialize the state
 	ssd1306_i2c_irq_state = 0;
 #endif
 	
 	// Enable I2C
-	I2C1->CTLR1 |= I2C_CTLR1_PE;
+	I2C2->CTLR1 |= I2C_CTLR1_PE;
 
 	// set ACK mode
-	I2C1->CTLR1 |= I2C_CTLR1_ACK;
+	I2C2->CTLR1 |= I2C_CTLR1_ACK;
 }
 
 /*
@@ -123,7 +123,7 @@ uint8_t ssd1306_i2c_error(uint8_t err)
 uint8_t ssd1306_i2c_chk_evt(uint32_t event_mask)
 {
 	/* read order matters here! STAR1 before STAR2!! */
-	uint32_t status = I2C1->STAR1 | (I2C1->STAR2<<16);
+	uint32_t status = I2C2->STAR1 | (I2C2->STAR2<<16);
 	return (status & event_mask) == event_mask;
 }
 
@@ -158,12 +158,12 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 	
 	// wait for not busy
 	timeout = TIMEOUT_MAX;
-	while((I2C1->STAR2 & I2C_STAR2_BUSY) && (timeout--));
+	while((I2C2->STAR2 & I2C_STAR2_BUSY) && (timeout--));
 	if(timeout==-1)
 		return ssd1306_i2c_error(0);
 
 	// Set START condition
-	I2C1->CTLR1 |= I2C_CTLR1_START;
+	I2C2->CTLR1 |= I2C_CTLR1_START;
 
 	// wait for master mode select
 	timeout = TIMEOUT_MAX;
@@ -172,7 +172,7 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 		return ssd1306_i2c_error(1);
 	
 	// send 7-bit address + write flag
-	I2C1->DATAR = addr<<1;
+	I2C2->DATAR = addr<<1;
 
 	// wait for transmit condition
 	timeout = TIMEOUT_MAX;
@@ -181,7 +181,7 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 		return ssd1306_i2c_error(2);
 
 	// Enable TXE interrupt
-	I2C1->CTLR2 |= I2C_CTLR2_ITBUFEN | I2C_CTLR2_ITEVTEN;
+	I2C2->CTLR2 |= I2C_CTLR2_ITBUFEN | I2C_CTLR2_ITEVTEN;
 	ssd1306_i2c_irq_state = 1;
 
 #ifdef IRQ_DIAG
@@ -195,8 +195,8 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 /*
  * IRQ handler for I2C events
  */
-void I2C1_EV_IRQHandler(void) __attribute__((interrupt));
-void I2C1_EV_IRQHandler(void)
+void I2C2_EV_IRQHandler(void) __attribute__((interrupt));
+void I2C2_EV_IRQHandler(void)
 {
 	uint16_t STAR1, STAR2 __attribute__((unused));
 	
@@ -205,21 +205,21 @@ void I2C1_EV_IRQHandler(void)
 #endif
 
 	// read status, clear any events
-	STAR1 = I2C1->STAR1;
-	STAR2 = I2C1->STAR2;
+	STAR1 = I2C2->STAR1;
+	STAR2 = I2C2->STAR2;
 	
 	/* check for TXE */
 	if(STAR1 & I2C_STAR1_TXE)
 	{
 		/* check for remaining data */
 		if(ssd1306_i2c_send_sz--)
-			I2C1->DATAR = *ssd1306_i2c_send_ptr++;
+			I2C2->DATAR = *ssd1306_i2c_send_ptr++;
 
 		/* was that the last byte? */
 		if(!ssd1306_i2c_send_sz)
 		{
 			// disable TXE interrupt
-			I2C1->CTLR2 &= ~(I2C_CTLR2_ITBUFEN | I2C_CTLR2_ITEVTEN);
+			I2C2->CTLR2 &= ~(I2C_CTLR2_ITBUFEN | I2C_CTLR2_ITEVTEN);
 			
 			// reset IRQ state
 			ssd1306_i2c_irq_state = 0;
@@ -228,7 +228,7 @@ void I2C1_EV_IRQHandler(void)
 			while(!ssd1306_i2c_chk_evt(SSD1306_I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 			// set STOP condition
-			I2C1->CTLR1 |= I2C_CTLR1_STOP;
+			I2C2->CTLR1 |= I2C_CTLR1_STOP;
 		}
 	}
 
@@ -246,12 +246,12 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 	
 	// wait for not busy
 	timeout = TIMEOUT_MAX;
-	while((I2C1->STAR2 & I2C_STAR2_BUSY) && (timeout--));
+	while((I2C2->STAR2 & I2C_STAR2_BUSY) && (timeout--));
 	if(timeout==-1)
 		return ssd1306_i2c_error(0);
 
 	// Set START condition
-	I2C1->CTLR1 |= I2C_CTLR1_START;
+	I2C2->CTLR1 |= I2C_CTLR1_START;
 	
 	// wait for master mode select
 	timeout = TIMEOUT_MAX;
@@ -260,7 +260,7 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 		return ssd1306_i2c_error(1);
 	
 	// send 7-bit address + write flag
-	I2C1->DATAR = addr<<1;
+	I2C2->DATAR = addr<<1;
 
 	// wait for transmit condition
 	timeout = TIMEOUT_MAX;
@@ -273,22 +273,24 @@ uint8_t ssd1306_i2c_send(uint8_t addr, uint8_t *data, uint8_t sz)
 	{
 		// wait for TX Empty
 		timeout = TIMEOUT_MAX;
-		while(!(I2C1->STAR1 & I2C_STAR1_TXE) && (timeout--));
+		while(!(I2C2->STAR1 & I2C_STAR1_TXE) && (timeout--));
 		if(timeout==-1)
 			return ssd1306_i2c_error(3);
 		
 		// send command
-		I2C1->DATAR = *data++;
+		I2C2->DATAR = *data++;
 	}
 
 	// wait for tx complete
-	timeout = TIMEOUT_MAX;
+	timeout = TIMEOUT_MAX * 10;
 	while((!ssd1306_i2c_chk_evt(SSD1306_I2C_EVENT_MASTER_BYTE_TRANSMITTED)) && (timeout--));
-	if(timeout==-1)
+	if(timeout==-1) {
+		printf("Here\n");
 		return ssd1306_i2c_error(4);
+	}
 
 	// set STOP condition
-	I2C1->CTLR1 |= I2C_CTLR1_STOP;
+	I2C2->CTLR1 |= I2C_CTLR1_STOP;
 	
 	// we're happy
 	return 0;
@@ -323,7 +325,7 @@ uint8_t ssd1306_i2c_init(void)
 {
 	// Enable GPIOC and I2C
 	RCC->APB2PCENR |= RCC_APB2Periph_GPIOC;
-	RCC->APB1PCENR |= RCC_APB1Periph_I2C1;
+	RCC->APB1PCENR |= RCC_APB1Periph_I2C2;
 	
 	// PC1 is SDA, 10MHz Output, alt func, open-drain
 	GPIOC->CFGLR &= ~(0xf<<(4*1));

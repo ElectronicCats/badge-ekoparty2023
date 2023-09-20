@@ -130,7 +130,10 @@ void Scan_I2C_Devices() {
         }
         I2C_GenerateSTOP(I2C2, ENABLE);
         if (timeout > 0) {
+            // Printf the value of I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED
+            printf("I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED: %d\n", I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED);
             printf("Found device at address 0x%02X\n", address);
+            break;
         }
     }
 }
@@ -148,11 +151,12 @@ void oled_test()
     printf("initializing i2c oled...");
     if(!ssd1306_i2c_init())
     {
-        ssd1306_init();
+        ssd1306_init();  // Shows the last image before power off
         printf("done.\n\r");
 
         printf("Looping on test modes...");
-        while(1)
+        // TODO: replace 0 with 1 to test the display
+        while(0)
         {
             for(uint8_t mode=0;mode<(SSD1306_H>32?9:8);mode++)
             {

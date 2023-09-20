@@ -8,3 +8,4 @@ encoding//User/ch32v003fun.h=GBK
 encoding//User/main.c=GBK
 encoding//User/ssd1306.h=GBK
 encoding//User/ssd1306_i2c.h=GBK
+encoding//User/system_ch32v20x.c=GBK
