@@ -63,8 +63,13 @@ hardware/Template-KiCAD-Project-CI-backups/
 *.exe
 *.out
 *.app
+<<<<<<< HEAD
 
 # Firmware binaries
 firmware/**/obj/
 
+# VSCode config
 .vscode/
+
+# KiCad project files
+hardware/panel/ekoBadgePanel.kicad_pro
