@@ -23,25 +23,34 @@
  */
 
 #include "debug.h"
-// #include "i2c_oled.h"
-#include "ch32v003fun.h"
 #include <stdio.h>
+#include <string.h>
+#include "ch32v003fun.h"
 #include "ssd1306_i2c.h"
 #include "ssd1306.h"
 #include "bomb.h"
-
-/* I2C Mode Definition */
-#define I2C_TIMEOUT 1000
+#include "color_utilities.h"
 
 /* Global define */
+#define I2C_TIMEOUT 1000
 #define TxAdderss 0x02
+#define WS2812DMA_IMPLEMENTATION
+// #define WSRBG //For WS2816C's.
+#define WSGRB // For SK6805-EC15
+#define LEDS_NUM 5
+
+#include "ws2812b_dma_spi_led_driver.h"
 
 /* Function protopotypes */
 void IIC_Init(u32 bound, u16 address);
 void Scan_I2C_Devices();
 void oled_test();
+uint32_t WS2812BLEDCallback(int ledno);
 
 /* Global Variable */
+uint16_t phases[LEDS_NUM];
+int frameno;
+volatile int tween = -LEDS_NUM;
 
 /*********************************************************************
  * @fn      main
@@ -55,23 +64,78 @@ int main(void)
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
-    // printf("SystemClk:%d\r\n", SystemCoreClock);
+    printf("SystemClk: %d MHz\r\n", SystemCoreClock / 1000000);
     IIC_Init(80000, TxAdderss);
     Scan_I2C_Devices();
 
     // 48MHz internal clock
     SystemInit();
-    // init i2c and oled
     Delay_Ms(100); // give OLED some more time
     printf("initializing i2c oled...\n");
     ssd1306_init(); // Shows the last image before power off
     printf("done.\n\r");
     oled_test();
 
-    while (1) {
-        ssd1306_drawstr(0, 32, "Lorem ipsum", 1);
-        Delay_Ms(1000);
-        ssd1306_refresh();
+    WS2812BDMAInit();
+    frameno = 1015;
+    int k;
+
+    for (k = 0; k < LEDS_NUM; k++)
+        phases[k] = k << 8;
+
+    int tweendir = 0;
+
+    while (1)
+    {
+        // GPIOD->BSHR = 1;     // Turn on GPIOD0
+        //  Wait for LEDs to totally finish.
+        // Delay_Ms( 12 );
+        // GPIOD->BSHR = 1<<16; // Turn it off
+
+        // printf("WS2812BLEDInUse\r\n");
+
+        while (WS2812BLEDInUse)
+            ;
+
+        frameno++;
+
+        if (frameno == 1024)
+        {
+            tweendir = 1;
+        }
+        if (frameno == 2048)
+        {
+            tweendir = -1;
+            frameno = 0;
+        }
+
+        if (tweendir)
+        {
+            int t = tween + tweendir;
+            if (t > 255)
+            {
+                t = 255;
+            }
+            if (t < -LEDS_NUM)
+            {
+                t = -LEDS_NUM;
+            }
+
+            tween = t;
+        }
+
+        for (k = 0; k < LEDS_NUM; k++)
+        {
+            phases[k] += ((((rands[k & 0xff]) + 0xf) << 2) + (((rands[k & 0xff]) + 0xf) << 1)) >> 1;
+            printf("Phases: %d\n", phases[k]);
+        }
+
+        printf("WS2812BDMAStart\r\n");
+        printf("tweendir: %d\n", tweendir);
+        printf("tween: %d\n", tween);
+        WS2812BDMAStart(LEDS_NUM);
+        // printf("WS2812BDMAStart OK\r\n");
+        Delay_Ms(2000);
     }
 }
 
@@ -152,7 +216,7 @@ void Scan_I2C_Devices()
         I2C_GenerateSTOP(I2C2, ENABLE);
         if (timeout > 0)
         {
-            printf("Found device at address 0x%02X\n", address);
+            printf("Found device at address 0x%02X\r\n", address);
             found++;
             break;
         }
@@ -172,8 +236,12 @@ void Scan_I2C_Devices()
 void oled_test()
 {
     printf("Looping on test modes...\n");
+    ssd1306_setbuf(0);
+    ssd1306_drawstr(0, 32, "Electronic Cats", 1);
+    ssd1306_xorrect(0, 0, SSD1306_W / 2, SSD1306_W);
+    ssd1306_refresh();
 
-    while (1)
+    while (0)
     {
         for (uint8_t mode = 0; mode < (SSD1306_H > 32 ? 9 : 8); mode++)
         {
@@ -259,14 +327,32 @@ void oled_test()
             }
 
             ssd1306_refresh();
-            printf("Mode: %d", mode);
             Delay_Ms(2000);
 
-            if (mode == 8) {
+            if (mode == 8)
+            {
                 break;
             }
         }
 
         break;
     }
+}
+
+// Callbacks that you must implement.
+uint32_t WS2812BLEDCallback(int ledno)
+{
+    uint8_t index = (phases[ledno]) >> 8;
+    printf("Index: %d\n", index);
+    uint8_t rsbase = sintable[index];
+    uint8_t rs = rsbase >> 3;
+    uint32_t fire = ((huetable[(rs + 190) & 0xff] >> 1) << 16) | (huetable[(rs + 30) & 0xff]) | ((huetable[(rs + 0)] >> 1) << 8);
+    uint32_t ice = 0x7f0000 | ((rsbase >> 1) << 8) | ((rsbase >> 1));
+
+    // Because this chip doesn't natively support multiplies, we are going to avoid tweening of 1..254.
+    uint32_t tweenHexColors = TweenHexColors(fire, ice, ((tween + ledno) > 0) ? 255 : 0); // Where "tween" is a value from 0 ... 255
+    printf("Tween hex colors: 0x%06X\n", tweenHexColors);
+    printf("tween: %d\n", tween);
+    // return tweenHexColors;
+    return ice;
 }
