@@ -154,10 +154,10 @@ static void WS2812FillBuffSec(uint16_t *ptr, int numhalfwords, int tce)
 
 #else
 		// Use a LUT to figure out how we should set the SPI line.
-		printf("LED number: %d\r\n", place);
+		// printf("LED number: %d\r\n", place);
 		uint32_t ledval24bit = WS2812BLEDCallback(place++);
 		// printf("ledval24bit: %d\r\n", ledval24bit);
-		printf("ledval24bit: 0x%06X\r\n", ledval24bit);
+		// printf("ledval24bit: 0x%08X\r\n", ledval24bit);
 
 #ifdef WSRBG
 		ptr[0] = bitquartets[(ledval24bit >> 12) & 0xf];
