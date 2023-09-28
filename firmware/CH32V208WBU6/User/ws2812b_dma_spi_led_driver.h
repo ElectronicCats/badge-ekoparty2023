@@ -37,7 +37,7 @@ void WS2812BDMAInit();
 void WS2812BDMAStart(int leds);
 
 // Callbacks that you must implement.
-uint32_t WS2812BLEDCallback(int ledno);
+uint32_t WS2812BLEDCallback(int led_number);
 
 #ifdef WS2812DMA_IMPLEMENTATION
 

@@ -25,6 +25,7 @@
 #define WSGRB // For SK6805-EC15
 
 #include "leds.h"
+#include "tests.h"
 
 /* Global typedef */
 
@@ -49,9 +50,11 @@ int main(void)
     printf("Chip ID: %08X\r\n", DBGMCU_GetCHIPID());
 
     leds_init();
-    leds_on();
+    printf("LEDs setup ready!\r\n");
+    test_leds();
 
     while (1)
     {
+        Delay_Ms(1);
     }
 }
