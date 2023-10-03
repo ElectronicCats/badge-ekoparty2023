@@ -1,0 +1,15 @@
+eclipse.preferences.version=1
+encoding//APP/app.c=GBK
+encoding//APP/app_generic_onoff_model.c=GBK
+encoding//APP/app_main.c=GBK
+encoding//APP/app_mesh_config.c=GBK
+encoding//APP/app_vendor_model.c=GBK
+encoding//APP/include/app_generic_onoff_model.h=GBK
+encoding//APP/include/app_mesh_config.h=GBK
+encoding//APP/include/app_vendor_model.h=GBK
+encoding//HAL/Link.ld=GBK
+encoding//HAL/MCU.c=GBK
+encoding//HAL/include/config.h=GBK
+encoding//LIB/wchble_rom.h=GBK
+encoding//Ld/Link.ld=GBK
+encoding//MESH_LIB/MESH_LIB.h=GBK
