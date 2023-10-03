@@ -144,6 +144,16 @@ void WCHBLE_Init(void)
         }
     }
 #endif
+
+    printf("Mac Address: ");
+
+    for (int index = 5; index >= 0; index--)
+    {
+        printf("%X:", cfg.MacAddr[index]);
+    }
+
+    printf("\r\n");
+
     if(!cfg.MEMAddr || cfg.MEMLen < 4 * 1024)
     {
         while(1);

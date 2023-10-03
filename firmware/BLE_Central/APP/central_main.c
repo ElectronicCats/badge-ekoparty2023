@@ -6,7 +6,7 @@
  * Description        :
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
+ * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
@@ -21,7 +21,7 @@
  */
 __attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];
 
-#if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
+#if (defined(BLE_MAC)) && (BLE_MAC == TRUE)
 const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
 #endif
 
@@ -33,10 +33,10 @@ const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
  * @return  none
  */
 __attribute__((section(".highcode")))
-__attribute__((noinline))
-void Main_Circulation(void)
+__attribute__((noinline)) void
+Main_Circulation(void)
 {
-    while(1)
+    while (1)
     {
         TMOS_SystemProcess();
     }
@@ -51,11 +51,11 @@ void Main_Circulation(void)
  */
 int main(void)
 {
-  Delay_Init();
+    Delay_Init();
 #ifdef DEBUG
-    USART_Printf_Init( 115200 );
+    USART_Printf_Init(115200);
 #endif
-    PRINT("start.%s\r\n",__TIME__);
+    PRINT("start.%s\r\n", __TIME__ );
     PRINT("%s\r\n", VER_LIB);
     WCHBLE_Init();
     HAL_Init();

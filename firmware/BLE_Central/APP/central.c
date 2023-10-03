@@ -157,7 +157,8 @@ static uint8_t centralScanRes;
 static gapDevRec_t centralDevList[DEFAULT_MAX_SCAN_RES];
 
 // Peer device address
-static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x02, 0x02, 0x03, 0xE4, 0xC2, 0x84};
+//static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x02, 0x02, 0x03, 0xE4, 0xC2, 0x84};
+static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x22, 0x3A, 0x88, 0x26, 0x3B, 0x38};
 
 // RSSI polling state
 static uint8_t centralRssi = TRUE;

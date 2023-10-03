@@ -23,7 +23,7 @@
 __attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];
 
 #if (defined(BLE_MAC)) && (BLE_MAC == TRUE)
-const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
+const uint8_t MacAddr[6] = {0x38, 0x3B, 0x26, 0x88, 0x3A, 0x22};
 #endif
 
 /*********************************************************************
@@ -57,7 +57,7 @@ int main(void)
 #ifdef DEBUG
     USART_Printf_Init(115200);
 #endif
-    PRINT("%s\n", VER_LIB);
+    PRINT("%s\r\n", VER_LIB);
     WCHBLE_Init();
     HAL_Init();
     GAPRole_PeripheralInit();

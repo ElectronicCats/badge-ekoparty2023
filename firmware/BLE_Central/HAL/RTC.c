@@ -72,10 +72,11 @@ void HAL_TimeInit(void)
     {
         temp++;
         Delay_Ms(10);
+        printf("stuck here\r\n");
     }
     if(temp>=250)
     {
-        printf("time error..\n");
+        printf("time error...\r\n");
     }
     RCC_RTCCLKConfig(RCC_RTCCLKSource_LSE);
 #endif
