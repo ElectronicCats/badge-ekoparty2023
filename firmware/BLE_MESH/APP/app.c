@@ -1,8 +1,8 @@
 /********************************** (C) COPYRIGHT *******************************
  * File Name          : app.c
  * Author             : WCH
- * Version            : V1.0
- * Date               : 2021/03/24
+ * Version            : V1.1
+ * Date               : 2022/01/18
  * Description        :
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
@@ -13,13 +13,11 @@
 /******************************************************************************/
 #include "CONFIG.h"
 #include "MESH_LIB.h"
-#include "app_vendor_model.h"
-#include "app_generic_onoff_model.h"
+#include "app_vendor_model_srv.h"
 #include "app.h"
-#include "HAL.h"
 #include "peripheral.h"
-#include "app_generic_lightness_model.h"
-#include "app_generic_color_model.h"
+#include "HAL.h"
+#include "app_trans_process.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -29,11 +27,17 @@
 #define SELENCE_ADV_ON    0x01
 #define SELENCE_ADV_OF    0x00
 
+// ���ʱ���ã�����е͹��Ľڵ㣬����С�ڵ͹��Ľڵ㻽�Ѽ����Ĭ��10s��
+#define APP_CMD_TIMEOUT               1600*10
+
+#define APP_DELETE_LOCAL_NODE_DELAY   3200
+// shall not less than APP_DELETE_LOCAL_NODE_DELAY
+#define APP_DELETE_NODE_INFO_DELAY    3200
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
 
-static uint8_t MESH_MEM[1024 * 2] = {0};
+static uint8_t MESH_MEM[1024 * 3] = {0};
 
 extern const ble_mesh_cfg_t app_mesh_cfg;
 extern const struct device  app_dev;
@@ -41,6 +45,31 @@ extern const struct device  app_dev;
 static uint8_t App_TaskID = 0; // Task ID for internal task/event processing
 
 static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events);
+
+static uint8_t dev_uuid[16] = {0}; // ���豸��UUID
+
+static uint8_t self_prov_net_key[16] = {0};
+
+static const uint8_t self_prov_dev_key[16] = {
+    0x00, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+    0x00, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+};
+
+static uint8_t self_prov_app_key[16] = {
+    0x00, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+    0x00, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
+};
+
+const uint16_t self_prov_net_idx = 0x0000;      // ���������õ�net key
+const uint16_t self_prov_app_idx = 0x0001;      // ���������õ�app key
+uint32_t self_prov_iv_index = 0x00000000; // ��������iv_index��Ĭ��Ϊ0
+uint16_t self_prov_addr = 0;         // ��������������Ԫ�ص�ַ
+uint8_t  self_prov_flags = 0x00;          // �Ƿ���key����״̬��Ĭ��Ϊ��
+
+uint16_t delete_node_address=0;
+uint16_t ask_status_node_address=0;
+uint16_t ota_update_node_address=0;
+uint16_t set_sub_node_address=0;
 
 #if(!CONFIG_BLE_MESH_PB_GATT)
 NET_BUF_SIMPLE_DEFINE_STATIC(rx_buf, 65);
@@ -50,10 +79,17 @@ NET_BUF_SIMPLE_DEFINE_STATIC(rx_buf, 65);
  * LOCAL FUNCION
  */
 
+static void cfg_srv_rsp_handler( const cfg_srv_status_t *val );
 static void link_open(bt_mesh_prov_bearer_t bearer);
 static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason);
 static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_index);
+static void cfg_cli_rsp_handler(const cfg_cli_status_t *val);
+static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val);
+static int  vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len);
 static void prov_reset(void);
+void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr );
+void FLASH_read(uint32_t addr, uint8_t *pData, uint32_t len);
+
 
 static struct bt_mesh_cfg_srv cfg_srv = {
     .relay = BLE_MESH_RELAY_ENABLED,
@@ -64,40 +100,73 @@ static struct bt_mesh_cfg_srv cfg_srv = {
 #if(CONFIG_BLE_MESH_PROXY)
     .gatt_proxy = BLE_MESH_GATT_PROXY_ENABLED,
 #endif
+    /* Ĭ��TTLΪ3 */
     .default_ttl = 3,
-
-    /* 8 transmissions with 10ms interval */
+    /* �ײ㷢����������7�Σ�ÿ�μ��10ms�������ڲ�������� */
     .net_transmit = BLE_MESH_TRANSMIT(7, 10),
+    /* �ײ�ת����������7�Σ�ÿ�μ��10ms�������ڲ�������� */
     .relay_retransmit = BLE_MESH_TRANSMIT(7, 10),
+    .handler = cfg_srv_rsp_handler,
 };
 
-static struct bt_mesh_health_srv health_srv;
+/* Attention on */
+void app_prov_attn_on(struct bt_mesh_model *model)
+{
+    APP_DBG("app_prov_attn_on");
+}
+
+/* Attention off */
+void app_prov_attn_off(struct bt_mesh_model *model)
+{
+    APP_DBG("app_prov_attn_off");
+}
+
+const struct bt_mesh_health_srv_cb health_srv_cb = {
+    .attn_on = app_prov_attn_on,
+    .attn_off = app_prov_attn_off,
+};
+
+static struct bt_mesh_health_srv health_srv = {
+    .cb = &health_srv_cb,
+};
 
 BLE_MESH_HEALTH_PUB_DEFINE(health_pub, 8);
+
+struct bt_mesh_cfg_cli cfg_cli = {
+    .handler = cfg_cli_rsp_handler,
+};
 
 uint16_t cfg_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};
 uint16_t cfg_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
 
+uint16_t cfg_cli_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};
+uint16_t cfg_cli_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
+
 uint16_t health_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};
 uint16_t health_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
 
-uint16_t gen_onoff_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};
-uint16_t gen_onoff_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
-
-uint16_t gen_lightness_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};             //���Ӵ�  ������������
-uint16_t gen_lightness_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
-
-uint16_t gen_color_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};             //����ɫ������
-uint16_t gen_color_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
-
+// rootģ�ͼ���
 static struct bt_mesh_model root_models[] = {
     BLE_MESH_MODEL_CFG_SRV(cfg_srv_keys, cfg_srv_groups, &cfg_srv),
+    BLE_MESH_MODEL_CFG_CLI(cfg_cli_keys, cfg_cli_groups, &cfg_cli),
     BLE_MESH_MODEL_HEALTH_SRV(health_srv_keys, health_srv_groups, &health_srv, &health_pub),
-    BLE_MESH_MODEL(BLE_MESH_MODEL_ID_GEN_ONOFF_SRV, gen_onoff_op, NULL, gen_onoff_srv_keys, gen_onoff_srv_groups, NULL),
-    BLE_MESH_MODEL(BLE_MESH_MODEL_ID_LIGHT_LIGHTNESS_SRV, gen_lightness_op, NULL, gen_lightness_srv_keys, gen_lightness_srv_groups, NULL),      //����root ��������
-    BLE_MESH_MODEL(BLE_MESH_MODEL_ID_LIGHT_CTL_TEMP_SRV , gen_color_op, NULL, gen_color_srv_keys, gen_color_srv_groups, NULL),      //����root ɫ������
 };
 
+struct bt_mesh_vendor_model_srv vendor_model_srv = {
+    .srv_tid.trans_tid = 0xFF,
+    .handler = vendor_model_srv_rsp_handler,
+};
+
+uint16_t vnd_model_srv_keys[CONFIG_MESH_MOD_KEY_COUNT_DEF] = {BLE_MESH_KEY_UNUSED};
+uint16_t vnd_model_srv_groups[CONFIG_MESH_MOD_GROUP_COUNT_DEF] = {BLE_MESH_ADDR_UNASSIGNED};
+
+// �Զ���ģ�ͼ���
+struct bt_mesh_model vnd_models[] = {
+    BLE_MESH_MODEL_VND_CB(CID_WCH, BLE_MESH_MODEL_ID_WCH_SRV, vnd_model_srv_op, NULL, vnd_model_srv_keys,
+                          vnd_model_srv_groups, &vendor_model_srv, NULL),
+};
+
+// ģ����� elements
 static struct bt_mesh_elem elements[] = {
     {
         /* Location Descriptor (GATT Bluetooth Namespace Descriptors) */
@@ -118,33 +187,27 @@ const struct bt_mesh_comp app_comp = {
 
 // ���������ͻص�
 static const struct bt_mesh_prov app_prov = {
-    .uuid = tm_uuid,
-    .static_val_len = ARRAY_SIZE(static_key),
-    .static_val = static_key,
+    .uuid = dev_uuid,
     .link_open = link_open,
     .link_close = link_close,
     .complete = prov_complete,
     .reset = prov_reset,
 };
 
+// �����߹����Ľڵ㣬��0��Ϊ�Լ�����1��2����Ϊ����˳��Ľڵ�
+node_t app_nodes[1] = {0};
+
+app_mesh_manage_t app_mesh_manage;
+
+uint16_t block_buf_len=0;
+uint32_t prom_addr=0;
+
+/* flash��������ʱ�洢 */
+__attribute__((aligned(8))) uint8_t block_buf[512];
+
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
-
-/*********************************************************************
- * @fn      silen_adv_set
- *
- * @brief   ���þ�Ĭ�㲥
- *
- * @param   flag   - 0������δ�����㲥״̬����1�����ھ�Ĭ�㲥״̬��.
- *
- * @return  none
- */
-static void silen_adv_set(uint8_t flag)
-{
-    tm_uuid[13] &= ~BIT(0);
-    tm_uuid[13] |= (BIT_MASK(1) & flag);
-}
 
 /*********************************************************************
  * @fn      prov_enable
@@ -155,8 +218,6 @@ static void silen_adv_set(uint8_t flag)
  */
 static void prov_enable(void)
 {
-    silen_adv_set(SELENCE_ADV_OF);
-
     if(bt_mesh_is_provisioned())
     {
         return;
@@ -171,8 +232,6 @@ static void prov_enable(void)
     {
         bt_mesh_proxy_prov_enable();
     }
-
-    tmos_start_task(App_TaskID, APP_SILENT_ADV_EVT, ADV_TIMEOUT);
 }
 
 /*********************************************************************
@@ -186,9 +245,7 @@ static void prov_enable(void)
  */
 static void link_open(bt_mesh_prov_bearer_t bearer)
 {
-    APP_DBG(" ");
-
-    tmos_stop_task(App_TaskID, APP_SILENT_ADV_EVT);
+    APP_DBG("");
 }
 
 /*********************************************************************
@@ -203,60 +260,38 @@ static void link_open(bt_mesh_prov_bearer_t bearer)
  */
 static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason)
 {
-    APP_DBG("");
+    if(reason != CLOSE_REASON_SUCCESS)
+        APP_DBG("reason %x", reason);
+}
 
-    if(!bt_mesh_is_provisioned())
-    {
-        prov_enable();
-    }
-    else
-    {
-        /*��è���鲻���·�Config_model_app_bind��Config_Model_Subscrption_Add��Ϣ��
-         IOT�豸��Ҫ���и�����Element������model���·���AppKey�������ݲ�Ʒ����Ϊ����
-         model������Ӧ���鲥��ַ������Ʒ���鲥��ַ����ĸ���Ʒ�����淶��������Mesh�豸
-         �����������Ҫ������Ϣ�ϱ����ϱ���Ϣ�������豸����֧�ֵĿ��ϱ������ԡ�*/
-
-        /* For Light Subscription group address */
-        root_models[2].groups[0] = (uint16_t)0xC000;
-        root_models[2].groups[1] = (uint16_t)0xCFFF;
-        bt_mesh_store_mod_sub(&root_models[2]);
-
-        root_models[2].keys[0] = (uint16_t)0x0000;
-        bt_mesh_store_mod_bind(&root_models[2]);
-
-        /* For Light Subscription group address */          //���Ӵ�  ��������
-        root_models[3].groups[0] = (uint16_t)0xC000;
-        root_models[3].groups[1] = (uint16_t)0xCFFF;
-        bt_mesh_store_mod_sub(&root_models[3]);
-
-        root_models[3].keys[0] = (uint16_t)0x0000;
-        bt_mesh_store_mod_bind(&root_models[3]);
-
-        /* For Light Subscription group address */          //���Ӵ�  ɫ������
-        root_models[4].groups[0] = (uint16_t)0xC000;
-        root_models[4].groups[1] = (uint16_t)0xCFFF;
-        bt_mesh_store_mod_sub(&root_models[4]);
-
-        root_models[4].keys[0] = (uint16_t)0x0000;
-        bt_mesh_store_mod_bind(&root_models[4]);
-
-        /* For Light Subscription group address */
-        vnd_models[0].groups[0] = (uint16_t)0xC000;
-        vnd_models[0].groups[1] = (uint16_t)0xCFFF;
-        bt_mesh_store_mod_sub(&vnd_models[0]);
-
-        vnd_models[0].keys[0] = (uint16_t)0x0000;
-        bt_mesh_store_mod_bind(&vnd_models[0]);
-    }
+/*********************************************************************
+ * @fn      node_cfg_process
+ *
+ * @brief   ��һ�����еĽڵ㣬ִ����������
+ *
+ * @param   node        - �սڵ�ָ��
+ * @param   net_idx     - ����key���
+ * @param   addr        - �����ַ
+ * @param   num_elem    - Ԫ������
+ *
+ * @return  node_t / NULL
+ */
+static node_t *node_cfg_process(node_t *node, uint16_t net_idx, uint16_t addr, uint8_t num_elem)
+{
+    node = app_nodes;
+    node->net_idx = net_idx;
+    node->node_addr = addr;
+    node->elem_count = num_elem;
+    return node;
 }
 
 /*********************************************************************
  * @fn      prov_complete
  *
- * @brief   ������ɻص������¿�ʼ�㲥
+ * @brief   ������ɻص�
  *
  * @param   net_idx     - ����key��index
- * @param   addr        - �����ַ
+ * @param   addr        - link�ر�ԭ�������ַ
  * @param   flags       - �Ƿ���key refresh״̬
  * @param   iv_index    - ��ǰ����iv��index
  *
@@ -264,12 +299,25 @@ static void link_close(bt_mesh_prov_bearer_t bearer, uint8_t reason)
  */
 static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32_t iv_index)
 {
-    /* �豸�ϵ�������������Ҳ��Ҫ��1~10s���������ϱ�����֧�ֵ�����״̬�� */
-    tmosTimer rand_timer;
-    APP_DBG(" ");
+    int     err;
+    node_t *node;
 
-    rand_timer = K_SECONDS(5) + (tmos_rand() % K_SECONDS(6));
-    tmos_start_task(App_TaskID, APP_SILENT_ADV_EVT, rand_timer);
+    APP_DBG("");
+
+    node = node_cfg_process(node, net_idx, addr, ARRAY_SIZE(elements));
+    if(!node)
+    {
+        APP_DBG("Unable allocate node object");
+        return;
+    }
+    set_led_state(LED_PIN, TRUE);
+    Peripheral_AdvertData_Privisioned(TRUE);
+
+    // ���δ���ù�������Ϣ�����˳��ص���ִ�����ñ���������Ϣ����
+    if( vnd_models[0].keys[0] == BLE_MESH_KEY_UNUSED )
+    {
+        tmos_start_task(App_TaskID, APP_NODE_EVT, 160);
+    }
 }
 
 /*********************************************************************
@@ -283,183 +331,211 @@ static void prov_complete(uint16_t net_idx, uint16_t addr, uint8_t flags, uint32
  */
 static void prov_reset(void)
 {
-    APP_DBG("");
-
-    prov_enable();
+    if( app_mesh_manage.local_reset.cmd == CMD_LOCAL_RESET )
+    {
+        app_mesh_manage.local_reset_ack.cmd = CMD_LOCAL_RESET_ACK;
+        app_mesh_manage.local_reset_ack.status = STATUS_SUCCESS;
+        // ֪ͨ����(���������)
+        peripheralChar4Notify(app_mesh_manage.data.buf, LOCAL_RESET_ACK_DATA_LEN);
+    }
+    Peripheral_TerminateLink();
+    self_prov_iv_index = 0x00000000;
+    self_prov_addr = 0;
+    self_prov_flags = 0x00;
+    delete_node_address=0;
+    ask_status_node_address=0;
+    ota_update_node_address=0;
+    set_sub_node_address=0;
+    set_led_state(LED_PIN, FALSE);
+    Peripheral_AdvertData_Privisioned(FALSE);
+    APP_DBG("Waiting for privisioning data");
+#if(CONFIG_BLE_MESH_LOW_POWER)
+    bt_mesh_lpn_set(FALSE);
+    APP_DBG("Low power disable");
+#endif /* LPN */
 }
 
 /*********************************************************************
- * @fn      ind_end_cb
+ * @fn      cfg_local_net_info
  *
- * @brief   ���͸�λ�¼���ɻص�
- *
- * @param   err     - ������
- * @param   cb_data - �ص�����
- *
- * @return  none
- */
-static void ind_end_cb(int err, void *cb_data)
-{
-    APP_DBG(" bt_mesh_reset ");
-    bt_mesh_reset();
-}
-
-static const struct bt_adv_ind_send_cb reset_cb = {
-    .end = ind_end_cb,
-};
-
-/*********************************************************************
- * @fn      send_support_attr
- *
- * @brief   ��������֧�ֵĿ��ϱ������Ը���è����,����Ϣ������è�����ж��豸֧����Щ����
+ * @brief   ���ñ���������Ϣ��������������������ֱ��������������Կ�Ͷ��ĵ�ַ
  *
  * @param   none
  *
  * @return  none
  */
-void send_support_attr(void)
+static void cfg_local_net_info(void)
 {
-    struct bt_mesh_indicate *ind;
-    APP_DBG("");
+    uint8_t status;
 
-    if(!bt_mesh_is_provisioned())
+    // ����ֱ������Ӧ����Կ
+    status = bt_mesh_app_key_set(app_nodes->net_idx, self_prov_app_idx, self_prov_app_key, FALSE);
+    if( status )
     {
-        APP_DBG("Local Dev Unprovisioned");
-        return;
+        APP_DBG("Unable set app key");
     }
+    APP_DBG("lcoal app key added");
+    // ��Ӧ����Կ���ߺ��Զ���ģ��
+    vnd_models[0].keys[0] = (uint16_t)self_prov_app_idx;
+    bt_mesh_store_mod_bind(&vnd_models[0]);
+    APP_DBG("lcoal app key binded");
+#if(CONFIG_BLE_MESH_LOW_POWER)
+    bt_mesh_lpn_set(TRUE);
+    APP_DBG("Low power enable");
+#endif /* LPN */
 
-    ind = bt_mesh_ind_alloc(32);
-    if(!ind)
-    {
-        APP_DBG("Unable allocate buffers");
-        return;
-    }
-    ind->param.trans_cnt = 0x09;
-    ind->param.period = K_MSEC(300);
-    ind->param.send_ttl = BLE_MESH_TTL_DEFAULT;
-    ind->param.tid = als_avail_tid_get();
-
-    /* Init indication opcode */
-    bt_mesh_model_msg_init(&(ind->buf->b), OP_VENDOR_MESSAGE_ATTR_INDICATION);
-
-    /* Add tid field */
-    net_buf_simple_add_u8(&(ind->buf->b), ind->param.tid);
-
-    // ���ӿ�������
-    {
-        /* Add generic onoff attrbute op */
-        net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_POWER_STATE);
-
-        /* Add current generic onoff status */
-        net_buf_simple_add_u8(&(ind->buf->b), read_led_state(MSG_PIN));
-    }
-    //	// ��ѡ���ݰ��������õĲ�Ʒ���Թ������Ӷ�Ӧ���� ( BLE_MESH_MODEL_OP_LIGHT_LIGHTNESS_SET )
-    //	// ���������������������ο�,����Ҫ���Ӷ�Ӧ��opcode��������,���ӷ�ʽ�ο��������Ե� gen_onoff_op �ṹ
-
-    //������������
-    {
-        /* Add brightness attrbute opcode */
-        net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_BRIGHTNESS);
-
-    /* Add brightness status (655~65535��Ӧ��è��������1~100) */
-        net_buf_simple_add_le16(&(ind->buf->b), 65535);
-    }
-
-    //����ɫ������
-    {
-        /* Add brightness attrbute opcode */
-        net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_COLOR);
-
-    /* Add brightness status (992~20000��Ӧ��è����ɫ��1~100) */
-        net_buf_simple_add_le16(&(ind->buf->b), 20000);
-    }
-
-    bt_mesh_indicate_send(ind);
 }
 
 /*********************************************************************
- * @fn      send_led_state
+ * @fn      App_model_find_group
  *
- * @brief   ���͵�ǰ�Ƶ�״̬����è����
+ * @brief   ��ģ�͵Ķ��ĵ�ַ�в�ѯ��Ӧ�ĵ�ַ
  *
- * @param   none
+ * @param   mod     - ָ���Ӧģ��
+ * @param   addr    - ���ĵ�ַ
+ *
+ * @return  �鵽�Ķ��ĵ�ַָ��
+ */
+static uint16_t *App_model_find_group(struct bt_mesh_model *mod, u16_t addr)
+{
+    int i;
+
+    for (i = 0; i < CONFIG_MESH_MOD_GROUP_COUNT_DEF; i++)
+    {
+        if (mod->groups[i] == addr)
+        {
+            return &mod->groups[i];
+        }
+    }
+
+    return NULL;
+}
+/*********************************************************************
+ * @fn      cfg_srv_rsp_handler
+ *
+ * @brief   config ģ�ͷ���ص�
+ *
+ * @param   val     - �ص������������������͡���������ִ��״̬
  *
  * @return  none
  */
-void send_led_state(void)
+static void cfg_srv_rsp_handler( const cfg_srv_status_t *val )
 {
-    APP_DBG("");
-    struct indicate_param param = {
-        .trans_cnt = 0x09,
-        .period = K_MSEC(300),
-        .send_ttl = BLE_MESH_TTL_DEFAULT,
-        .tid = als_avail_tid_get(),
+    if(val->cfgHdr.status)
+    {
+        // ��������ִ�в��ɹ�
+        APP_DBG("warning opcode 0x%02x", val->cfgHdr.opcode);
+        return;
+    }
+    if(val->cfgHdr.opcode == OP_APP_KEY_ADD)
+    {
+        APP_DBG("App Key Added");
+    }
+    else if(val->cfgHdr.opcode == OP_MOD_APP_BIND)
+    {
+        APP_DBG("Vendor Model Binded");
+    }
+    else if(val->cfgHdr.opcode == OP_MOD_SUB_ADD)
+    {
+        APP_DBG("Vendor Model Subscription Set");
+    }
+    else
+    {
+        APP_DBG("Unknow opcode 0x%02x", val->cfgHdr.opcode);
+    }
+}
+
+/*********************************************************************
+ * @fn      cfg_cli_rsp_handler
+ *
+ * @brief   �յ�cfg�����Ӧ��ص�
+ *
+ * @param   val     - �ص������������������ͺͷ�������
+ *
+ * @return  none
+ */
+static void cfg_cli_rsp_handler(const cfg_cli_status_t *val)
+{
+    APP_DBG("opcode 0x%04x",val->cfgHdr.opcode);
+
+    if(val->cfgHdr.status == 0xFF)
+    {
+        APP_DBG("Opcode 0x%04x, timeout", val->cfgHdr.opcode);
+    }
+}
+
+/*********************************************************************
+ * @fn      vendor_model_srv_rsp_handler
+ *
+ * @brief   �Զ���ģ�ͷ���ص�
+ *
+ * @param   val     - �ص�������������Ϣ���͡��������ݡ����ȡ���Դ��ַ
+ *
+ * @return  none
+ */
+static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val)
+{
+    if(val->vendor_model_srv_Hdr.status)
+    {
+        // ��Ӧ�����ݴ��� ��ʱδ�յ�Ӧ��
+        APP_DBG("Timeout opcode 0x%02x", val->vendor_model_srv_Hdr.opcode);
+        return;
+    }
+    if(val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_MSG)
+    {
+        // �յ�͸������
+        APP_DBG("len %d, data 0x%02x from 0x%04x", val->vendor_model_srv_Event.trans.len,
+                val->vendor_model_srv_Event.trans.pdata[0],
+                val->vendor_model_srv_Event.trans.addr);
+        App_trans_model_reveived(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len,
+            val->vendor_model_srv_Event.trans.addr );
+//        // ת��������(���������)
+//        peripheralChar4Notify(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
+    }
+    else if(val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_WRT)
+    {
+        // �յ�write����
+        APP_DBG("len %d, data 0x%02x from 0x%04x", val->vendor_model_srv_Event.write.len,
+                val->vendor_model_srv_Event.write.pdata[0],
+                val->vendor_model_srv_Event.write.addr);
+//        // ת��������(���������)
+//        peripheralChar4Notify(val->vendor_model_srv_Event.write.pdata, val->vendor_model_srv_Event.write.len);
+    }
+    else if(val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_IND)
+    {
+        // ���͵�indicate���յ�Ӧ��
+    }
+    else
+    {
+        APP_DBG("Unknow opcode 0x%02x", val->vendor_model_srv_Hdr.opcode);
+    }
+}
+
+/*********************************************************************
+ * @fn      vendor_model_srv_send
+ *
+ * @brief   ͨ�������Զ���ģ�ͷ�������
+ *
+ * @param   addr    - ��Ҫ���͵�Ŀ�ĵ�ַ
+ *          pData   - ��Ҫ���͵�����ָ��
+ *          len     - ��Ҫ���͵����ݳ���
+ *
+ * @return  �ο�Global_Error_Code
+ */
+static int vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len)
+{
+    struct send_param param = {
+        .app_idx = vnd_models[0].keys[0], // ����Ϣʹ�õ�app key�������ض���ʹ�õ�0��key
+        .addr = addr,          // ����Ϣ������Ŀ�ĵص�ַ������Ϊ�������ĵ�ַ�������Լ�
+        .trans_cnt = 0x05,                // ����Ϣ���û��㷢�ʹ���
+        .period = K_MSEC(500),            // ����Ϣ�ش��ļ�������鲻С��(200+50*TTL)ms�������ݽϴ�����ӳ�
+        .rand = (0),                      // ����Ϣ���͵�����ӳ�
+        .tid = vendor_srv_tid_get(),      // tid��ÿ��������Ϣ����ѭ����srvʹ��128~191
+        .send_ttl = BLE_MESH_TTL_DEFAULT, // ttl�����ض���ʹ��Ĭ��ֵ
     };
-
-    //toggle_led_state(MSG_PIN);      //��ת�Ƶ�״̬
-    //set_led_lightness(MSG_PIN, led_lightness);
-
-
-    if(!bt_mesh_is_provisioned())
-    {
-        APP_DBG("Local Dev Unprovisioned");
-        return;
-    }
-
-    send_led_indicate(&param);                  //���͵Ƶ� ���� ״̬
-    send_lightness_indicate(&param);            //���͵Ƶ� ���� ״̬
-    send_color_indicate(&param);                //���͵Ƶ� ɫ�� ״̬
+    vendor_message_srv_trans_reset();
+    return vendor_message_srv_send_trans(&param, pData, len); // ���ߵ����Զ���ģ�ͷ����͸�������������ݣ�ֻ���ͣ���Ӧ�����
 }
-
-/*********************************************************************
- * @fn      send_reset_indicate
- *
- * @brief   ���͸�λ�¼�����è���飬������ɺ��������״̬����������mesh����
- *
- * @param   none
- *
- * @return  none
- */
-void send_reset_indicate(void)
-{
-    struct bt_mesh_indicate *ind;
-    APP_DBG("");
-
-    if(!bt_mesh_is_provisioned())
-    {
-        APP_DBG("Local Dev Unprovisioned");
-        return;
-    }
-
-    ind = bt_mesh_ind_alloc(16);
-    if(!ind)
-    {
-        APP_DBG("Unable allocate buffers");
-        return;
-    }
-    ind->param.trans_cnt = 0x09;
-    ind->param.period = K_MSEC(300);
-    ind->param.cb = &reset_cb;
-    ind->param.send_ttl = BLE_MESH_TTL_DEFAULT;
-    ind->param.tid = als_avail_tid_get();
-
-    /* Init indication opcode */
-    bt_mesh_model_msg_init(&(ind->buf->b), OP_VENDOR_MESSAGE_ATTR_INDICATION);
-
-    /* Add tid field */
-    net_buf_simple_add_u8(&(ind->buf->b), ind->param.tid);
-
-    /* Add event report opcode */
-    net_buf_simple_add_le16(&(ind->buf->b), ALI_GEN_ATTR_TYPE_EVENT_TRIGGER);
-
-    /* Add reset event */
-    net_buf_simple_add_u8(&(ind->buf->b), ALI_GEN_ATTR_TYPE_HARDWARE_RESET);
-
-    bt_mesh_indicate_send(ind);
-}
-
-#define HAL_KEY_SEND_MSG    BIT(0)
-#define HAL_KEY_RESET       BIT(1)
 
 /*********************************************************************
  * @fn      keyPress
@@ -472,42 +548,79 @@ void send_reset_indicate(void)
  */
 void keyPress(uint8_t keys)
 {
-    APP_DBG("keys : %d ", keys);
+    APP_DBG("%d", keys);
 
     switch(keys)
     {
-        case HAL_KEY_SEND_MSG:
-            send_led_state();
+        default:
+        {
+            uint8_t status;
+            uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+            status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES, data, 8);
+            if(status)
+            {
+                APP_DBG("send failed %d", status);
+            }
             break;
-        case HAL_KEY_RESET:
-            send_reset_indicate();
-            break;
+        }
     }
 }
 
+#if(CONFIG_BLE_MESH_FRIEND)
 /*********************************************************************
- * @fn      app_silent_adv
+ * @fn      friend_state
  *
- * @brief   ��ʱ�������δ�����ɹ�������뾲Ĭ�㲥ģʽ,��������������֧�ֵ����Ը���è����
+ * @brief   ���ѹ�ϵ�����ص�
  *
- * @param   none
+ * @param   lpn_addr    - �͹��Ľڵ�������ַ
+ * @param   state       - �ص�״̬
  *
  * @return  none
  */
-static void app_silent_adv(void)
+static void friend_state(uint16_t lpn_addr, uint8_t state)
 {
-    APP_DBG("");
-    if(bt_mesh_is_provisioned())
+    if(state == FRIEND_FRIENDSHIP_ESTABLISHED)
     {
-        send_support_attr();
-        return;
+        APP_DBG("friend friendship established, lpn addr 0x%04x", lpn_addr);
     }
-
-    silen_adv_set(SELENCE_ADV_ON);
-
-    /* Disable Scanner not response Provisioner message */
-    bt_mesh_scan_disable();
+    else if(state == FRIEND_FRIENDSHIP_TERMINATED)
+    {
+        APP_DBG("friend friendship terminated, lpn addr 0x%04x", lpn_addr);
+    }
+    else
+    {
+        APP_DBG("unknow state %x", state);
+    }
 }
+#endif
+
+#if(CONFIG_BLE_MESH_LOW_POWER)
+/*********************************************************************
+ * @fn      lpn_state
+ *
+ * @brief   ���ѹ�ϵ�����ص�
+ *
+ * @param   friend_addr - ���ѽڵ��ַ
+ *          state       - �ص�״̬
+ *
+ * @return  none
+ */
+static void lpn_state(uint16_t friend_addr, uint8_t state)
+{
+    if(state == LPN_FRIENDSHIP_ESTABLISHED)
+    {
+        APP_DBG("lpn friendship established");
+    }
+    else if(state == LPN_FRIENDSHIP_TERMINATED)
+    {
+        APP_DBG("lpn friendship terminated");
+    }
+    else
+    {
+        APP_DBG("unknow state %x", state);
+    }
+}
+#endif
 
 /*********************************************************************
  * @fn      blemesh_on_sync
@@ -523,9 +636,8 @@ void blemesh_on_sync(void)
 
     if(tmos_memcmp(VER_MESH_LIB, VER_MESH_FILE, strlen(VER_MESH_FILE)) == FALSE)
     {
-        APP_DBG("head file error...\r\n");
-        while(1)
-            ;
+        PRINT("head file error...\r\n");
+        while(1);
     }
 
     info.base_addr = MESH_MEM;
@@ -538,7 +650,18 @@ void blemesh_on_sync(void)
     lpn_init_register(bt_mesh_lpn_init, lpn_state);
 #endif /* LPN */
 
+#if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
+    tmos_memcpy(dev_uuid, MacAddr, 6);
     err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+#else
+    {
+        uint8_t MacAddr[6];
+        FLASH_GetMACAddress(MacAddr);
+        tmos_memcpy(dev_uuid, MacAddr, 6);
+        // ʹ��оƬmac��ַ
+        err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+    }
+#endif
     if(err)
     {
         APP_DBG("Unable set configuration (err:%d)", err);
@@ -611,11 +734,18 @@ void blemesh_on_sync(void)
 
     if(bt_mesh_is_provisioned())
     {
+        set_led_state(LED_PIN, TRUE);
         APP_DBG("Mesh network restored from flash");
+#if(CONFIG_BLE_MESH_LOW_POWER)
+        bt_mesh_lpn_set(TRUE);
+        APP_DBG("Low power enable");
+#endif /* LPN */
     }
     else
     {
-        prov_enable();
+        set_led_state(LED_PIN, FALSE);
+       APP_DBG("Waiting for privisioning data");
+        Peripheral_AdvertData_Privisioned(FALSE);
     }
 
     APP_DBG("Mesh initialized");
@@ -628,28 +758,17 @@ void blemesh_on_sync(void)
  *
  * @return  none
  */
-#if 0       //����ʱ�����ò鿴unknow�ص�״̬
-void my_test1(uint32_t opcode, struct bt_mesh_model *model,
-        struct bt_mesh_msg_ctx *ctx, struct net_buf_simple *buf )
-{
-    PRINT("ָ����Ч:%x\r\n", opcode);
-
-}
-#endif
-
-void App_Init(void)
+void App_Init()
 {
     GAPRole_PeripheralInit();
     Peripheral_Init();
+
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
 
-    als_vendor_init(vnd_models);
+    vendor_model_srv_init(vnd_models);
     blemesh_on_sync();
     HAL_KeyInit();
     HalKeyConfig(keyPress);
-    set_led_state(MSG_PIN, 0);
-
-    //bt_mesh_model_reg_elem_unkonw_op_cb((elem_unkonw_op_cb_t)my_test1);  //��ʼ�����ã��鿴��èָ���ʱ unknow�ص�״̬
 }
 
 /*********************************************************************
@@ -665,14 +784,916 @@ void App_Init(void)
  */
 static uint16_t App_ProcessEvent(uint8_t task_id, uint16_t events)
 {
-    if(events & APP_SILENT_ADV_EVT)
+    // �ڵ����������¼�����
+    if(events & APP_NODE_EVT)
     {
-        app_silent_adv();
-        return (events ^ APP_SILENT_ADV_EVT);
+        cfg_local_net_info();
+        app_mesh_manage.provision_ack.cmd = CMD_PROVISION_ACK;
+        app_mesh_manage.provision_ack.addr[0] = app_nodes[0].node_addr&0xFF;
+        app_mesh_manage.provision_ack.addr[1] = (app_nodes[0].node_addr>>8)&0xFF;
+        app_mesh_manage.provision_ack.status = STATUS_SUCCESS;
+        // ֪ͨ����(���������)
+        peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_ACK_DATA_LEN);
+        return (events ^ APP_NODE_EVT);
+    }
+
+    if(events & APP_NODE_PROVISION_EVT)
+    {
+        if( self_prov_addr )
+        {
+            int err;
+            err = bt_mesh_provision(self_prov_net_key, self_prov_net_idx, self_prov_flags,
+                                    self_prov_iv_index, self_prov_addr, self_prov_dev_key);
+            if(err)
+            {
+                APP_DBG("Self Privisioning (err %d)", err);
+                self_prov_addr = 0;
+                app_mesh_manage.provision_ack.cmd = CMD_PROVISION_ACK;
+                app_mesh_manage.provision_ack.addr[0] = app_nodes[0].node_addr&0xFF;
+                app_mesh_manage.provision_ack.addr[1] = (app_nodes[0].node_addr>>8)&0xFF;
+                app_mesh_manage.provision_ack.status = STATUS_INVALID;
+                // ֪ͨ����(���������)
+                peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_ACK_DATA_LEN);
+            }
+        }
+        return (events ^ APP_NODE_PROVISION_EVT);
+    }
+
+    if(events & APP_DELETE_NODE_TIMEOUT_EVT)
+    {
+        // ͨ��Ӧ�ò��Զ�Э��ɾ����ʱ����������������
+        APP_DBG("Delete node failed ");
+        app_mesh_manage.delete_node_ack.cmd = CMD_DELETE_NODE_ACK;
+        app_mesh_manage.delete_node_ack.addr[0] = delete_node_address&0xFF;
+        app_mesh_manage.delete_node_ack.addr[1] = (delete_node_address>>8)&0xFF;
+        app_mesh_manage.delete_node_ack.status = STATUS_TIMEOUT;
+        vendor_message_srv_trans_reset();
+        // ֪ͨ����(���������)
+        peripheralChar4Notify(app_mesh_manage.data.buf, DELETE_NODE_ACK_DATA_LEN);
+        return (events ^ APP_DELETE_NODE_TIMEOUT_EVT);
+    }
+
+    if(events & APP_DELETE_LOCAL_NODE_EVT)
+    {
+        // �յ�ɾ�����ɾ������������Ϣ
+        APP_DBG("Delete local node");
+        self_prov_addr = 0;
+        // ��λ��������״̬
+        bt_mesh_reset();
+        return (events ^ APP_DELETE_LOCAL_NODE_EVT);
+    }
+
+    if(events & APP_DELETE_NODE_INFO_EVT)
+    {
+        // ɾ���Ѵ洢�ı�ɾ���ڵ����Ϣ
+        bt_mesh_delete_node_info(delete_node_address,app_comp.elem_count);
+        APP_DBG("Delete stored node info complete");
+        app_mesh_manage.delete_node_info_ack.cmd = CMD_DELETE_NODE_INFO_ACK;
+        app_mesh_manage.delete_node_info_ack.addr[0] = delete_node_address&0xFF;
+        app_mesh_manage.delete_node_info_ack.addr[1] = (delete_node_address>>8)&0xFF;
+        // ֪ͨ����(���������)
+        peripheralChar4Notify(app_mesh_manage.data.buf, DELETE_NODE_INFO_ACK_DATA_LEN);
+        return (events ^ APP_DELETE_NODE_INFO_EVT);
+    }
+
+    if(events & APP_ASK_STATUS_NODE_TIMEOUT_EVT)
+    {
+        // ��ѯ�ڵ�״̬��ʱ
+        APP_DBG("Ask status node failed ");
+        app_mesh_manage.ask_status_ack.cmd = CMD_ASK_STATUS_ACK;
+        app_mesh_manage.ask_status_ack.addr[0] = ask_status_node_address&0xFF;
+        app_mesh_manage.ask_status_ack.addr[1] = (ask_status_node_address>>8)&0xFF;
+        app_mesh_manage.ask_status_ack.status = STATUS_TIMEOUT;
+        ask_status_node_address = 0;
+        vendor_message_srv_trans_reset();
+        // ֪ͨ����(���������)
+        peripheralChar4Notify(app_mesh_manage.data.buf, ASK_STATUS_ACK_DATA_LEN);
+        return (events ^ APP_ASK_STATUS_NODE_TIMEOUT_EVT);
+    }
+
+    if(events & APP_OTA_UPDATE_TIMEOUT_EVT)
+    {
+        // OTA ������ʱ
+        APP_DBG("OTA update node failed ");
+        switch(app_mesh_manage.data.buf[0])
+        {
+            case CMD_IMAGE_INFO:
+            {
+                app_mesh_manage.image_info_ack.cmd = CMD_DELETE_NODE_ACK;
+                app_mesh_manage.image_info_ack.addr[0] = ota_update_node_address&0xFF;
+                app_mesh_manage.image_info_ack.addr[1] = (ota_update_node_address>>8)&0xFF;
+                app_mesh_manage.image_info_ack.status = STATUS_TIMEOUT;
+                peripheralChar4Notify(app_mesh_manage.data.buf, IMAGE_INFO_ACK_DATA_LEN);
+                break;
+            }
+            case CMD_UPDATE:
+            {
+                app_mesh_manage.update_ack.cmd = CMD_UPDATE_ACK;
+                app_mesh_manage.update_ack.addr[0] = ota_update_node_address&0xFF;
+                app_mesh_manage.update_ack.addr[1] = (ota_update_node_address>>8)&0xFF;
+                app_mesh_manage.update_ack.status = STATUS_TIMEOUT;
+                peripheralChar4Notify(app_mesh_manage.data.buf, UPDATE_ACK_DATA_LEN);
+                break;
+            }
+            case CMD_VERIFY:
+            {
+                app_mesh_manage.verify_ack.cmd = CMD_VERIFY_ACK;
+                app_mesh_manage.verify_ack.addr[0] = ota_update_node_address&0xFF;
+                app_mesh_manage.verify_ack.addr[1] = (ota_update_node_address>>8)&0xFF;
+                app_mesh_manage.verify_ack.status = STATUS_TIMEOUT;
+                peripheralChar4Notify(app_mesh_manage.data.buf, VERIFY_ACK_DATA_LEN);
+                break;
+            }
+        }
+        vendor_message_srv_trans_reset();
+        ota_update_node_address = 0;
+        // ֪ͨ����(���������)
+        return (events ^ APP_OTA_UPDATE_TIMEOUT_EVT);
+    }
+
+    if(events & APP_SET_SUB_TIMEOUT_EVT)
+    {
+        // ���ýڵ㶩�ĵ�ַ��ʱ
+        APP_DBG("Set sub node failed ");
+        app_mesh_manage.set_sub_ack.cmd = CMD_SET_SUB_ACK;
+        app_mesh_manage.set_sub_ack.addr[0] = set_sub_node_address&0xFF;
+        app_mesh_manage.set_sub_ack.addr[1] = (set_sub_node_address>>8)&0xFF;
+        app_mesh_manage.set_sub_ack.status = STATUS_TIMEOUT;
+        set_sub_node_address = 0;
+        vendor_message_srv_trans_reset();
+        // ֪ͨ����(���������)
+        peripheralChar4Notify(app_mesh_manage.data.buf, SET_SUB_ACK_DATA_LEN);
+        return (events ^ APP_SET_SUB_TIMEOUT_EVT);
     }
 
     // Discard unknown events
     return 0;
 }
+
+/*********************************************************************
+ * @fn      SwitchImageFlag
+ *
+ * @brief   �л�dataflash���ImageFlag
+ *
+ * @param   new_flag    - �л���ImageFlag
+ *
+ * @return  none
+ */
+void SwitchImageFlag(uint8_t new_flag)
+{
+    uint16_t i;
+    uint32_t ver_flag;
+
+    /* ��ȡ��һ�� */
+    FLASH_read(OTA_DATAFLASH_ADD, &block_buf[0], 4);
+
+    FLASH_Unlock_Fast();
+    /* ������һ�� */
+    FLASH_ErasePage_Fast( OTA_DATAFLASH_ADD );
+
+    /* ����Image��Ϣ */
+    block_buf[0] = new_flag;
+    block_buf[1] = 0x5A;
+    block_buf[2] = 0x5A;
+    block_buf[3] = 0x5A;
+
+    /* ���DataFlash */
+    FLASH_ProgramPage_Fast( OTA_DATAFLASH_ADD, (uint32_t *)&block_buf[0]);
+    FLASH_Lock_Fast();
+}
+
+/*********************************************************************
+ * @fn      App_trans_model_reveived
+ *
+ * @brief   ͸��ģ���յ�����
+ *
+ * @param   pValue - pointer to data that was changed
+ *          len - length of data
+ *          addr - ������Դ��ַ
+ *
+ * @return  none
+ */
+void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr )
+{
+    tmos_memcpy(&app_mesh_manage, pValue, len);
+    switch(app_mesh_manage.data.buf[0])
+    {
+        // �ж��Ƿ�Ϊɾ������
+        case CMD_DELETE_NODE:
+        {
+            if(len != DELETE_NODE_DATA_LEN)
+            {
+                APP_DBG("Delete node data err!");
+                return;
+            }
+            int status;
+            APP_DBG("receive delete cmd, send ack and start delete node delay");
+            app_mesh_manage.delete_node_ack.cmd = CMD_DELETE_NODE_ACK;
+            app_mesh_manage.delete_node_ack.status = STATUS_SUCCESS;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, DELETE_NODE_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("send ack failed %d", status);
+            }
+            // ����ɾ���������ȷ���CMD_DELETE_NODE_INFO����
+            APP_DBG("send to all node to let them delete stored info ");
+            app_mesh_manage.delete_node_info.cmd = CMD_DELETE_NODE_INFO;
+            status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES,
+                                            app_mesh_manage.data.buf, DELETE_NODE_INFO_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("send ack failed %d", status);
+            }
+            tmos_start_task(App_TaskID, APP_DELETE_LOCAL_NODE_EVT, APP_DELETE_LOCAL_NODE_DELAY);
+            break;
+        }
+
+        // �ж��Ƿ�ΪӦ�ò��Զ���ɾ������Ӧ��
+        case CMD_DELETE_NODE_ACK:
+        {
+            if(len != DELETE_NODE_ACK_DATA_LEN)
+            {
+                APP_DBG("Delete node ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT);
+            APP_DBG("Delete node complete");
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_ACK_DATA_LEN);
+            break;
+        }
+
+        // �ж��Ƿ�Ϊ�нڵ㱻ɾ������Ҫɾ���洢�Ľڵ���Ϣ
+        case CMD_DELETE_NODE_INFO:
+        {
+            if(len != DELETE_NODE_INFO_DATA_LEN)
+            {
+                APP_DBG("Delete node info data err!");
+                return;
+            }
+            delete_node_address = addr;
+            tmos_start_task(App_TaskID, APP_DELETE_NODE_INFO_EVT, APP_DELETE_NODE_INFO_DELAY);
+            break;
+        }
+
+        // �ж��Ƿ�Ϊ��ѯ�ڵ���Ϣ����
+        case CMD_ASK_STATUS:
+        {
+            if(len != ASK_STATUS_DATA_LEN)
+            {
+                APP_DBG("ask status data err!");
+                return;
+            }
+            int status;
+            app_mesh_manage.ask_status_ack.cmd = CMD_ASK_STATUS_ACK;
+            app_mesh_manage.ask_status_ack.status = STATUS_SUCCESS; //�û��Զ���״̬��
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, ASK_STATUS_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("send ack failed %d", status);
+            }
+            break;
+        }
+
+        // �ж��Ƿ�Ϊ��ѯ�ڵ���Ϣ����Ӧ��
+        case CMD_ASK_STATUS_ACK:
+        {
+            if(len != ASK_STATUS_ACK_DATA_LEN)
+            {
+                APP_DBG("ask status data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_ASK_STATUS_NODE_TIMEOUT_EVT);
+            APP_DBG("ask status complete");
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, ASK_STATUS_ACK_DATA_LEN);
+            break;
+        }
+
+        case CMD_TRANSFER:
+        {
+            if(len < TRANSFER_DATA_LEN)
+            {
+                APP_DBG("transfer data err!");
+                return;
+            }
+            int status;
+            uint16 dst_addr;
+            dst_addr = app_mesh_manage.transfer.addr[0]|(app_mesh_manage.transfer.addr[1]<<8);
+            APP_DBG("Receive trans data, len: %d",len);
+            app_trans_process(app_mesh_manage.transfer.data, len-TRANSFER_DATA_LEN, addr, dst_addr);
+            // �ж��ǵ�����ַ����Ⱥ�����ַ
+            if( BLE_MESH_ADDR_IS_UNICAST(dst_addr) )
+            {
+                // �յ�������Ϣ��������ʾԭ·���յ������ݵ�һ�ֽڼ�һ����
+                app_mesh_manage.transfer_receive.cmd = CMD_TRANSFER_RECEIVE;
+                app_mesh_manage.transfer_receive.data[0]++;
+                status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, len);
+                if(status)
+                {
+                    APP_DBG("send failed %d", status);
+                }
+            }
+            else
+            {
+                // �յ�Ⱥ����Ϣ
+            }
+            break;
+        }
+
+        case CMD_TRANSFER_RECEIVE:
+        {
+            if(len < TRANSFER_RECEIVE_DATA_LEN)
+            {
+                APP_DBG("transfer receive data err!");
+                return;
+            }
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, len);
+            break;
+        }
+
+        case CMD_IMAGE_INFO:
+        {
+            if(len != IMAGE_INFO_DATA_LEN)
+            {
+                APP_DBG("image info data err!");
+                return;
+            }
+            int status;
+            uint8_t i;
+            // ���codeflash
+            FLASH_Unlock();
+            for(i=0; i<(IMAGE_B_SIZE+4095)/4096; i++)
+            {
+                PRINT("ERASE:%08x num:%d\r\r\n", (int)(IMAGE_B_START_ADD + i * FLASH_BLOCK_SIZE), (int)(IMAGE_B_SIZE+4095)/4096);
+                status = FLASH_ErasePage(IMAGE_B_START_ADD + i * FLASH_BLOCK_SIZE);
+                if(status != FLASH_COMPLETE)
+                {
+                    break;
+                }
+            }
+            FLASH_Lock();
+            // ��� image info
+            app_mesh_manage.image_info_ack.cmd = CMD_IMAGE_INFO_ACK;
+            /* IMAGE_SIZE */
+            app_mesh_manage.image_info_ack.image_size[0] = (uint8_t)(IMAGE_SIZE & 0xff);
+            app_mesh_manage.image_info_ack.image_size[1] = (uint8_t)((IMAGE_SIZE >> 8) & 0xff);
+            app_mesh_manage.image_info_ack.image_size[2] = (uint8_t)((IMAGE_SIZE >> 16) & 0xff);
+            app_mesh_manage.image_info_ack.image_size[3] = (uint8_t)((IMAGE_SIZE >> 24) & 0xff);
+            /* BLOCK SIZE */
+            app_mesh_manage.image_info_ack.block_size[0] = (uint8_t)(FLASH_BLOCK_SIZE & 0xff);
+            app_mesh_manage.image_info_ack.block_size[1] = (uint8_t)((FLASH_BLOCK_SIZE >> 8) & 0xff);
+            /* CHIP ID */
+            app_mesh_manage.image_info_ack.chip_id[0] = CHIP_ID&0xFF;
+            app_mesh_manage.image_info_ack.chip_id[1] = (CHIP_ID>>8)&0xFF;
+            /* STATUS */
+            /* ����ʧ�� */
+            if(status != FLASH_COMPLETE)
+            {
+                app_mesh_manage.image_info_ack.status = status;
+            }
+            else
+            {
+                prom_addr = IMAGE_B_START_ADD;
+                app_mesh_manage.image_info_ack.status = SUCCESS;
+            }
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, IMAGE_INFO_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("image info ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_IMAGE_INFO_ACK:
+        {
+            if(len != IMAGE_INFO_ACK_DATA_LEN)
+            {
+                APP_DBG("image info ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, IMAGE_INFO_ACK_DATA_LEN);
+            break;
+        }
+
+        case CMD_UPDATE:
+        {
+            if(len < UPDATE_DATA_LEN)
+            {
+                APP_DBG("update data err!");
+                return;
+            }
+            int status;
+            uint32_t OpParaDataLen = 0;
+            uint32_t OpAdd = 0;
+            // дflash
+            OpParaDataLen = len-UPDATE_DATA_LEN;
+            OpAdd = (uint32_t)(app_mesh_manage.update.update_addr[0]);
+            OpAdd |= ((uint32_t)(app_mesh_manage.update.update_addr[1]) << 8);
+            OpAdd = OpAdd * 8;
+
+            OpAdd += IMAGE_A_SIZE+0x08000000;
+
+            PRINT("IAP_PROM: %08x len:%d \r\r\n", (int)OpAdd, (int)OpParaDataLen);
+            /* ��ǰ��ImageA��ֱ�ӱ�� */
+            tmos_memcpy(&block_buf[block_buf_len], app_mesh_manage.update.data, OpParaDataLen);
+            block_buf_len+=OpParaDataLen;
+            if( block_buf_len>=FLASH_PAGE_SIZE )
+            {
+                FLASH_Unlock_Fast();
+                FLASH_ProgramPage_Fast(prom_addr, (uint32_t*)block_buf);
+                FLASH_Lock_Fast();
+                tmos_memcpy(block_buf, &block_buf[FLASH_PAGE_SIZE], block_buf_len-FLASH_PAGE_SIZE);
+                block_buf_len-=FLASH_PAGE_SIZE;
+                prom_addr+=FLASH_PAGE_SIZE;
+            }
+            app_mesh_manage.update_ack.cmd = CMD_UPDATE_ACK;
+            app_mesh_manage.update_ack.status = SUCCESS;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, UPDATE_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("update ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_UPDATE_ACK:
+        {
+            if(len != UPDATE_ACK_DATA_LEN)
+            {
+                APP_DBG("update ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, UPDATE_ACK_DATA_LEN);
+            break;
+        }
+
+
+        case CMD_VERIFY:
+        {
+            if(len < VERIFY_DATA_LEN)
+            {
+                APP_DBG("verify data err!");
+                return;
+            }
+            int status;
+            // У��flash
+            uint32_t OpParaDataLen = 0;
+            uint32_t OpAdd = 0;
+
+            if( block_buf_len )
+            {
+                FLASH_Unlock_Fast();
+                FLASH_ProgramPage_Fast(prom_addr, (uint32_t*)block_buf);
+                FLASH_Lock_Fast();
+                block_buf_len=0;
+                prom_addr=0;
+            }
+
+            OpParaDataLen = len-VERIFY_DATA_LEN;
+            OpAdd = (uint32_t)(app_mesh_manage.verify.update_addr[0]);
+            OpAdd |= ((uint32_t)(app_mesh_manage.verify.update_addr[1]) << 8);
+            OpAdd = OpAdd * 8;
+
+            OpAdd += IMAGE_A_SIZE+0x08000000;
+
+            PRINT("IAP_VERIFY: %08x len:%d \r\r\n", (int)OpAdd, (int)OpParaDataLen);
+            FLASH_read(OpAdd, block_buf, OpParaDataLen);
+            /* ��ǰ��ImageA��ֱ�Ӷ�ȡImageBУ�� */
+            status = tmos_memcmp(block_buf, app_mesh_manage.verify.data, OpParaDataLen);
+            if(status == FALSE)
+            {
+                PRINT("IAP_VERIFY err \r\r\n");
+                app_mesh_manage.verify_ack.status = FAILURE;
+            }
+            else
+            {
+                app_mesh_manage.verify_ack.status = SUCCESS;
+            }
+            app_mesh_manage.verify_ack.cmd = CMD_VERIFY_ACK;
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, VERIFY_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("verify ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_VERIFY_ACK:
+        {
+            if(len != VERIFY_ACK_DATA_LEN)
+            {
+                APP_DBG("verify ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, VERIFY_ACK_DATA_LEN);
+            break;
+        }
+
+        case CMD_END:
+        {
+            if(len != END_DATA_LEN)
+            {
+                APP_DBG("end data err!");
+                return;
+            }
+            int status;
+            PRINT("IAP_END \r\r\n");
+
+            /* �رյ�ǰ����ʹ���жϣ����߷���һ��ֱ��ȫ���ر� */
+            __disable_irq();
+
+            /* �޸�DataFlash���л���ImageIAP */
+            SwitchImageFlag(IMAGE_IAP_FLAG);
+
+            /* �ȴ���ӡ��� ����λ*/
+            Delay_Ms(10);
+            NVIC_SystemReset();
+            break;
+        }
+
+        case CMD_SET_SUB:
+        {
+            if(len != SET_SUB_DATA_LEN)
+            {
+                APP_DBG("set sub data err!");
+                return;
+            }
+            int status;
+            uint16_t sub_addr;
+            uint16_t *match;
+            sub_addr = app_mesh_manage.set_sub.sub_addr[0]|(app_mesh_manage.set_sub.sub_addr[1]<<8);
+            if( BLE_MESH_ADDR_IS_GROUP(sub_addr) )
+            {
+                if( app_mesh_manage.set_sub.add_flag )
+                {
+                    match = App_model_find_group( &vnd_models[0], BLE_MESH_ADDR_UNASSIGNED);
+                    if( match )
+                    {
+                        // �������Ӷ��ĵ�ַ
+                        *match = (uint16_t)sub_addr;
+                        bt_mesh_store_mod_sub(&vnd_models[0]);
+                        status = STATUS_SUCCESS;
+                        APP_DBG("lcoal sub addr added");
+                    }
+                    else
+                    {
+                        status = STATUS_NOMEM;
+                    }
+                }
+                else
+                {
+                    match = App_model_find_group( &vnd_models[0], sub_addr);
+                    if( match )
+                    {
+                        // ����ɾ�����ĵ�ַ
+                        *match = (uint16_t)BLE_MESH_ADDR_UNASSIGNED;
+                        bt_mesh_store_mod_sub(&vnd_models[0]);
+                        status = STATUS_SUCCESS;
+                        APP_DBG("lcoal sub addr deleted");
+                    }
+                    else
+                    {
+                        status = STATUS_INVALID;
+                    }
+                }
+            }
+            else
+            {
+                status = STATUS_INVALID;
+            }
+            app_mesh_manage.set_sub_ack.cmd = CMD_SET_SUB_ACK;
+            app_mesh_manage.set_sub_ack.status = status; //�û��Զ���״̬��
+            status = vendor_model_srv_send(addr, app_mesh_manage.data.buf, SET_SUB_ACK_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("set sub ack failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_SET_SUB_ACK:
+        {
+            if(len != SET_SUB_ACK_DATA_LEN)
+            {
+                APP_DBG("set sub ack data err!");
+                return;
+            }
+            tmos_stop_task(App_TaskID, APP_SET_SUB_TIMEOUT_EVT);
+            vendor_message_srv_trans_reset();
+            // ֪ͨ����(���������)
+            peripheralChar4Notify(app_mesh_manage.data.buf, SET_SUB_ACK_DATA_LEN);
+            break;
+        }
+
+        default:
+        {
+            APP_DBG("Invalid CMD ");
+            break;
+        }
+    }
+}
+
+/*********************************************************************
+ * @fn      App_peripheral_reveived
+ *
+ * @brief   ble����ӻ��յ�����
+ *
+ * @param   pValue - pointer to data that was changed
+ *          len - length of data
+ *
+ * @return  none
+ */
+void App_peripheral_reveived(uint8_t *pValue, uint16_t len)
+{
+    tmos_memcpy(&app_mesh_manage, pValue, len);
+    APP_DBG("CMD: %x", app_mesh_manage.data.buf[0]);
+    switch(app_mesh_manage.data.buf[0])
+    {
+        // ������Ϣ����
+        case CMD_PROVISION_INFO:
+        {
+            if(len != PROVISION_INFO_DATA_LEN)
+            {
+                APP_DBG("Privisioning info data err!");
+                return;
+            }
+            // �ж������û��ǲ�ѯ
+            if( app_mesh_manage.provision_info.set_flag )
+            {
+                self_prov_iv_index = app_mesh_manage.provision_info.iv_index[0]|
+                    app_mesh_manage.provision_info.iv_index[1]<<8|
+                    app_mesh_manage.provision_info.iv_index[2]<<16|
+                    app_mesh_manage.provision_info.iv_index[3]<<24;
+                self_prov_flags = app_mesh_manage.provision_info.flag;
+                APP_DBG("set iv 0x%x, flag %d ",self_prov_iv_index,self_prov_flags);
+                app_mesh_manage.provision_info_ack.status = STATUS_SUCCESS;
+            }
+            else
+            {
+                uint32_t iv_index = bt_mesh_iv_index_get();
+                app_mesh_manage.provision_info_ack.iv_index[0] = iv_index&0xFF;
+                app_mesh_manage.provision_info_ack.iv_index[1] = (iv_index>>8)&0xFF;
+                app_mesh_manage.provision_info_ack.iv_index[2] = (iv_index>>16)&0xFF;
+                app_mesh_manage.provision_info_ack.iv_index[3] = (iv_index>>24)&0xFF;
+                app_mesh_manage.provision_info_ack.flag = bt_mesh_net_flags_get(self_prov_net_idx);
+                APP_DBG("ask iv 0x%x, flag %d ",iv_index,app_mesh_manage.provision_info_ack.flag);
+                app_mesh_manage.provision_info_ack.status = STATUS_SUCCESS;
+            }
+            app_mesh_manage.provision_info_ack.cmd = CMD_PROVISION_INFO_ACK;
+            peripheralChar4Notify(app_mesh_manage.data.buf, PROVISION_INFO_ACK_DATA_LEN);
+            break;
+        }
+
+        // �������� ���� 1�ֽ�������+16�ֽ�������Կ+2�ֽ������ַ
+        case CMD_PROVISION:
+        {
+            if(len != PROVISION_DATA_LEN)
+            {
+                APP_DBG("Privisioning data err!");
+                return;
+            }
+            tmos_memcpy(self_prov_net_key, app_mesh_manage.provision.net_key, PROVISION_NET_KEY_LEN);
+            self_prov_addr = app_mesh_manage.provision.addr[0]|(app_mesh_manage.provision.addr[1]<<8);
+            tmos_start_task(App_TaskID, APP_NODE_PROVISION_EVT, 160);
+            break;
+        }
+
+        // ɾ�������нڵ�(�����Լ�������ʹ�ô˷�ʽ)��ͨ��Ӧ�ò��Զ�Э��ɾ��
+        // ���� 1�ֽ�������+2�ֽ���Ҫɾ���Ľڵ��ַ
+        case CMD_DELETE_NODE:
+        {
+            if(len != DELETE_NODE_DATA_LEN)
+            {
+                APP_DBG("Delete node data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.delete_node.addr[0]|(app_mesh_manage.delete_node.addr[1]<<8);
+            APP_DBG("CMD_DELETE_NODE %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, DELETE_NODE_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("delete failed %d", status);
+            }
+            else
+            {
+                delete_node_address = remote_addr;
+                // ��ʱ��δ�յ�Ӧ��ͳ�ʱ
+                tmos_start_task(App_TaskID, APP_DELETE_NODE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_ASK_STATUS:
+        {
+            if(len != ASK_STATUS_DATA_LEN)
+            {
+                APP_DBG("ask status data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.ask_status.addr[0]|(app_mesh_manage.ask_status.addr[1]<<8);
+            APP_DBG("CMD_ASK_STATUS %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, ASK_STATUS_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("ask_status failed %d", status);
+            }
+            else
+            {
+                ask_status_node_address = remote_addr;
+                // ��ʱ��δ�յ�Ӧ��ͳ�ʱ
+                tmos_start_task(App_TaskID, APP_ASK_STATUS_NODE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_TRANSFER:
+        {
+            if(len < TRANSFER_DATA_LEN)
+            {
+                APP_DBG("transfer data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.transfer.addr[0]|(app_mesh_manage.transfer.addr[1]<<8);
+            APP_DBG("CMD_TRANSFER %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, len);
+            if(status)
+            {
+                APP_DBG("transfer failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_IMAGE_INFO:
+        {
+            if(len != IMAGE_INFO_DATA_LEN)
+            {
+                APP_DBG("image info data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.image_info.addr[0]|(app_mesh_manage.image_info.addr[1]<<8);
+            APP_DBG("CMD_IMAGE_INFO %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, IMAGE_INFO_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("image info failed %d", status);
+                break;
+            }
+            else
+            {
+                ota_update_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_UPDATE:
+        {
+            if(len < UPDATE_DATA_LEN)
+            {
+                APP_DBG("update data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            APP_DBG("CMD_UPDATE len: %d", len);
+            remote_addr = app_mesh_manage.transfer.addr[0]|(app_mesh_manage.transfer.addr[1]<<8);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, len);
+            if(status)
+            {
+                APP_DBG("update failed %d", status);
+            }
+            else
+            {
+                ota_update_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_VERIFY:
+        {
+            if(len < VERIFY_DATA_LEN)
+            {
+                APP_DBG("verify data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.verify.addr[0]|(app_mesh_manage.verify.addr[1]<<8);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, len);
+            if(status)
+            {
+                APP_DBG("verify failed %d", status);
+            }
+            else
+            {
+                ota_update_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_OTA_UPDATE_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        case CMD_END:
+        {
+            if(len != END_DATA_LEN)
+            {
+                APP_DBG("end data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.end.addr[0]|(app_mesh_manage.end.addr[1]<<8);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, END_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("end failed %d", status);
+            }
+            break;
+        }
+
+        case CMD_SET_SUB:
+        {
+            if(len != SET_SUB_DATA_LEN)
+            {
+                APP_DBG("set sub data err!");
+                return;
+            }
+            uint16 remote_addr;
+            int status;
+            remote_addr = app_mesh_manage.set_sub.addr[0]|(app_mesh_manage.set_sub.addr[1]<<8);
+            APP_DBG("CMD_SET_SUB %x ",remote_addr);
+            status = vendor_model_srv_send(remote_addr, app_mesh_manage.data.buf, SET_SUB_DATA_LEN);
+            if(status)
+            {
+                APP_DBG("set sub failed %d", status);
+            }
+            else
+            {
+                set_sub_node_address = remote_addr;
+                tmos_start_task(App_TaskID, APP_SET_SUB_TIMEOUT_EVT, APP_CMD_TIMEOUT);
+            }
+            break;
+        }
+
+        // ���ظ�λ������� 1�ֽ�������
+        case CMD_LOCAL_RESET:
+        {
+            if(len != LOCAL_RESET_DATA_LEN)
+            {
+                APP_DBG("local reset data err!");
+                return;
+            }
+            APP_DBG("Local mesh reset");
+            self_prov_addr = 0;
+            bt_mesh_reset();
+            break;
+        }
+
+        default:
+        {
+            APP_DBG("Invalid CMD ");
+            break;
+        }
+    }
+}
+
+/*********************************************************************
+ * @fn      FLASH_read
+ *
+ * @brief   �� flash
+ *
+ * @return  none
+ */
+void FLASH_read(uint32_t addr, uint8_t *pData, uint32_t len)
+{
+    uint32_t i;
+    for(i=0;i<len;i++)
+    {
+        *pData++ = *(uint8_t*)addr++;
+    }
+}
+
 
 /******************************** endfile @ main ******************************/

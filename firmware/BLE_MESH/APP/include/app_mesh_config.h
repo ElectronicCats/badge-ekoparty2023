@@ -1,8 +1,8 @@
 /********************************** (C) COPYRIGHT *******************************
  * File Name          : app_mesh_config.h
  * Author             : WCH
- * Version            : V1.0
- * Date               : 2021/03/24
+ * Version            : V1.1
+ * Date               : 2021/11/18
  * Description        :
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
@@ -31,7 +31,7 @@ extern "C" {
 // �͹��Ľڵ㹦��
 #define CONFIG_BLE_MESH_LOW_POWER              0
 // configģ�Ϳͻ��˹���
-#define CONFIG_BLE_MESH_CFG_CLI                0
+#define CONFIG_BLE_MESH_CFG_CLI                1
 // healthģ�Ϳͻ��˹���
 #define CONFIG_BLE_MESH_HLTH_CLI               0
 
@@ -48,7 +48,7 @@ extern "C" {
 #define CONFIG_MESH_RPL_COUNT_MAX              (128)
 
 // RPL����ѭ��ʹ�ã������������нڵ���������RPL���ƣ���NVS�����洢RPL����
-#define CONFIG_MESH_ALLOW_RPL_CYCLE            (FALSE)
+#define CONFIG_MESH_ALLOW_RPL_CYCLE            (TRUE)
 
 // IV Update State Timer ����96H�ķ�Ƶϵ��
 #define CONFIG_MESH_IVU_DIVIDER_MIN            (1)
@@ -90,7 +90,7 @@ extern "C" {
 
 // ���ְ���Ϣ֧�ֵĳ��ȣ������˳�������Ҫ�ְ���Ĭ��ֵΪ7��ע��ͬ�����������豸������ͳһ��
 #define CONFIG_MESH_UNSEG_LENGTH_MIN           (7)
-#define CONFIG_MESH_UNSEG_LENGTH_DEF           (7)
+#define CONFIG_MESH_UNSEG_LENGTH_DEF           (221)
 #define CONFIG_MESH_UNSEG_LENGTH_MAX           (221)
 
 // ÿ����Ϣ�����ְ���
@@ -198,14 +198,14 @@ extern "C" {
 
 // ADV_RF����
 #define CONFIG_MESH_RF_ACCESSADDRESS           (0x8E89BED6)
-#define CONFIG_MESH_RF_CHANNEL_37              (37)
-#define CONFIG_MESH_RF_CHANNEL_38              (38)
-#define CONFIG_MESH_RF_CHANNEL_39              (39)
+#define CONFIG_MESH_RF_CHANNEL_37              (3)
+#define CONFIG_MESH_RF_CHANNEL_38              (16)
+#define CONFIG_MESH_RF_CHANNEL_39              (34)
 
 #define APP_DBG(X...)                     \
   if(1)                                   \
   {                                       \
-    PRINT("APP_DBG %s> ", __FUNCTION__); \
+    PRINT("[APP_DBG] %s> ", __FUNCTION__); \
     PRINT(X);                            \
     PRINT("\r\n");                         \
   }

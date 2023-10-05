@@ -19,15 +19,12 @@
 #include "gattprofile.h"
 #include "peripheral.h"
 #include "app.h"
-#include "app_generic_onoff_model.h"
-#include "app_generic_lightness_model.h"
-#include "app_generic_color_model.h"
+#include "app_vendor_model_srv.h"
 
 /*********************************************************************
  * MACROS
  */
-extern uint16_t led_color;      //��Χ 992����20000
-extern uint16_t led_lightness;  //��Χ 655����65535
+
 /*********************************************************************
  * CONSTANTS
  */
@@ -58,7 +55,7 @@ extern uint16_t led_lightness;  //��Χ 655����65535
 #define DEFAULT_DESIRED_SLAVE_LATENCY        0
 
 // Supervision timeout value (units of 10ms, 100=1s)
-#define DEFAULT_DESIRED_CONN_TIMEOUT         100
+#define DEFAULT_DESIRED_CONN_TIMEOUT         500
 
 // Company Identifier: WCH
 #define WCH_COMPANY_ID                       0x07D7
@@ -87,25 +84,10 @@ static uint8_t Peripheral_TaskID = INVALID_TASK_ID; // Task ID for internal task
 // GAP - SCAN RSP data (max size = 31 bytes)
 static uint8_t scanRspData[] = {
     // complete name
-    0x18, // length of this data
+    0x0A, // length of this data
     GAP_ADTYPE_LOCAL_NAME_COMPLETE,
-    'S',
-    'i',
-    'm',
-    'p',
-    'l',
-    'e',
-    ' ',
-    'P',
-    'e',
-    'r',
-    'i',
-    'p',
-    'h',
-    'e',
-    'r',
-    'a',
-    'l',
+    'E', 'k', 'o', ' ', 'B', 'a', 'd', 'g', 'e',
+
     // connection interval range
     0x05, // length of this data
     GAP_ADTYPE_SLAVE_CONN_INTERVAL_RANGE,
@@ -135,11 +117,18 @@ static uint8_t advertData[] = {
     0x03,                  // length of this data
     GAP_ADTYPE_16BIT_MORE, // some of the UUID's, but not all
     LO_UINT16(SIMPLEPROFILE_SERV_UUID),
-    HI_UINT16(SIMPLEPROFILE_SERV_UUID)
+    HI_UINT16(SIMPLEPROFILE_SERV_UUID),
+
+    0x05,                  // length of this data
+    GAP_ADTYPE_MANUFACTURER_SPECIFIC,
+    0xD7,
+    0x07,
+    0x00,
+    0x00
 };
 
 // GAP GATT Attributes
-static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Simple Peripheral";
+static uint8_t attDeviceName[GAP_DEVICE_NAME_LEN] = "Eko Badge";
 
 // Connection item list
 static peripheralConnItem_t peripheralConnList;
@@ -197,9 +186,12 @@ static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
  *          initialization/setup, table initialization, power up
  *          notificaiton ... ).
  *
+ * @param   task_id - the ID assigned by TMOS.  This ID should be
+ *                    used to send messages and set timers.
+ *
  * @return  none
  */
-void Peripheral_Init(void)
+void Peripheral_Init()
 {
     Peripheral_TaskID = TMOS_ProcessEventRegister(Peripheral_ProcessEvent);
 
@@ -280,7 +272,7 @@ void Peripheral_Init(void)
  *
  * @brief   Init Connection Item
  *
- * @param   peripheralConnList - Connect list
+ * @param   peripheralConnList -
  *
  * @return  NULL
  */
@@ -507,7 +499,6 @@ static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
  * @brief   Notification from the profile of a state change.
  *
  * @param   newState - new state
- * @param   pEvent  - gapRole Event
  *
  * @return  none
  */
@@ -543,7 +534,9 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
         case GAPROLE_WAITING:
             if(pEvent->gap.opcode == GAP_END_DISCOVERABLE_DONE_EVENT)
             {
+                uint8_t  advertising_enable = TRUE;
                 PRINT("Waiting for advertising..\r\n");
+                GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
             }
             else if(pEvent->gap.opcode == GAP_LINK_TERMINATED_EVENT)
             {
@@ -581,10 +574,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
  *
  * @brief   Perform a periodic application task. This function gets
  *          called every five seconds as a result of the SBP_PERIODIC_EVT
- *          TMOS event. In this example, the value of the third
- *          characteristic in the SimpleGATTProfile service is retrieved
- *          from the profile, and then copied into the value of the
- *          the fourth characteristic.
+ *          TMOS event.
  *
  * @param   none
  *
@@ -592,8 +582,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
  */
 static void performPeriodicTask(void)
 {
-    uint8_t notiData[SIMPLEPROFILE_CHAR4_LEN] = {0x88};
-    peripheralChar4Notify(notiData, SIMPLEPROFILE_CHAR4_LEN);
+
 }
 
 /*********************************************************************
@@ -609,12 +598,16 @@ static void performPeriodicTask(void)
 void peripheralChar4Notify(uint8_t *pValue, uint16_t len)
 {
     attHandleValueNoti_t noti;
-    noti.len = len;
-    noti.pValue = GATT_bm_alloc(peripheralConnList.connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
-    tmos_memcpy(noti.pValue, pValue, noti.len);
-    if(simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
+    if(peripheralConnList.connHandle != GAP_CONNHANDLE_INIT)
     {
-        GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+        noti.len = len;
+        noti.pValue = GATT_bm_alloc(peripheralConnList.connHandle, ATT_HANDLE_VALUE_NOTI, noti.len, NULL, 0);
+        tmos_memcpy(noti.pValue, pValue, noti.len);
+        if(simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
+        {
+            PRINT("Notify ERR \r\n");
+            GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
+        }
     }
 }
 
@@ -637,50 +630,8 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
         {
             uint8_t newValue[SIMPLEPROFILE_CHAR1_LEN];
             tmos_memcpy(newValue, pValue, len);
-            // �յ�CHAR1���ݣ���ת��״̬
-            PRINT("��ֵ��%d\r\n", newValue[0]);
-
-            switch(newValue[0])
-            {
-                case 0x00:      //���ذ�������
-                {
-                    toggle_led_state(MSG_PIN);      //��ת����
-                    break;
-                }
-
-                case 0x01:      //���Ȱ�������
-                {
-                    if(read_led_state(MSG_PIN))
-                    {
-                        if(led_lightness <= 64886) led_lightness += 649;
-                        else led_lightness = 655;
-
-                        set_led_lightness(MSG_PIN, led_lightness);      //��������
-                    }
-                    break;
-                }
-
-                case 0x02:      //ɫ�°�������
-                {
-                    if(read_led_state(MSG_PIN))
-                    {
-                        if(led_color >= 1178) led_color -= 190;
-                        else led_color = 19616;
-
-                        set_led_color(MSG_PIN, led_color);      //����ɫ��
-                    }
-                    break;
-
-                }
-                default:
-                    break;
-            }
-
-            send_led_state();           //���͵Ƶ�����״̬����è����
-
             PRINT("profile ChangeCB CHAR1.. \r\n");
-            PRINT("����Change : %d\t", led_lightness);
-            PRINT("ɫ��Change: %d\r\n", led_color);
+            App_peripheral_reveived(newValue, len);
             break;
         }
 
@@ -688,8 +639,6 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
         {
             uint8_t newValue[SIMPLEPROFILE_CHAR3_LEN];
             tmos_memcpy(newValue, pValue, len);
-            // �յ�CHAR3���ݣ�����mesh����
-            send_reset_indicate();
             PRINT("profile ChangeCB CHAR3..\r\n");
             break;
         }
@@ -697,6 +646,58 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
         default:
             // should not reach here!
             break;
+    }
+}
+
+/*********************************************************************
+ * @fn      Peripheral_AdvertData_Privisioned
+ *
+ * @brief   �޸Ĺ㲥������������־.
+ *
+ * @param   privisioned - �Ƿ�������
+ *
+ * @return  none
+ */
+void Peripheral_AdvertData_Privisioned(uint8_t privisioned)
+{
+    uint8_t  advertising_enable;
+    if(privisioned)
+    {
+        advertData[11]=0x01;
+        advertData[12]=0x00;
+    }
+    else
+    {
+        advertData[11]=0x00;
+        advertData[12]=0x00;
+    }
+    GAPRole_GetParameter(GAPROLE_ADVERT_ENABLED, &advertising_enable);
+    if(advertising_enable)
+    {
+        advertising_enable = FALSE;
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
+        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+        advertising_enable = TRUE;
+        GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
+    }
+    else
+    {
+        GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(advertData), advertData);
+    }
+}
+
+/*********************************************************************
+ * @fn      Peripheral_TerminateLink
+ *
+ * @brief   �Ͽ�����.
+ *
+ * @return  none
+ */
+void Peripheral_TerminateLink(void)
+{
+    if(peripheralConnList.connHandle != GAP_CONNHANDLE_INIT)
+    {
+        GAPRole_TerminateLink(peripheralConnList.connHandle);
     }
 }
 
