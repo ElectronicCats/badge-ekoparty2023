@@ -4,8 +4,8 @@
  * Version            : V1.0
  * Date               : 2018/12/10
  * Description        : Customize services with five different attributes, 
- *                      including readable, writable, notification, readable and writable, 
- *                      and safe readable
+ *                      including readable, writable, notification, 
+ *                      readable and writable, and safe readable
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for 
@@ -17,7 +17,6 @@
  */
 #include "CONFIG.h"
 #include "gattprofile.h"
-#include "app_mesh_config.h"
 
 /*********************************************************************
  * MACROS
@@ -618,7 +617,6 @@ static bStatus_t simpleProfile_WriteAttrCB(uint16_t connHandle, gattAttribute_t 
     bStatus_t status = SUCCESS;
     uint8_t   notifyApp = 0xFF;
 
-    APP_DBG("simpleProfile_WriteAttrCB len: %d",len);
     // If attribute permissions require authorization to write, return error
     if(gattPermitAuthorWrite(pAttr->permissions))
     {

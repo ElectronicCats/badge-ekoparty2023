@@ -326,6 +326,7 @@ uint16_t Peripheral_ProcessEvent(uint8_t task_id, uint16_t events)
         if ((pMsg = tmos_msg_receive(Peripheral_TaskID)) != NULL)
         {
             Peripheral_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
+            printf("here\r\n");
             // Release the TMOS message
             tmos_msg_deallocate(pMsg);
         }
