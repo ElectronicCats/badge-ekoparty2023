@@ -37,12 +37,12 @@ extern "C" {
 #define KEY3_PCENR               ()
 #define KEY4_PCENR               ()
 
-#define KEY1_GPIO                (GPIOB)
+#define KEY1_GPIO                (GPIOA)
 #define KEY2_GPIO                ()
 #define KEY3_GPIO                ()
 #define KEY4_GPIO                ()
 
-#define KEY1_BV                  BV(13)
+#define KEY1_BV                  BV(8)
 #define KEY2_BV                  ()
 #define KEY3_BV                  ()
 #define KEY4_BV                  ()
