@@ -214,7 +214,7 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
         return events ^ HAL_REG_INIT_EVENT;
 #endif
     }
-    if(events & HAL_TEST_EVENT)
+    if(events & HAL_TES  T_EVENT)
     {
         PRINT("* \r\n");
         tmos_start_task(halTaskID, HAL_TEST_EVENT, MS1_TO_SYSTEM_TIME(1000));
@@ -222,7 +222,7 @@ tmosEvents HAL_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     }
     return 0;
 }
-
+ 
 /*******************************************************************************
  * @fn      HAL_Init
  *
