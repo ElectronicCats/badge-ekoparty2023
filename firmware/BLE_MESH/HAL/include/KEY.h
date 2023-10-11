@@ -32,30 +32,30 @@ extern "C" {
 /* Key definition */
 
 /* 1 - KEY */
-#define KEY1_PCENR               (RCC_APB2Periph_GPIOB)
-#define KEY2_PCENR               ()
-#define KEY3_PCENR               ()
-#define KEY4_PCENR               ()
+#define KEY1_PCENR               (RCC_APB2Periph_GPIOA)
+#define KEY2_PCENR               (RCC_APB2Periph_GPIOB)
+#define KEY3_PCENR               (RCC_APB2Periph_GPIOB)
+#define KEY4_PCENR               (RCC_APB2Periph_GPIOB)
 
 #define KEY1_GPIO                (GPIOA)
-#define KEY2_GPIO                ()
-#define KEY3_GPIO                ()
-#define KEY4_GPIO                ()
+#define KEY2_GPIO                (GPIOB)
+#define KEY3_GPIO                (GPIOB)
+#define KEY4_GPIO                (GPIOB)
 
 #define KEY1_BV                  BV(8)
-#define KEY2_BV                  ()
-#define KEY3_BV                  ()
-#define KEY4_BV                  ()
+#define KEY2_BV                  BV(14)
+#define KEY3_BV                  BV(13)
+#define KEY4_BV                  BV(12)
 
 #define KEY1_IN                  (GPIO_ReadInputDataBit(KEY1_GPIO, KEY1_BV)==0)
-#define KEY2_IN                  ()
-#define KEY3_IN                  ()
-#define KEY4_IN                  ()
+#define KEY2_IN                  (GPIO_ReadInputDataBit(KEY2_GPIO, KEY2_BV)==0)
+#define KEY3_IN                  (GPIO_ReadInputDataBit(KEY3_GPIO, KEY3_BV)==0)
+#define KEY4_IN                  (GPIO_ReadInputDataBit(KEY4_GPIO, KEY4_BV)==0)
 
 #define HAL_PUSH_BUTTON1()       (KEY1_IN) //Add custom button
-#define HAL_PUSH_BUTTON2()       (0)
-#define HAL_PUSH_BUTTON3()       (0)
-#define HAL_PUSH_BUTTON4()       (0)
+#define HAL_PUSH_BUTTON2()       (KEY2_IN)
+#define HAL_PUSH_BUTTON3()       (KEY3_IN)
+#define HAL_PUSH_BUTTON4()       (KEY4_IN)
 
 /**************************************************************************************************
  * TYPEDEFS

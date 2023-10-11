@@ -193,7 +193,6 @@ static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
 void Peripheral_Init()
 {
     Peripheral_TaskID = TMOS_ProcessEventRegister(Peripheral_ProcessEvent);
-    printf("Peripheral init...\r\n");
 
     // Setup the GAP Peripheral Role Profile
     {
@@ -378,9 +377,9 @@ static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
     {
     case GAP_SCAN_REQUEST_EVENT:
     {
-        PRINT("Receive scan request from %X:%X:%X:%X:%X:%X\r\n", pEvent->scanReqEvt.scannerAddr[5],
-              pEvent->scanReqEvt.scannerAddr[4], pEvent->scanReqEvt.scannerAddr[3], pEvent->scanReqEvt.scannerAddr[2],
-              pEvent->scanReqEvt.scannerAddr[1], pEvent->scanReqEvt.scannerAddr[0]);
+        // PRINT("Receive scan request from %X:%X:%X:%X:%X:%X\r\n", pEvent->scanReqEvt.scannerAddr[5],
+        //       pEvent->scanReqEvt.scannerAddr[4], pEvent->scanReqEvt.scannerAddr[3], pEvent->scanReqEvt.scannerAddr[2],
+        //       pEvent->scanReqEvt.scannerAddr[1], pEvent->scanReqEvt.scannerAddr[0]);
         break;
     }
 

@@ -6,7 +6,7 @@
  * Description        :
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
+ * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
@@ -42,11 +42,28 @@ void HAL_KeyInit(void)
     pHalKeyProcessFunction = NULL;
 
     RCC_APB2PeriphClockCmd(KEY1_PCENR, ENABLE);
+    RCC_APB2PeriphClockCmd(KEY2_PCENR, ENABLE);
     GPIO_InitTypeDef GPIO_InitStructure;
+
     GPIO_InitStructure.GPIO_Pin = KEY1_BV;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
     GPIO_Init(KEY1_GPIO, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = KEY2_BV;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(KEY2_GPIO, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = KEY3_BV;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(KEY3_GPIO, &GPIO_InitStructure);
+
+    GPIO_InitStructure.GPIO_Pin = KEY4_BV;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(KEY4_GPIO, &GPIO_InitStructure);
 }
 
 /**************************************************************************************************
@@ -78,20 +95,20 @@ uint8_t HalKeyRead(void)
 {
     uint8_t keys = 0;
 
-    if(HAL_PUSH_BUTTON1())
-    { //Read button 1
+    if (HAL_PUSH_BUTTON1())
+    { // Read button 1
         keys |= HAL_KEY_SW_1;
     }
-    if(HAL_PUSH_BUTTON2())
-    { //Read button 1
+    if (HAL_PUSH_BUTTON2())
+    { // Read button 1
         keys |= HAL_KEY_SW_2;
     }
-    if(HAL_PUSH_BUTTON3())
-    { //Read button 1
+    if (HAL_PUSH_BUTTON3())
+    { // Read button 1
         keys |= HAL_KEY_SW_3;
     }
-    if(HAL_PUSH_BUTTON4())
-    { //Read button 1
+    if (HAL_PUSH_BUTTON4())
+    { // Read button 1
         keys |= HAL_KEY_SW_4;
     }
     return keys;
@@ -109,29 +126,29 @@ uint8_t HalKeyRead(void)
 void HAL_KeyPoll(void)
 {
     uint8_t keys = 0;
-    if(HAL_PUSH_BUTTON1())
+    if (HAL_PUSH_BUTTON1())
     {
         keys |= HAL_KEY_SW_1;
     }
-    if(HAL_PUSH_BUTTON2())
+    if (HAL_PUSH_BUTTON2())
     {
         keys |= HAL_KEY_SW_2;
     }
-    if(HAL_PUSH_BUTTON3())
+    if (HAL_PUSH_BUTTON3())
     {
         keys |= HAL_KEY_SW_3;
     }
-    if(HAL_PUSH_BUTTON4())
+    if (HAL_PUSH_BUTTON4())
     {
         keys |= HAL_KEY_SW_4;
     }
-    if(keys == halKeySavedKeys)
+    if (keys == halKeySavedKeys)
     { /* Exit - since no keys have changed */
         return;
     }
     halKeySavedKeys = keys; /* Store the current keys for comparation next time */
     /* Invoke Callback if new keys were depressed */
-    if(keys && (pHalKeyProcessFunction))
+    if (keys && (pHalKeyProcessFunction))
     {
         (pHalKeyProcessFunction)(keys);
     }

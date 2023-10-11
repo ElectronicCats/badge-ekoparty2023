@@ -515,7 +515,7 @@ static void vendor_model_srv_rsp_handler(const vendor_model_srv_status_t *val)
         App_trans_model_reveived(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len,
                                  val->vendor_model_srv_Event.trans.addr);
         //        // ת��������(���������)
-        //        peripheralChar4Notify(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
+        // peripheralChar4Notify(val->vendor_model_srv_Event.trans.pdata, val->vendor_model_srv_Event.trans.len);
     }
     else if (val->vendor_model_srv_Hdr.opcode == OP_VENDOR_MESSAGE_TRANSPARENT_WRT)
     {
@@ -686,6 +686,10 @@ void blemesh_on_sync(void)
         tmos_memcpy(dev_uuid, MacAddr, 6);
         // ʹ��оƬmac��ַ
         err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+
+        // Print MAC address
+        APP_DBG("MAC address: %02X:%02X:%02X:%02X:%02X:%02X",
+                MacAddr[5], MacAddr[4], MacAddr[3], MacAddr[2], MacAddr[1], MacAddr[0]);
     }
 #endif
     if (err)
@@ -1010,7 +1014,7 @@ void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr)
     APP_DBG("CMD: 0x%02X", app_mesh_manage.data.buf[5]);
     APP_DBG("CMD: 0x%02X", app_mesh_manage.data.buf[6]);
     APP_DBG("CMD: 0x%02X", app_mesh_manage.data.buf[7]);
-    
+
     switch (app_mesh_manage.data.buf[0])
     {
     // �ж��Ƿ�Ϊɾ������
