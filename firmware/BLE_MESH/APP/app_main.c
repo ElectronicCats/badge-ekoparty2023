@@ -17,7 +17,7 @@
 #include "HAL.h"
 #include "app_mesh_config.h"
 #include "app.h"
-// #include "display.h"
+#include "display.h"
 #define WS2812DMA_IMPLEMENTATION
 // #define WSRBG //For WS2816C's.
 #define WSGRB // For SK6805-EC15
