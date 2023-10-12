@@ -205,7 +205,7 @@ extern "C" {
 #define APP_DBG(X...)                     \
   if(1)                                   \
   {                                       \
-    PRINT("[APP_DBG] %s> ", __FUNCTION__); \
+    PRINT("[APP_DBG] <%s> ", __FUNCTION__); \
     PRINT(X);                            \
     PRINT("\r\n");                         \
   }
