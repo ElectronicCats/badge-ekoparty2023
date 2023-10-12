@@ -18,6 +18,7 @@
 #include "peripheral.h"
 #include "HAL.h"
 #include "app_trans_process.h"
+#include "display.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -1014,6 +1015,11 @@ void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr)
     APP_DBG("CMD: 0x%02X", app_mesh_manage.data.buf[5]);
     APP_DBG("CMD: 0x%02X", app_mesh_manage.data.buf[6]);
     APP_DBG("CMD: 0x%02X", app_mesh_manage.data.buf[7]);
+
+    if (app_mesh_manage.data.buf[7] == 0x07)
+    {
+        tmos_start_task(displayTaskID, 0x0005, MS1_TO_SYSTEM_TIME(1000));
+    }
 
     switch (app_mesh_manage.data.buf[0])
     {

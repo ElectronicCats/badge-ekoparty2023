@@ -31,7 +31,7 @@ tmosTaskID displayTaskID;
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
-    APP_DBG("Display_ProcessEvent: 0x%04X", events);
+    // APP_DBG("Display_ProcessEvent: 0x%04X", events);
     if (events & DISPLAY_TEST_EVENT)
     {
         Oled_Test();
@@ -249,7 +249,7 @@ void Display_Init(void)
     ssd1306_init();
     APP_DBG("Done.");
 
-    tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(1000));
+    // tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(1000));
 }
 
 #endif // DISPLAY_H

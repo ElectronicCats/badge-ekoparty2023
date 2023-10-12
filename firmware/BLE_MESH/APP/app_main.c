@@ -17,7 +17,7 @@
 #include "HAL.h"
 #include "app_mesh_config.h"
 #include "app.h"
-#include "display.h"
+// #include "display.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
