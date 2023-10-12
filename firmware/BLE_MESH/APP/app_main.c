@@ -18,6 +18,12 @@
 #include "app_mesh_config.h"
 #include "app.h"
 // #include "display.h"
+#define WS2812DMA_IMPLEMENTATION
+// #define WSRBG //For WS2816C's.
+#define WSGRB // For SK6805-EC15
+
+#include "leds.h"
+#include "tests.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -95,9 +101,13 @@ int main(void)
 {
     SystemCoreClockUpdate();
     Delay_Init();
-#ifdef DEBUG
     USART_Printf_Init(115200);
-#endif
+
+    APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
+
+    leds_init();
+    APP_DBG("LEDs setup ready!");
+    // test_leds();
 
     APP_DBG("%s", VER_LIB);
     WCHBLE_Init();
