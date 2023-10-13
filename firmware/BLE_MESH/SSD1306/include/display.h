@@ -33,6 +33,7 @@ void Display_Init();
 void Display_Clear();
 void Display_Show_Logo();
 void Display_Show_Menu();
+void Display_Update_Menu();
 
 /* Global variables */
 extern tmosTaskID displayTaskID;

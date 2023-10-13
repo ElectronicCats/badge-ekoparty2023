@@ -578,6 +578,35 @@ void keyPress(uint8_t keys)
 
     switch (keys)
     {
+    case HAL_KEY_SW_2:
+    {
+        selectedOption--;
+
+        if (selectedOption < 0)
+        {
+            selectedOption = 0;
+        } else if (selectedOption == 255) // Underflow
+        {
+            selectedOption = 0;
+        }
+
+        APP_DBG("selectedOption %d", selectedOption);
+        Display_Update_Menu();
+        break;
+    }
+    case HAL_KEY_SW_3:
+    {
+        selectedOption++;
+
+        if (selectedOption > 2)
+        {
+            selectedOption = 2;
+        }
+
+        APP_DBG("selectedOption %d", selectedOption);
+        Display_Update_Menu();
+        break;
+    }
     default:
     {
         uint8_t status;
@@ -1018,7 +1047,7 @@ void App_trans_model_reveived(uint8_t *pValue, uint16_t len, uint16_t addr)
 
     if (app_mesh_manage.data.buf[7] == 0x07)
     {
-        tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(1000));
+        // tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(1000));
     }
 
     switch (app_mesh_manage.data.buf[0])

@@ -284,3 +284,8 @@ void Display_Show_Menu()
 
     ssd1306_refresh();
 }
+
+void Display_Update_Menu()
+{
+    tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+}
