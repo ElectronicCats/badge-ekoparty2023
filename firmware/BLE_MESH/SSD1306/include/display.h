@@ -11,19 +11,31 @@
 
 #define I2C_TIMEOUT 1000
 #define TxAdderss 0x02
-#define DISPLAY_TEST_EVENT 0x0005
+#define DISPLAY_TEST_EVENT 0x0001
+#define DISPLAY_CLEAR_EVENT 0x0002
+#define DISPLAY_SHOW_MENU_EVENT 0x0004
+#define DISPLAY_SHOW_LOGO_EVENT 0x0008
+
+#define NO_DELAY 0
+#define SHOW_LOGO_DELAY 1000
+#define SHOW_MENU_DELAY 1200
+
+#define WHITE 1
+#define BLACK 0
 
 /* Function protopotypes */
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events);
 void IIC_Init(u32 bound, u16 address);
 void Scan_I2C_Devices();
-void Oled_Test();
+void Display_Test();
 // Initialize the display
 void Display_Init();
-// Clear the display
 void Display_Clear();
+void Display_Show_Logo();
+void Display_Show_Menu();
 
 /* Global variables */
 extern tmosTaskID displayTaskID;
+extern uint8_t selectedOption;
 
 #endif // DISPLAY_H

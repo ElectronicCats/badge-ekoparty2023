@@ -1,14 +1,36 @@
 #include "display.h"
+#include "stdint.h"
 
 tmosTaskID displayTaskID;
+uint8_t selectedOption = 0;
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
-    // APP_DBG("Display_ProcessEvent: 0x%04X", events);
     if (events & DISPLAY_TEST_EVENT)
     {
-        Oled_Test();
+        APP_DBG("Display test");
+        Display_Test();
         return events ^ DISPLAY_TEST_EVENT;
+    }
+
+    if (events & DISPLAY_CLEAR_EVENT)
+    {
+        Display_Clear();
+        return events ^ DISPLAY_CLEAR_EVENT;
+    }
+
+    if (events & DISPLAY_SHOW_LOGO_EVENT)
+    {
+        Display_Show_Logo();
+        tmos_start_task(displayTaskID, DISPLAY_CLEAR_EVENT, MS1_TO_SYSTEM_TIME(SHOW_LOGO_DELAY));
+        tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
+        return events ^ DISPLAY_SHOW_LOGO_EVENT;
+    }
+
+    if (events & DISPLAY_SHOW_MENU_EVENT)
+    {
+        Display_Show_Menu();
+        return events ^ DISPLAY_SHOW_MENU_EVENT;
     }
 }
 
@@ -106,7 +128,7 @@ void Scan_I2C_Devices()
     }
 }
 
-void Oled_Test()
+void Display_Test()
 {
     APP_DBG("Looping on test modes...");
 
@@ -218,9 +240,47 @@ void Display_Init(void)
     // init i2c and oled
     Delay_Ms(100); // give OLED some more time
     Scan_I2C_Devices();
-    APP_DBG("initializing i2c oled...");
+    APP_DBG("Initializing i2c oled...");
     ssd1306_init();
     APP_DBG("Done.");
 
-    // tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(1000));
+    // tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(100));
+    tmos_start_task(displayTaskID, DISPLAY_SHOW_LOGO_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+}
+
+void Display_Clear()
+{
+    ssd1306_setbuf(0);
+    ssd1306_refresh();
+}
+
+void Display_Show_Logo()
+{
+    ssd1306_setbuf(0);
+    ssd1306_drawstr_sz(0, 16, "EKOPARTY", 1, fontsize_16x16);
+    ssd1306_refresh();
+}
+
+void Display_Show_Menu()
+{
+    char *options[] = {
+        "1. Neopixeles",
+        "2. BLE Mesh",
+        "3. Settings"};
+
+    ssd1306_setbuf(0);
+
+    for (uint8_t i = 0; i < sizeof(options) / sizeof(options[0]); i++)
+    {
+        if (i == selectedOption)
+        {
+            ssd1306_drawstr(0, i * 8, options[i], BLACK);
+        }
+        else
+        {
+            ssd1306_drawstr(0, i * 8, options[i], WHITE);
+        }
+    }
+
+    ssd1306_refresh();
 }
