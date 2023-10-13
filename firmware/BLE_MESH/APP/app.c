@@ -19,6 +19,7 @@
 #include "HAL.h"
 #include "app_trans_process.h"
 #include "display.h"
+#include "keyboard.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -37,6 +38,8 @@
 /*********************************************************************
  * GLOBAL TYPEDEFS
  */
+
+static halKeyCBack_t Button_Pressed_Callback; /* callback function */
 
 static uint8_t MESH_MEM[1024 * 3] = {0};
 
@@ -574,44 +577,15 @@ static int vendor_model_srv_send(uint16_t addr, uint8_t *pData, uint16_t len)
  */
 void keyPress(uint8_t keys)
 {
-    APP_DBG("%d", keys);
+    Button_Pressed_Callback(keys);
 
     switch (keys)
     {
-    case HAL_KEY_SW_2:
-    {
-        selectedOption--;
-
-        if (selectedOption < 0)
-        {
-            selectedOption = 0;
-        } else if (selectedOption == 255) // Underflow
-        {
-            selectedOption = 0;
-        }
-
-        APP_DBG("selectedOption %d", selectedOption);
-        Display_Update_Menu();
-        break;
-    }
-    case HAL_KEY_SW_3:
-    {
-        selectedOption++;
-
-        if (selectedOption > 2)
-        {
-            selectedOption = 2;
-        }
-
-        APP_DBG("selectedOption %d", selectedOption);
-        Display_Update_Menu();
-        break;
-    }
     default:
     {
         uint8_t status;
         uint8_t data[8] = {0, 1, 2, 3, 4, 5, 6, 7};
-        status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES, data, 8);
+        // status = vendor_model_srv_send(BLE_MESH_ADDR_ALL_NODES, data, 8);
         if (status)
         {
             APP_DBG("send failed %d", status);
@@ -824,6 +798,7 @@ void App_Init()
     Peripheral_Init();
 
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
+    Button_Pressed_Callback = Keyboard_Scan_Callback;
 
     vendor_model_srv_init(vnd_models);
     blemesh_on_sync();

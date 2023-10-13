@@ -18,12 +18,12 @@
 #include "app_mesh_config.h"
 #include "app.h"
 #include "display.h"
-#define WS2812DMA_IMPLEMENTATION
-// #define WSRBG //For WS2816C's.
-#define WSGRB // For SK6805-EC15
+// #define WS2812DMA_IMPLEMENTATION
+// // #define WSRBG //For WS2816C's.
+// #define WSGRB // For SK6805-EC15
 
-#include "leds.h"
-#include "tests.h"
+// #include "leds.h"
+// #include "tests.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS

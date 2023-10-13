@@ -23,6 +23,9 @@
 #define WHITE 1
 #define BLACK 0
 
+#define LAYER_MAIN 0
+#define LAYER_NEOPIXELS 1
+
 /* Function protopotypes */
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events);
 void IIC_Init(u32 bound, u16 address);
@@ -38,5 +41,8 @@ void Display_Update_Menu();
 /* Global variables */
 extern tmosTaskID displayTaskID;
 extern uint8_t selectedOption;
+extern uint8_t previousLayer;
+extern uint8_t currentLayer;
+extern uint8_t optionsSize;
 
 #endif // DISPLAY_H

@@ -3,6 +3,20 @@
 
 tmosTaskID displayTaskID;
 uint8_t selectedOption = 0;
+uint8_t previousLayer;
+uint8_t currentLayer;
+uint8_t optionsSize;
+
+char *mainOptions[] = {
+    "1. Neopixeles",
+    "2. BLE Mesh",
+    "3. Settings"};
+
+char *neopixelsOptions[] = {
+    "1. LED 1",
+    "2. LED 2",
+    "3. LED 3",
+    "4. Modo arcoiris"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -233,6 +247,8 @@ void Display_Test()
 void Display_Init(void)
 {
     displayTaskID = TMOS_ProcessEventRegister(Display_ProcessEvent);
+    currentLayer = LAYER_MAIN;
+    previousLayer = currentLayer;
     IIC_Init(80000, TxAdderss);
 
     // 48MHz internal clock
@@ -263,14 +279,27 @@ void Display_Show_Logo()
 
 void Display_Show_Menu()
 {
-    char *options[] = {
-        "1. Neopixeles",
-        "2. BLE Mesh",
-        "3. Settings"};
+    char **options;
+
+    switch (currentLayer)
+    {
+    case LAYER_MAIN:
+        options = mainOptions;
+        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
+        break;
+    case LAYER_NEOPIXELS:
+        options = neopixelsOptions;
+        optionsSize = sizeof(neopixelsOptions) / sizeof(neopixelsOptions[0]);
+        break;
+    default:
+        options = mainOptions;
+        break;
+    }
 
     ssd1306_setbuf(0);
 
-    for (uint8_t i = 0; i < sizeof(options) / sizeof(options[0]); i++)
+    // for (uint8_t i = 0; i < sizeof(options) / sizeof(options[0]); i++)
+    for (uint8_t i = 0; i < optionsSize; i++)
     {
         if (i == selectedOption)
         {
