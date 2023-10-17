@@ -18,6 +18,13 @@ char *neopixelsOptions[] = {
     "3. LED 3",
     "4. Modo arcoiris"};
 
+char *neopixelOptions[] = {
+    "1. Rojo",
+    "2. Verde",
+    "3. Azul",
+    "4. Encender",
+    "5. Apagar"};
+
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
     if (events & DISPLAY_TEST_EVENT)
@@ -279,26 +286,10 @@ void Display_Show_Logo()
 
 void Display_Show_Menu()
 {
-    char **options;
-
-    switch (currentLayer)
-    {
-    case LAYER_MAIN:
-        options = mainOptions;
-        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
-        break;
-    case LAYER_NEOPIXELS:
-        options = neopixelsOptions;
-        optionsSize = sizeof(neopixelsOptions) / sizeof(neopixelsOptions[0]);
-        break;
-    default:
-        options = mainOptions;
-        break;
-    }
+    char **options = Display_Update_Menu_Options();
 
     ssd1306_setbuf(0);
 
-    // for (uint8_t i = 0; i < sizeof(options) / sizeof(options[0]); i++)
     for (uint8_t i = 0; i < optionsSize; i++)
     {
         if (i == selectedOption)
@@ -317,4 +308,33 @@ void Display_Show_Menu()
 void Display_Update_Menu()
 {
     tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+}
+
+char **Display_Update_Menu_Options()
+{
+    char **options;
+
+    switch (currentLayer)
+    {
+    case LAYER_MAIN:
+        options = mainOptions;
+        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
+        break;
+    case LAYER_NEOPIXELS_MENU:
+        options = neopixelsOptions;
+        optionsSize = sizeof(neopixelsOptions) / sizeof(neopixelsOptions[0]);
+        break;
+    case LAYER_NEOPIXEL_1:
+    case LAYER_NEOPIXEL_2:
+    case LAYER_NEOPIXEL_3:
+        options = neopixelOptions;
+        optionsSize = sizeof(neopixelOptions) / sizeof(neopixelOptions[0]);
+        break;
+    default:
+        options = mainOptions;
+        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
+        break;
+    }
+
+    return options;
 }

@@ -24,7 +24,27 @@
 #define BLACK 0
 
 #define LAYER_MAIN 0
-#define LAYER_NEOPIXELS 1
+#define LAYER_NEOPIXELS_MENU 1
+#define LAYER_NEOPIXEL_1 2
+#define LAYER_NEOPIXEL_2 3
+#define LAYER_NEOPIXEL_3 4
+#define LAYER_NEOPIXEL_RAINBOW 5
+
+// Main menu options
+#define NEOPIXELS_MENU 0
+
+// Neopixels menu options
+#define NEOPIXEL_1 0
+#define NEOPIXEL_2 1
+#define NEOPIXEL_3 2
+#define NEOPIXELS_RAINBOW 3
+
+// Neopixel options
+#define NEOPIXEL_SET_RED 0
+#define NEOPIXEL_SET_GREEN 1
+#define NEOPIXEL_SET_BLUE 2
+#define NEOPIXEL_ON 3
+#define NEOPIXEL_OFF 4
 
 /* Function protopotypes */
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events);
@@ -37,6 +57,7 @@ void Display_Clear();
 void Display_Show_Logo();
 void Display_Show_Menu();
 void Display_Update_Menu();
+char **Display_Update_Menu_Options();
 
 /* Global variables */
 extern tmosTaskID displayTaskID;

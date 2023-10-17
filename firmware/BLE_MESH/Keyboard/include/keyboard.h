@@ -11,7 +11,11 @@
 #define BUTTON_SELECT 0x08
 
 void Keyboard_Print_Button(uint8_t keys);
+void Keyboard_Print_Layer(uint8_t layer);
 void Keyboard_Scan_Callback(uint8_t keys);
-void Main_Options();
+void Update_Previous_Layer();
+void Main_Menu();
+void Neopixels_Menu();
+void Neopixel_Options();
 
 #endif
