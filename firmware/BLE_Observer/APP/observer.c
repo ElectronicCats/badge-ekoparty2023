@@ -4,11 +4,11 @@
  * Version            : V1.0
  * Date               : 2018/12/10
  * Description        : Observer application, initialize scan parameters,
- *                      then scan regularly, if the scan result is not empty, 
+ *                      then scan regularly, if the scan result is not empty,
  *                      print the scanned broadcast address
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
- * Attention: This software (modified or not) and binary are used for 
+ * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
@@ -27,19 +27,19 @@
  */
 
 // Maximum number of scan responses
-#define DEFAULT_MAX_SCAN_RES             100
+#define DEFAULT_MAX_SCAN_RES 100
 
 // Scan duration in (625us)
-#define DEFAULT_SCAN_DURATION            4800
+#define DEFAULT_SCAN_DURATION 4800
 
 // Discovey mode (limited, general, all)
-#define DEFAULT_DISCOVERY_MODE           DEVDISC_MODE_ALL
+#define DEFAULT_DISCOVERY_MODE DEVDISC_MODE_ALL
 
 // TRUE to use active scan
-#define DEFAULT_DISCOVERY_ACTIVE_SCAN    TRUE
+#define DEFAULT_DISCOVERY_ACTIVE_SCAN TRUE
 
 // TRUE to use white list during discovery
-#define DEFAULT_DISCOVERY_WHITE_LIST     FALSE
+#define DEFAULT_DISCOVERY_WHITE_LIST FALSE
 
 /*********************************************************************
  * TYPEDEFS
@@ -71,12 +71,14 @@ static uint8_t ObserverScanRes;
 // Scan result list
 static gapDevRec_t ObserverDevList[DEFAULT_MAX_SCAN_RES];
 
+static int8_t globalRSSI;
+
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
 static void ObserverEventCB(gapRoleEvent_t *pEvent);
 static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
-static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType);
+static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -139,11 +141,11 @@ uint16_t Observer_ProcessEvent(uint8_t task_id, uint16_t events)
 {
     //  VOID task_id; // TMOS required parameter that isn't used in this function
 
-    if(events & SYS_EVENT_MSG)
+    if (events & SYS_EVENT_MSG)
     {
         uint8_t *pMsg;
 
-        if((pMsg = tmos_msg_receive(ObserverTaskId)) != NULL)
+        if ((pMsg = tmos_msg_receive(ObserverTaskId)) != NULL)
         {
             Observer_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
 
@@ -155,7 +157,7 @@ uint16_t Observer_ProcessEvent(uint8_t task_id, uint16_t events)
         return (events ^ SYS_EVENT_MSG);
     }
 
-    if(events & START_DEVICE_EVT)
+    if (events & START_DEVICE_EVT)
     {
         // Start the Device
         GAPRole_ObserverStartDevice((gapRoleObserverCB_t *)&ObserverRoleCB);
@@ -178,13 +180,13 @@ uint16_t Observer_ProcessEvent(uint8_t task_id, uint16_t events)
  */
 static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
 {
-    switch(pMsg->event)
+    switch (pMsg->event)
     {
-        case GATT_MSG_EVENT:
-            break;
+    case GATT_MSG_EVENT:
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 }
 
@@ -199,85 +201,82 @@ static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
  */
 static void ObserverEventCB(gapRoleEvent_t *pEvent)
 {
-    switch(pEvent->gap.opcode)
+    switch (pEvent->gap.opcode)
     {
-        case GAP_DEVICE_INIT_DONE_EVENT:
-        {
-            GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
-                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
-                                           DEFAULT_DISCOVERY_WHITE_LIST);
-            PRINT("Discovering...\r\n");
-        }
-        break;
+    case GAP_DEVICE_INIT_DONE_EVENT:
+    {
+        GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                       DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                       DEFAULT_DISCOVERY_WHITE_LIST);
+        PRINT("Discovering...\r\n");
+    }
+    break;
 
-        case GAP_DEVICE_INFO_EVENT:
-        {
-            ObserverAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType);
-        }
-        break;
+    case GAP_DEVICE_INFO_EVENT:
+    {
+        ObserverAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+    }
+    break;
 
-        case GAP_DEVICE_DISCOVERY_EVENT:
-        {
-            PRINT("Discovery over...\r\n");
+    case GAP_DEVICE_DISCOVERY_EVENT:
+    {
+        PRINT("Discovery over...\r\n");
 
-            // Display discovery results
-            if(pEvent->discCmpl.numDevs > 0)
+        // Display discovery results
+        if (pEvent->discCmpl.numDevs > 0)
+        {
+            int i, j;
+            // Increment index of current result (with wraparound)
+            for (j = 0; j < pEvent->discCmpl.numDevs; j++)
             {
-                int i, j;
-                // Increment index of current result (with wraparound)
-                for(j = 0; j < pEvent->discCmpl.numDevs; j++)
+                PRINT("Device %d: ", j);
+                for (i = 5; i >= 0; i--)
                 {
-                    PRINT("Device %d: ", j);
-                    for(i = 5; i >= 0; i--)
+                    if (i > 0)
                     {
-                        if (i > 0)
-                        {
-                            PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
-                        }
-                        else
-                        {
-                            PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
-                        }
-
-                        if (pEvent->discCmpl.pDevList[j].addr[5] == 0x38 && pEvent->discCmpl.pDevList[j].addr[0] == 0xB0 && i == 0)
-                        {
-                            PRINT("\r\nRSSI: %d\r\n", pEvent->devicePeriodicInfo.rssi);
-                            PRINT("RSSI: %d\r\n", pEvent->deviceInfo.rssi);
-                            PRINT("RSSI: %d\r\n", pEvent->deviceDirectInfo.rssi);
-                            PRINT("RSSI: %d\r\n", pEvent->deviceExtAdvInfo.rssi);
-                        }
+                        PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
                     }
-                    PRINT("\r\n");
+                    else
+                    {
+                        PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
+                    }
+
+                    if (pEvent->discCmpl.pDevList[j].addr[5] == 0x38 && pEvent->discCmpl.pDevList[j].addr[0] == 0xB0 && i == 0)
+                    {
+                        PRINT("\r\n\nRSSI: %d\n", globalRSSI);
+                    }
                 }
+                PRINT("\r\n");
             }
-
-            GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
-                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
-                                           DEFAULT_DISCOVERY_WHITE_LIST);
-            PRINT("Discovering...\r\n ");
         }
-        break;
 
-        case GAP_EXT_ADV_DEVICE_INFO_EVENT:
-        {
-            // Display device addr
-            PRINT("Recv ext adv \r\n");
-            // Add device to list
-            ObserverAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
-        }
-        break;
+        GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                       DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                       DEFAULT_DISCOVERY_WHITE_LIST);
+        PRINT("Discovering...\r\n ");
+    }
+    break;
 
-        case GAP_DIRECT_DEVICE_INFO_EVENT:
-        {
-            // Display device addr
-            PRINT("Recv direct adv \r\n");
-            // Add device to list
-            ObserverAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
-        }
-        break;
+    case GAP_EXT_ADV_DEVICE_INFO_EVENT:
+    {
+        // Display device addr
+        PRINT("Recv ext adv \r\n");
+        // Add device to list
+        // ObserverAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
+    }
+    break;
 
-        default:
-            break;
+    case GAP_DIRECT_DEVICE_INFO_EVENT:
+    {
+        // Display device addr
+        PRINT("Recv direct adv \r\n");
+        // Add device to list
+        // ObserverAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
+    }
+    break;
+
+    default:
+        break;
     }
 }
 
@@ -288,17 +287,17 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
  *
  * @return  none
  */
-static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType)
+static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 {
     uint8_t i;
 
     // If result count not at max
-    if(ObserverScanRes < DEFAULT_MAX_SCAN_RES)
+    if (ObserverScanRes < DEFAULT_MAX_SCAN_RES)
     {
         // Check if device is already in scan results
-        for(i = 0; i < ObserverScanRes; i++)
+        for (i = 0; i < ObserverScanRes; i++)
         {
-            if(tmos_memcmp(pAddr, ObserverDevList[i].addr, B_ADDR_LEN))
+            if (tmos_memcmp(pAddr, ObserverDevList[i].addr, B_ADDR_LEN))
             {
                 return;
             }
@@ -307,6 +306,12 @@ static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType)
         // Add addr to scan result list
         tmos_memcpy(ObserverDevList[ObserverScanRes].addr, pAddr, B_ADDR_LEN);
         ObserverDevList[ObserverScanRes].addrType = addrType;
+
+        if (ObserverDevList[ObserverScanRes].addr[5] == 0x38 && ObserverDevList[ObserverScanRes].addr[0] == 0xB0)
+        {
+            // PRINT("\r\nRSSI: %d", rssi);
+            globalRSSI = rssi;
+        }
 
         // Increment scan result count
         ObserverScanRes++;
