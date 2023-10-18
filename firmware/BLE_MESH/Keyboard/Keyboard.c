@@ -93,8 +93,6 @@ void Keyboard_Scan_Callback(uint8_t keys)
     }
     case BUTTON_SELECT:
     {
-        Update_Previous_Layer();
-
         switch (currentLayer)
         {
         case LAYER_MAIN:
@@ -117,6 +115,7 @@ void Keyboard_Scan_Callback(uint8_t keys)
     }
     }
 
+    Update_Previous_Layer();
     Keyboard_Print_Layer(previousLayer);
     Keyboard_Print_Layer(currentLayer);
     APP_DBG("selectedOption %d", selectedOption);
@@ -124,12 +123,25 @@ void Keyboard_Scan_Callback(uint8_t keys)
 
 void Update_Previous_Layer()
 {
-    uint8_t backupLayer = previousLayer;
-    previousLayer = currentLayer;
-
-    if (backupLayer != currentLayer)
+    switch (currentLayer)
     {
-        previousLayer = backupLayer;
+    case LAYER_MAIN:
+        previousLayer = LAYER_MAIN;
+        break;
+    case LAYER_NEOPIXELS_MENU:
+        previousLayer = LAYER_MAIN;
+        break;
+    case LAYER_NEOPIXEL_1:
+    case LAYER_NEOPIXEL_2:
+    case LAYER_NEOPIXEL_3:
+    case LAYER_NEOPIXEL_RAINBOW:
+        previousLayer = LAYER_NEOPIXELS_MENU;
+        break;
+    default:
+        previousLayer = LAYER_MAIN;
+        APP_DBG("Unknows layer:");
+        Keyboard_Print_Layer(currentLayer);
+        break;
     }
 }
 
@@ -139,7 +151,6 @@ void Main_Menu()
     {
     case NEOPIXELS_MENU:
         currentLayer = LAYER_NEOPIXELS_MENU;
-        Display_Update_Menu();
         break;
     case 1:
         // currentLayer = LAYER_BLE_MESH;
@@ -155,6 +166,9 @@ void Main_Menu()
         APP_DBG("Missing option");
         break;
     }
+
+    selectedOption = 0;
+    Display_Update_Menu();
 }
 
 void Neopixels_Menu()
@@ -163,20 +177,20 @@ void Neopixels_Menu()
     {
     case NEOPIXEL_1:
         currentLayer = LAYER_NEOPIXEL_1;
-        Display_Update_Menu();
         break;
     case NEOPIXEL_2:
         currentLayer = LAYER_NEOPIXEL_2;
-        Display_Update_Menu();
         break;
     case NEOPIXEL_3:
         currentLayer = LAYER_NEOPIXEL_3;
-        Display_Update_Menu();
         break;
     default:
         APP_DBG("Missing option");
         break;
     }
+
+    selectedOption = 0;
+    Display_Update_Menu();
 }
 
 void Neopixel_Options()
