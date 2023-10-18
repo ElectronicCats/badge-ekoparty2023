@@ -77,6 +77,7 @@ static gapScanRec_t ObserverDevList[DEFAULT_MAX_SCAN_RES];
 static void ObserverEventCB(gapRoleEvent_t *pEvent);
 static void Observer_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
+static void ObserverEmptyDevList();
 
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -213,22 +214,6 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
     case GAP_DEVICE_INFO_EVENT:
     {
         ObserverAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
-        
-        if (pEvent->deviceInfo.addr[5] == 0x38 && pEvent->deviceInfo.addr[0] == 0xB0)
-        {
-            for (int i = 5; i >= 0; i--)
-            {
-                if (i > 0)
-                {
-                    PRINT("%X:", pEvent->deviceInfo.addr[i]);
-                }
-                else
-                {
-                    PRINT("%X\n", pEvent->deviceInfo.addr[i]);
-                    PRINT("RSSI: %d\r\n", pEvent->deviceInfo.rssi);
-                }
-            }
-        }
     }
     break;
 
@@ -244,36 +229,38 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
             for (j = 0; j < pEvent->discCmpl.numDevs; j++)
             {
                 // if (pEvent->discCmpl.pDevList[j].addr[5] == 0x38 && pEvent->discCmpl.pDevList[j].addr[0] == 0xB0)
-                if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0)
+                // if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0)
+                // {
+                // PRINT("Device %d: ", j);
+                for (i = 5; i >= 0; i--)
                 {
-                    // PRINT("Device %d: ", j);
-                    for (i = 5; i >= 0; i--)
+                    if (i > 0)
                     {
-                        if (i > 0)
-                        {
-                            // PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
-                            // PRINT("%X:", ObserverDevList[j].addr[i]);
-                        }
-                        else
-                        {
-                            // PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
-                            // PRINT("%X", ObserverDevList[j].addr[i]);
-                        }
-
-                        if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0 && i == 0)
-                        {
-                            // PRINT("\r\nRSSI: %d\n", ObserverDevList[j].rssi);
-                        }
+                        // PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
+                        // PRINT("%X:", ObserverDevList[j].addr[i]);
                     }
-                    PRINT("\r\n");
+                    else
+                    {
+                        // PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
+                        // PRINT("%X", ObserverDevList[j].addr[i]);
+                    }
+
+                    if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0 && i == 0)
+                    {
+                        PRINT("RSSI: %d\r\n", ObserverDevList[j].rssi);
+                    }
                 }
+                // PRINT("\r\n");
+                // }
             }
+
+            ObserverEmptyDevList();
         }
 
         GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                        DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                        DEFAULT_DISCOVERY_WHITE_LIST);
-        PRINT("Discovering...\r\n ");
+        PRINT("Discovering...\r\n");
     }
     break;
 
@@ -331,6 +318,19 @@ static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
         // Increment scan result count
         ObserverScanRes++;
     }
+}
+
+static void ObserverEmptyDevList()
+{
+    // Remove all elements in ObserverDevList
+    for (int i = 0; i < DEFAULT_MAX_SCAN_RES; i++)
+    {
+        tmos_memset(ObserverDevList[i].addr, 0, B_ADDR_LEN);
+        ObserverDevList[i].addrType = 0;
+        ObserverDevList[i].rssi = 0;
+    }
+
+    ObserverScanRes = 0;
 }
 
 /*********************************************************************
