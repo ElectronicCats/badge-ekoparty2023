@@ -69,9 +69,7 @@ static uint8_t ObserverTaskId;
 static uint8_t ObserverScanRes;
 
 // Scan result list
-static gapDevRec_t ObserverDevList[DEFAULT_MAX_SCAN_RES];
-
-static int8_t globalRSSI;
+static gapScanRec_t ObserverDevList[DEFAULT_MAX_SCAN_RES];
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -215,6 +213,22 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
     case GAP_DEVICE_INFO_EVENT:
     {
         ObserverAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+        
+        if (pEvent->deviceInfo.addr[5] == 0x38 && pEvent->deviceInfo.addr[0] == 0xB0)
+        {
+            for (int i = 5; i >= 0; i--)
+            {
+                if (i > 0)
+                {
+                    PRINT("%X:", pEvent->deviceInfo.addr[i]);
+                }
+                else
+                {
+                    PRINT("%X\n", pEvent->deviceInfo.addr[i]);
+                    PRINT("RSSI: %d\r\n", pEvent->deviceInfo.rssi);
+                }
+            }
+        }
     }
     break;
 
@@ -229,24 +243,30 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
             // Increment index of current result (with wraparound)
             for (j = 0; j < pEvent->discCmpl.numDevs; j++)
             {
-                PRINT("Device %d: ", j);
-                for (i = 5; i >= 0; i--)
+                // if (pEvent->discCmpl.pDevList[j].addr[5] == 0x38 && pEvent->discCmpl.pDevList[j].addr[0] == 0xB0)
+                if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0)
                 {
-                    if (i > 0)
+                    // PRINT("Device %d: ", j);
+                    for (i = 5; i >= 0; i--)
                     {
-                        PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
-                    }
-                    else
-                    {
-                        PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
-                    }
+                        if (i > 0)
+                        {
+                            // PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
+                            // PRINT("%X:", ObserverDevList[j].addr[i]);
+                        }
+                        else
+                        {
+                            // PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
+                            // PRINT("%X", ObserverDevList[j].addr[i]);
+                        }
 
-                    if (pEvent->discCmpl.pDevList[j].addr[5] == 0x38 && pEvent->discCmpl.pDevList[j].addr[0] == 0xB0 && i == 0)
-                    {
-                        PRINT("\r\n\nRSSI: %d\n", globalRSSI);
+                        if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0 && i == 0)
+                        {
+                            // PRINT("\r\nRSSI: %d\n", ObserverDevList[j].rssi);
+                        }
                     }
+                    PRINT("\r\n");
                 }
-                PRINT("\r\n");
             }
         }
 
@@ -306,12 +326,7 @@ static void ObserverAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
         // Add addr to scan result list
         tmos_memcpy(ObserverDevList[ObserverScanRes].addr, pAddr, B_ADDR_LEN);
         ObserverDevList[ObserverScanRes].addrType = addrType;
-
-        if (ObserverDevList[ObserverScanRes].addr[5] == 0x38 && ObserverDevList[ObserverScanRes].addr[0] == 0xB0)
-        {
-            // PRINT("\r\nRSSI: %d", rssi);
-            globalRSSI = rssi;
-        }
+        ObserverDevList[ObserverScanRes].rssi = rssi;
 
         // Increment scan result count
         ObserverScanRes++;
