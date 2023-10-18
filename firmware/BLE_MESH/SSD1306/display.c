@@ -8,9 +8,9 @@ uint8_t currentLayer;
 uint8_t optionsSize;
 
 char *mainOptions[] = {
-    "1. Neopixeles",
-    "2. BLE Mesh",
-    "3. Settings"};
+    "1. LEDs",
+    "2. Escaner I2C",
+    "3. Buscar amigo"};
 
 char *neopixelsOptions[] = {
     "1. LED 1",

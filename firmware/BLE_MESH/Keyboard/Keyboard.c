@@ -45,7 +45,7 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_NEOPIXEL_3:
         APP_DBG("Layer neopixel 3");
         break;
-    case LAYER_NEOPIXEL_RAINBOW:
+    case LAYER_NEOPIXELS_RAINBOW:
         APP_DBG("Layer neopixels raibow");
         break;
     default:
@@ -134,7 +134,7 @@ void Update_Previous_Layer()
     case LAYER_NEOPIXEL_1:
     case LAYER_NEOPIXEL_2:
     case LAYER_NEOPIXEL_3:
-    case LAYER_NEOPIXEL_RAINBOW:
+    case LAYER_NEOPIXELS_RAINBOW:
         previousLayer = LAYER_NEOPIXELS_MENU;
         break;
     default:
@@ -200,71 +200,71 @@ void Neopixel_Options()
     case NEOPIXEL_SET_RED:
         if (currentLayer == LAYER_NEOPIXEL_1)
         {
-            led1_set_red();
+            Led1_Set_Red();
         }
         else if (currentLayer == LAYER_NEOPIXEL_2)
         {
-            led2_set_red();
+            Led2_Set_Red();
         }
         else if (currentLayer == LAYER_NEOPIXEL_3)
         {
-            led3_set_red();
+            Led3_Set_Red();
         }
         break;
     case NEOPIXEL_SET_GREEN:
         if (currentLayer == LAYER_NEOPIXEL_1)
         {
-            led1_set_green();
+            Led1_Set_Green();
         }
         else if (currentLayer == LAYER_NEOPIXEL_2)
         {
-            led2_set_green();
+            Led2_Set_Green();
         }
         else if (currentLayer == LAYER_NEOPIXEL_3)
         {
-            led3_set_green();
+            Led3_Set_Green();
         }
         break;
     case NEOPIXEL_SET_BLUE:
         if (currentLayer == LAYER_NEOPIXEL_1)
         {
-            led1_set_blue();
+            Led1_Set_Blue();
         }
         else if (currentLayer == LAYER_NEOPIXEL_2)
         {
-            led2_set_blue();
+            Led2_Set_Blue();
         }
         else if (currentLayer == LAYER_NEOPIXEL_3)
         {
-            led3_set_blue();
+            Led3_Set_Blue();
         }
         break;
     case NEOPIXEL_ON:
         if (currentLayer == LAYER_NEOPIXEL_1)
         {
-            led1_on();
+            Led1_On();
         }
         else if (currentLayer == LAYER_NEOPIXEL_2)
         {
-            led2_on();
+            Led2_On();
         }
         else if (currentLayer == LAYER_NEOPIXEL_3)
         {
-            led3_on();
+            Led3_On();
         }
         break;
     case NEOPIXEL_OFF:
         if (currentLayer == LAYER_NEOPIXEL_1)
         {
-            led1_off();
+            Led1_Off();
         }
         else if (currentLayer == LAYER_NEOPIXEL_2)
         {
-            led2_off();
+            Led2_Off();
         }
         else if (currentLayer == LAYER_NEOPIXEL_3)
         {
-            led3_off();
+            Led3_Off();
         }
         break;
     default:

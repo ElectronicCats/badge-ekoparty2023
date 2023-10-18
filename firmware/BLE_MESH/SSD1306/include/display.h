@@ -28,7 +28,7 @@
 #define LAYER_NEOPIXEL_1 2
 #define LAYER_NEOPIXEL_2 3
 #define LAYER_NEOPIXEL_3 4
-#define LAYER_NEOPIXEL_RAINBOW 5
+#define LAYER_NEOPIXELS_RAINBOW 5
 
 // Main menu options
 #define NEOPIXELS_MENU 0
@@ -46,24 +46,23 @@
 #define NEOPIXEL_ON 3
 #define NEOPIXEL_OFF 4
 
-/* Function protopotypes */
-tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events);
-void IIC_Init(u32 bound, u16 address);
-void Scan_I2C_Devices();
-void Display_Test();
-// Initialize the display
-void Display_Init();
-void Display_Clear();
-void Display_Show_Logo();
-void Display_Show_Menu();
-void Display_Update_Menu();
-char **Display_Update_Menu_Options();
-
 /* Global variables */
 extern tmosTaskID displayTaskID;
 extern uint8_t selectedOption;
 extern uint8_t previousLayer;
 extern uint8_t currentLayer;
 extern uint8_t optionsSize;
+
+/* Function protopotypes */
+tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events);
+void IIC_Init(u32 bound, u16 address);
+void Scan_I2C_Devices();
+void Display_Test();
+void Display_Init();
+void Display_Clear();
+void Display_Show_Logo();
+void Display_Show_Menu();
+void Display_Update_Menu();
+char **Display_Update_Menu_Options();
 
 #endif // DISPLAY_H

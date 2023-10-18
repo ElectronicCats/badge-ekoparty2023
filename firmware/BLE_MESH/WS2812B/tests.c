@@ -3,66 +3,66 @@
 void test_leds()
 {
     printf("Test LED 1\r\n");
-    led1_set_red();
+    Led1_Set_Red();
     Delay_Ms(500);
-    led1_set_green();
+    Led1_Set_Green();
     Delay_Ms(500);
-    led1_set_blue();
+    Led1_Set_Blue();
     Delay_Ms(500);
-    led1_off();
+    Led1_Off();
 
     printf("Test LED 2\r\n");
-    led2_set_red();
+    Led2_Set_Red();
     Delay_Ms(500);
-    led2_set_green();
+    Led2_Set_Green();
     Delay_Ms(500);
-    led2_set_blue();
+    Led2_Set_Blue();
     Delay_Ms(500);
-    led2_off();
+    Led2_Off();
 
     printf("Test LED 3\r\n");
-    led3_set_red();
+    Led3_Set_Red();
     Delay_Ms(500);
-    led3_set_green();
+    Led3_Set_Green();
     Delay_Ms(500);
-    led3_set_blue();
+    Led3_Set_Blue();
     Delay_Ms(500);
-    led3_off();
+    Led3_Off();
 
     printf("Test LEDs\r\n");
-    led1_set_red();
-    led2_set_red();
-    led3_set_red();
+    Led1_Set_Red();
+    Led2_Set_Red();
+    Led3_Set_Red();
     Delay_Ms(500);
 
-    led1_set_green();
-    led2_set_green();
-    led3_set_green();
+    Led1_Set_Green();
+    Led2_Set_Green();
+    Led3_Set_Green();
     Delay_Ms(500);
 
-    led1_set_blue();
-    led2_set_blue();
-    led3_set_blue();
+    Led1_Set_Blue();
+    Led2_Set_Blue();
+    Led3_Set_Blue();
     Delay_Ms(500);
 
-    leds_off();
+    Leds_Off();
     Delay_Ms(500);
-    leds_on();
+    Leds_On();
     Delay_Ms(500);
-    leds_off();
+    Leds_Off();
     Delay_Ms(500);
-    leds_on();
+    Leds_On();
     Delay_Ms(500);
-    leds_off();
+    Leds_Off();
     Delay_Ms(500);
 
     printf("Test rainbow effect\r\n");
     for (int i = 0; i < 100; i++)
     {
-        leds_set_rainbow(); // Change the colors every time its called
+        Leds_Set_Rainbow(); // Change the colors every time its called
         Delay_Ms(100);
     }
 
     printf("Test finished\r\n");
-    leds_off();
+    Leds_Off();
 }

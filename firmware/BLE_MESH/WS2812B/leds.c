@@ -13,6 +13,7 @@
 #define LED3_BLUE 0x000015E2
 #define DUMMY_COLOR 0x00007F00
 
+tmosTaskID ledsTaskID;
 int leds_number = 0;
 int turn_off_leds;
 int rainbow_mode;
@@ -22,8 +23,9 @@ uint32_t led3_color, led3_color_backup;
 
 uint32_t random_color(int led_number);
 
-void leds_init()
+void Leds_Init()
 {
+    ledsTaskID = TMOS_ProcessEventRegister(Leds_ProcessEvent);
     leds_number = 3;
     turn_off_leds = 0;
     rainbow_mode = 0;
@@ -33,6 +35,17 @@ void leds_init()
 
     WS2812BDMAInit();
     Delay_Ms(10); // Give some time to turn leds on
+    tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY));
+}
+
+tmosEvents Leds_ProcessEvent(tmosTaskID task_id, tmosEvents events)
+{
+    if (events & LEDS_RAINBOW_EVENT)
+    {
+        Leds_Set_Rainbow();
+        tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY));
+        return events ^ LEDS_RAINBOW_EVENT;
+    }
 }
 
 uint32_t WS2812BLEDCallback(int led_number)
@@ -44,7 +57,10 @@ uint32_t WS2812BLEDCallback(int led_number)
 
     if (rainbow_mode)
     {
-        return random_color(led_number);
+        // return random_color(led_number);
+        uint32_t color = random_color(leds_number);
+        APP_DBG("Color: %d", color);
+        return color;
     }
 
     if (led_number == 0)
@@ -65,13 +81,13 @@ uint32_t WS2812BLEDCallback(int led_number)
     }
 }
 
-void leds_on()
+void Leds_On()
 {
     turn_off_leds = 0;
     WS2812BDMAStart(leds_number);
 }
 
-void leds_off()
+void Leds_Off()
 {
     turn_off_leds = 1;
     WS2812BDMAStart(leds_number);
@@ -97,127 +113,128 @@ uint32_t random_color(int led_number)
     return TweenHexColors(fire, ice, ((tween + led_number) > 0) ? 255 : 0); // Where "tween" is a value from 0 ... 255
 }
 
-void leds_set_rainbow()
+void Leds_Set_Rainbow()
 {
+    APP_DBG("Playing rainbow");
     rainbow_mode = 1;
     leds_number = 3;
-    leds_on();
+    Leds_On();
 }
 
-void led1_on()
+void Led1_On()
 {
     led1_color = led1_color_backup;
-    leds_on();
+    Leds_On();
 }
 
-void led1_off()
+void Led1_Off()
 {
     led1_color_backup = led1_color;
     led1_color = LED_OFF;
-    leds_on();
+    Leds_On();
 }
 
-void led1_set_red()
+void Led1_Set_Red()
 {
     led1_color = LED1_RED;
     led1_color_backup = led1_color;
-    leds_on();
+    Leds_On();
 }
 
-void led1_set_green()
+void Led1_Set_Green()
 {
     led1_color = LED1_GREEN;
     led1_color_backup = led1_color;
-    leds_on();
+    Leds_On();
 }
 
-void led1_set_blue()
+void Led1_Set_Blue()
 {
     led1_color = LED1_BLUE;
     led1_color_backup = led1_color;
-    leds_on();
+    Leds_On();
 }
 
-void led2_on()
+void Led2_On()
 {
     led2_color = led2_color_backup;
-    leds_on();
+    Leds_On();
 }
 
-void led2_off()
+void Led2_Off()
 {
     led2_color_backup = led2_color;
     led2_color = LED_OFF;
-    leds_on();
+    Leds_On();
 }
 
-void led2_set_red()
+void Led2_Set_Red()
 {
     led2_color = LED2_RED;
     led2_color_backup = led2_color;
-    leds_on();
+    Leds_On();
 }
 
-void led2_set_green()
+void Led2_Set_Green()
 {
     led2_color = LED2_GREEN;
     led2_color_backup = led2_color;
-    leds_on();
+    Leds_On();
 }
 
-void led2_set_blue()
+void Led2_Set_Blue()
 {
     led2_color = LED2_BLUE;
     led2_color_backup = led2_color;
-    leds_on();
+    Leds_On();
 }
 
-void led3_on()
+void Led3_On()
 {
     led3_color = led3_color_backup;
 
     if (led3_color == LED3_RED)
     {
-        led3_set_red();
+        Led3_Set_Red();
     }
     else if (led3_color == LED3_GREEN)
     {
-        led3_set_green();
+        Led3_Set_Green();
     }
     else if (led3_color == LED3_BLUE)
     {
-        led3_set_blue();
+        Led3_Set_Blue();
     }
     else
     {
-        leds_on();
+        Leds_On();
     }
 }
 
-void led3_off()
+void Led3_Off()
 {
     led3_color_backup = led3_color;
     led3_color = LED_OFF;
-    leds_on();
+    Leds_On();
 }
 
-void led3_set_red()
+void Led3_Set_Red()
 {
     leds_number = 3;
     led3_color = LED3_RED;
-    leds_on();
+    Leds_On();
 }
 
-void led3_set_green()
+void Led3_Set_Green()
 {
     leds_number = 3;
     led3_color = LED3_GREEN;
-    leds_on();
+    Leds_On();
 }
 
-void led3_set_blue()
+void Led3_Set_Blue()
 {
     leds_number = 4;
     led3_color = LED3_BLUE;
-    leds_on();
+    Leds_On();
 }

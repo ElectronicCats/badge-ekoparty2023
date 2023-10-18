@@ -102,17 +102,16 @@ int main(void)
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
-
     APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
-
-    leds_init();
-    APP_DBG("LEDs setup ready!");
-    // test_leds();
-
     APP_DBG("%s", VER_LIB);
+
     WCHBLE_Init();
     HAL_Init();
     bt_mesh_lib_init();
+
+    Leds_Init();
+    APP_DBG("LEDs setup ready!");
+    // test_leds();
     Display_Init();
     App_Init();
     Main_Circulation();

@@ -6,29 +6,41 @@
 
 #include "ws2812b_dma_spi_led_driver.h"
 #include "color_utilities.h"
+#include "HAL.h"
+#include "app_mesh_config.h"
 
-void leds_init();
+#define LEDS_RAINBOW_EVENT 0x0001
+
+#define RAINBOW_DELAY 100 // 100 ms
+
+/* Global variables */
+extern tmosTaskID ledsTaskID;
+
+/* Function prototypes */
+void Leds_Init();
+tmosEvents Leds_ProcessEvent(tmosTaskID task_id, tmosEvents events);
 uint32_t WS2812BLEDCallback(int led_number); // Callback that you must implement.
-void leds_on();
-void leds_off();
-void leds_set_rainbow();
 
-void led1_on();
-void led1_off();
-void led1_set_red();
-void led1_set_green();
-void led1_set_blue();
+void Leds_On();
+void Leds_Off();
+void Leds_Set_Rainbow();
 
-void led2_on();
-void led2_off();
-void led2_set_red();
-void led2_set_green();
-void led2_set_blue();
+void Led1_On();
+void Led1_Off();
+void Led1_Set_Red();
+void Led1_Set_Green();
+void Led1_Set_Blue();
 
-void led3_on();
-void led3_off();
-void led3_set_red();
-void led3_set_green();
-void led3_set_blue();
+void Led2_On();
+void Led2_Off();
+void Led2_Set_Red();
+void Led2_Set_Green();
+void Led2_Set_Blue();
+
+void Led3_On();
+void Led3_Off();
+void Led3_Set_Red();
+void Led3_Set_Green();
+void Led3_Set_Blue();
 
 #endif
