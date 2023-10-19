@@ -111,7 +111,7 @@ int main(void)
 
     Leds_Init();
     APP_DBG("LEDs setup ready!");
-    // test_leds();
+
     Display_Init();
     App_Init();
     Main_Circulation();

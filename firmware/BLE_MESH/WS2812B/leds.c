@@ -35,15 +35,16 @@ void Leds_Init()
 
     WS2812BDMAInit();
     Delay_Ms(10); // Give some time to turn leds on
-    tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY));
+    Leds_Off();
+    // tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
 }
 
-tmosEvents Leds_ProcessEvent(tmosTaskID task_id, tmosEvents events)
+tmosEvents Leds_ProcessEvent(tmosTaskID taks_id, tmosEvents events)
 {
     if (events & LEDS_RAINBOW_EVENT)
     {
         Leds_Set_Rainbow();
-        tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY));
+        tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY_MS));
         return events ^ LEDS_RAINBOW_EVENT;
     }
 }
@@ -57,10 +58,7 @@ uint32_t WS2812BLEDCallback(int led_number)
 
     if (rainbow_mode)
     {
-        // return random_color(led_number);
-        uint32_t color = random_color(leds_number);
-        APP_DBG("Color: %d", color);
-        return color;
+        return random_color(led_number);
     }
 
     if (led_number == 0)
@@ -83,27 +81,24 @@ uint32_t WS2812BLEDCallback(int led_number)
 
 void Leds_On()
 {
-    turn_off_leds = 0;
+    turn_off_leds = false;
     WS2812BDMAStart(leds_number);
 }
 
 void Leds_Off()
 {
-    turn_off_leds = 1;
+    turn_off_leds = true;
+    rainbow_mode = false;
+    tmos_stop_task(ledsTaskID, LEDS_RAINBOW_EVENT);
     WS2812BDMAStart(leds_number);
 }
 
 uint32_t random_color(int led_number)
 {
-    uint16_t phases[leds_number];
-
-    for (int k = 0; k < leds_number; k++)
-    {
-        phases[k] += ((((rands[k & 0xff]) + 0xf) << 2) + (((rands[k & 0xff]) + 0xf) << 1)) >> 1;
-    }
-
     uint8_t tween = 0;
-    uint8_t index = (phases[led_number]) >> 8;
+    static uint8_t index = 0;
+    index += 3;
+
     uint8_t rsbase = sintable[index];
     uint8_t rs = rsbase >> 3;
     uint32_t fire = ((huetable[(rs + 190) & 0xff] >> 1) << 16) | (huetable[(rs + 30) & 0xff]) | ((huetable[(rs + 0)] >> 1) << 8);
@@ -124,6 +119,8 @@ void Leds_Set_Rainbow()
 void Led1_On()
 {
     led1_color = led1_color_backup;
+    Leds_Off();
+    Delay_Ms(TURN_OFF_DELAY_MS);
     Leds_On();
 }
 
@@ -138,26 +135,30 @@ void Led1_Set_Red()
 {
     led1_color = LED1_RED;
     led1_color_backup = led1_color;
-    Leds_On();
+    Led1_On();
 }
 
 void Led1_Set_Green()
 {
+    Led1_Off();
     led1_color = LED1_GREEN;
     led1_color_backup = led1_color;
-    Leds_On();
+    Led1_On();
 }
 
 void Led1_Set_Blue()
 {
+    Led1_Off();
     led1_color = LED1_BLUE;
     led1_color_backup = led1_color;
-    Leds_On();
+    Led1_On();
 }
 
 void Led2_On()
 {
     led2_color = led2_color_backup;
+    Leds_Off();
+    Delay_Ms(TURN_OFF_DELAY_MS);
     Leds_On();
 }
 
@@ -172,26 +173,28 @@ void Led2_Set_Red()
 {
     led2_color = LED2_RED;
     led2_color_backup = led2_color;
-    Leds_On();
+    Led2_On();
 }
 
 void Led2_Set_Green()
 {
     led2_color = LED2_GREEN;
     led2_color_backup = led2_color;
-    Leds_On();
+    Led2_On();
 }
 
 void Led2_Set_Blue()
 {
     led2_color = LED2_BLUE;
     led2_color_backup = led2_color;
-    Leds_On();
+    Led2_On();
 }
 
 void Led3_On()
 {
     led3_color = led3_color_backup;
+    Leds_Off();
+    Delay_Ms(TURN_OFF_DELAY_MS);
 
     if (led3_color == LED3_RED)
     {
@@ -222,6 +225,8 @@ void Led3_Set_Red()
 {
     leds_number = 3;
     led3_color = LED3_RED;
+    Leds_Off();
+    Delay_Ms(TURN_OFF_DELAY_MS);
     Leds_On();
 }
 
@@ -229,6 +234,8 @@ void Led3_Set_Green()
 {
     leds_number = 3;
     led3_color = LED3_GREEN;
+    Leds_Off();
+    Delay_Ms(TURN_OFF_DELAY_MS);
     Leds_On();
 }
 
@@ -236,5 +243,7 @@ void Led3_Set_Blue()
 {
     leds_number = 4;
     led3_color = LED3_BLUE;
+    Leds_Off();
+    Delay_Ms(TURN_OFF_DELAY_MS);
     Leds_On();
 }
