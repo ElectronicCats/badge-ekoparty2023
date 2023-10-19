@@ -287,18 +287,20 @@ void Display_Show_Logo()
 void Display_Show_Menu()
 {
     char **options = Display_Update_Menu_Options();
-
     ssd1306_setbuf(0);
 
-    for (uint8_t i = 0; i < optionsSize; i++)
+    uint8_t startIdx = (selectedOption >= 4) ? selectedOption - 3 : 0;
+    uint8_t endIdx = (selectedOption >= 4) ? selectedOption + 1 : 4;
+
+    for (uint8_t i = startIdx; i <= endIdx; i++)
     {
         if (i == selectedOption)
         {
-            ssd1306_drawstr(0, i * 8, options[i], BLACK);
+            ssd1306_drawstr(0, (i - startIdx) * 8, options[i], BLACK);
         }
         else
         {
-            ssd1306_drawstr(0, i * 8, options[i], WHITE);
+            ssd1306_drawstr(0, (i - startIdx) * 8, options[i], WHITE);
         }
     }
 
