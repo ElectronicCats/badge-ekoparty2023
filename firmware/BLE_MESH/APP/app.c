@@ -794,8 +794,10 @@ void blemesh_on_sync(void)
  */
 void App_Init()
 {
-    GAPRole_PeripheralInit();
-    Peripheral_Init();
+    // GAPRole_PeripheralInit();
+    // Peripheral_Init();
+    GAPRole_ObserverInit();
+    Observer_Init();
 
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
     Button_Pressed_Callback = Keyboard_Scan_Callback;

@@ -110,7 +110,6 @@ uint32_t random_color(int led_number)
 
 void Leds_Set_Rainbow()
 {
-    APP_DBG("Playing rainbow");
     rainbow_mode = 1;
     leds_number = 3;
     Leds_On();

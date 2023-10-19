@@ -18,12 +18,7 @@
 #include "app_mesh_config.h"
 #include "app.h"
 #include "display.h"
-// #define WS2812DMA_IMPLEMENTATION
-// // #define WSRBG //For WS2816C's.
-// #define WSGRB // For SK6805-EC15
-
-// #include "leds.h"
-// #include "tests.h"
+#include "observer.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -111,8 +106,8 @@ int main(void)
 
     Leds_Init();
     APP_DBG("LEDs setup ready!");
-
     Display_Init();
+    
     App_Init();
     Main_Circulation();
 }
