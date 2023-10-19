@@ -290,7 +290,7 @@ void Display_Show_Menu()
     ssd1306_setbuf(0);
 
     uint8_t startIdx = (selectedOption >= 4) ? selectedOption - 3 : 0;
-    uint8_t endIdx = (selectedOption >= 4) ? selectedOption + 1 : 4;
+    uint8_t endIdx = (selectedOption >= 4) ? selectedOption + 1 : optionsSize - 1;
 
     for (uint8_t i = startIdx; i <= endIdx; i++)
     {
