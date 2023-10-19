@@ -105,14 +105,14 @@ int main(void)
 
     APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
 
-    leds_init();
-    APP_DBG("LEDs setup ready!");
-    // test_leds();
-
     APP_DBG("%s", VER_LIB);
     WCHBLE_Init();
     HAL_Init();
     bt_mesh_lib_init();
+
+    leds_init();
+    APP_DBG("LEDs setup ready!");
+
     Display_Init();
     App_Init();
     Main_Circulation();

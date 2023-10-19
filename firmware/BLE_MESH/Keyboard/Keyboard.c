@@ -45,7 +45,7 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_NEOPIXEL_3:
         APP_DBG("Layer neopixel 3");
         break;
-    case LAYER_NEOPIXEL_RAINBOW:
+    case LAYER_NEOPIXELS_RAINBOW:
         APP_DBG("Layer neopixels raibow");
         break;
     default:
@@ -134,12 +134,12 @@ void Update_Previous_Layer()
     case LAYER_NEOPIXEL_1:
     case LAYER_NEOPIXEL_2:
     case LAYER_NEOPIXEL_3:
-    case LAYER_NEOPIXEL_RAINBOW:
+    case LAYER_NEOPIXELS_RAINBOW:
         previousLayer = LAYER_NEOPIXELS_MENU;
         break;
     default:
         previousLayer = LAYER_MAIN;
-        APP_DBG("Unknows layer:");
+        APP_DBG("Unknown layer:");
         Keyboard_Print_Layer(currentLayer);
         break;
     }
@@ -184,8 +184,12 @@ void Neopixels_Menu()
     case NEOPIXEL_3:
         currentLayer = LAYER_NEOPIXEL_3;
         break;
+    case NEOPIXELS_RAINBOW:
+        // currentLayer = LAYER_NEOPIXELS_RAINBOW;
+        tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY_MS));
+        break;
     default:
-        APP_DBG("Missing option");
+        APP_DBG("Missing option: %d", selectedOption);
         break;
     }
 

@@ -28,7 +28,7 @@
 #define LAYER_NEOPIXEL_1 2
 #define LAYER_NEOPIXEL_2 3
 #define LAYER_NEOPIXEL_3 4
-#define LAYER_NEOPIXEL_RAINBOW 5
+#define LAYER_NEOPIXELS_RAINBOW 5
 
 // Main menu options
 #define NEOPIXELS_MENU 0
