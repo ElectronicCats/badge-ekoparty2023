@@ -64,6 +64,14 @@ hardware/Template-KiCAD-Project-CI-backups/
 *.out
 *.app
 
-firmware/CH32V208WBU6/obj/
+# Firmware binaries
+firmware/**/obj/
 
+# VSCode config
+.vscode/
+
+# KiCad project files
 hardware/panel/ekoBadgePanel.kicad_pro
+
+# macOS Finder files
+**/.DS_Store

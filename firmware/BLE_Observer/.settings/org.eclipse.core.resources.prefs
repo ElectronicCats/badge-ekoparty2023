@@ -1,0 +1,7 @@
+eclipse.preferences.version=1
+encoding//APP/peripheral_main.c=GBK
+encoding//HAL/Link.ld=GBK
+encoding//HAL/MCU.c=GBK
+encoding//HAL/include/config.h=GBK
+encoding//LIB/wchble_rom.h=GBK
+encoding//Ld/Link.ld=GBK
