@@ -92,24 +92,43 @@ Main_Circulation(void)
  *
  * @return  none
  */
+// int main(void)
+// {
+//     SystemCoreClockUpdate();
+//     Delay_Init();
+//     USART_Printf_Init(115200);
+//     APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
+//     APP_DBG("%s", VER_LIB);
+
+//     WCHBLE_Init();
+//     HAL_Init();
+//     bt_mesh_lib_init();
+
+//     Leds_Init();
+//     APP_DBG("LEDs setup ready!");
+//     Display_Init();
+
+//     App_Init();
+//     Main_Circulation();
+// }
+
 int main(void)
 {
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
-    APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
-    APP_DBG("%s", VER_LIB);
+    printf("SystemClk:%d\r\n", SystemCoreClock);
+    printf("USART MultiProcessor TEST\r\n");
 
-    WCHBLE_Init();
-    HAL_Init();
-    bt_mesh_lib_init();
-
-    Leds_Init();
-    APP_DBG("LEDs setup ready!");
-    Display_Init();
-    
-    App_Init();
-    Main_Circulation();
+    while (1)
+    {
+        // Print data from RX buffer
+        if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+        {
+            printf("USART1 Receive Data: %c\r\n", USART_ReceiveData(USART1));
+        }
+    }
 }
 
 /******************************** endfile @ main ******************************/
