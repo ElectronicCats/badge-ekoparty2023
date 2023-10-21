@@ -5,7 +5,7 @@
  * Date               : 2018/12/10
  * Description        : Observer application, initialize scan parameters,
  *                      then scan regularly, if the scan result is not empty,
- *                      print the scanned broadcast address
+ *                      APP_DBG the scanned broadcast address
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for
@@ -17,6 +17,7 @@
  */
 #include "CONFIG.h"
 #include "observer.h"
+#include "app_mesh_config.h"
 
 /*********************************************************************
  * MACROS
@@ -207,7 +208,7 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
         GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                        DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                        DEFAULT_DISCOVERY_WHITE_LIST);
-        PRINT("Discovering...\r\n");
+        APP_DBG("Discovering...");
     }
     break;
 
@@ -219,7 +220,7 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
 
     case GAP_DEVICE_DISCOVERY_EVENT:
     {
-        PRINT("Discovery over...\r\n");
+        APP_DBG("Discovery over...");
 
         // Display discovery results
         if (pEvent->discCmpl.numDevs > 0)
@@ -231,34 +232,34 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
                 // if (pEvent->discCmpl.pDevList[j].addr[5] == 0x38 && pEvent->discCmpl.pDevList[j].addr[0] == 0xB0)
                 // if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0)
                 // {
-                // PRINT("Device %d: ", j);
+                // APP_DBG("Device %d: ", j);
                 if (ObserverDevList[j].rssi >= -40 && ObserverDevList[j].rssi != 0)
                 {
-                    PRINT("You have a new friend\r\n");
-                    PRINT("RSSI: %d\r\n", ObserverDevList[j].rssi);
+                    APP_DBG("You have a new friend");
+                    APP_DBG("RSSI: %d", ObserverDevList[j].rssi);
                     for (i = 5; i >= 0; i--)
                     {
                         if (i > 0)
                         {
-                            // PRINT("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
-                            PRINT("%X:", ObserverDevList[j].addr[i]);
+                            // APP_DBG("%X:", pEvent->discCmpl.pDevList[j].addr[i]);
+                            APP_DBG("%X:", ObserverDevList[j].addr[i]);
                         }
                         else
                         {
-                            // PRINT("%X", pEvent->discCmpl.pDevList[j].addr[i]);
-                            PRINT("%X", ObserverDevList[j].addr[i]);
+                            // APP_DBG("%X", pEvent->discCmpl.pDevList[j].addr[i]);
+                            APP_DBG("%X", ObserverDevList[j].addr[i]);
                         }
 
                         // if (ObserverDevList[j].addr[5] == 0x38 && ObserverDevList[j].addr[0] == 0xB0 && i == 0)
                         // {
-                        //     PRINT("RSSI: %d\r\n", ObserverDevList[j].rssi);
+                        //     APP_DBG("RSSI: %d", ObserverDevList[j].rssi);
                         //     if (ObserverDevList[j].rssi >= -40)
                         //     {
-                        //         PRINT("You have a new friend\r\n");
+                        //         APP_DBG("You have a new friend");
                         //     }
                         // }
                     }
-                    PRINT("\r\n");
+                    APP_DBG("");
                 }
                 // }
             }
@@ -269,14 +270,14 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
         GAPRole_ObserverStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                        DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                        DEFAULT_DISCOVERY_WHITE_LIST);
-        PRINT("Discovering...\r\n");
+        APP_DBG("Discovering...");
     }
     break;
 
     case GAP_EXT_ADV_DEVICE_INFO_EVENT:
     {
         // Display device addr
-        PRINT("Recv ext adv \r\n");
+        APP_DBG("Recv ext adv ");
         // Add device to list
         // ObserverAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
     }
@@ -285,7 +286,7 @@ static void ObserverEventCB(gapRoleEvent_t *pEvent)
     case GAP_DIRECT_DEVICE_INFO_EVENT:
     {
         // Display device addr
-        PRINT("Recv direct adv \r\n");
+        APP_DBG("Recv direct adv ");
         // Add device to list
         // ObserverAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
     }

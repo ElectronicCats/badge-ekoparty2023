@@ -16,6 +16,7 @@
 #include "app_vendor_model_srv.h"
 #include "app.h"
 #include "peripheral.h"
+#include "central.h"
 #include "HAL.h"
 #include "app_trans_process.h"
 #include "display.h"
@@ -794,10 +795,13 @@ void blemesh_on_sync(void)
  */
 void App_Init()
 {
-    // GAPRole_PeripheralInit();
-    // Peripheral_Init();
-    GAPRole_ObserverInit();
-    Observer_Init();
+    GAPRole_PeripheralInit();
+    GAPRole_CentralInit();
+    Peripheral_Init();
+    Central_Init();
+    
+    // GAPRole_ObserverInit();
+    // Observer_Init();
 
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
     Button_Pressed_Callback = Keyboard_Scan_Callback;

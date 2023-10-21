@@ -143,11 +143,6 @@ void Scan_I2C_Devices()
     if (found == 0)
     {
         APP_DBG("No I2C devices found");
-        APP_DBG("Wait for ever...");
-        while (1)
-        {
-            Delay_Ms(1000);
-        }
     }
 }
 

@@ -18,7 +18,6 @@
 #include "app_mesh_config.h"
 #include "app.h"
 #include "display.h"
-#include "observer.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
