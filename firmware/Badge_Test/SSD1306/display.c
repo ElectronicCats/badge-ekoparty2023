@@ -44,14 +44,14 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     {
         Display_Show_Logo();
         tmos_start_task(displayTaskID, DISPLAY_CLEAR_EVENT, MS1_TO_SYSTEM_TIME(SHOW_LOGO_DELAY));
-        tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
+        tmos_start_task(displayTaskID, DISPLAY_SHOW_VMENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
         return events ^ DISPLAY_SHOW_LOGO_EVENT;
     }
 
-    if (events & DISPLAY_SHOW_MENU_EVENT)
+    if (events & DISPLAY_SHOW_VMENU_EVENT)
     {
-        Display_Show_Menu();
-        return events ^ DISPLAY_SHOW_MENU_EVENT;
+        Display_Show_VMenu();
+        return events ^ DISPLAY_SHOW_VMENU_EVENT;
     }
 
     if (events & DISPLAY_SHOW_HELLO_WORLD_EVENT)
@@ -308,9 +308,9 @@ void Display_Show_Logo()
     ssd1306_refresh();
 }
 
-void Display_Show_Menu()
+void Display_Show_VMenu()
 {
-    char **options = Display_Update_Menu_Options();
+    char **options = Display_Update_VMenu_Options();
     ssd1306_setbuf(0);
 
     uint8_t startIdx = (selectedOption >= 4) ? selectedOption - 3 : 0;
@@ -331,12 +331,12 @@ void Display_Show_Menu()
     ssd1306_refresh();
 }
 
-void Display_Update_Menu()
+void Display_Update_VMenu()
 {
-    tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+    tmos_start_task(displayTaskID, DISPLAY_SHOW_VMENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
 }
 
-char **Display_Update_Menu_Options()
+char **Display_Update_VMenu_Options()
 {
     char **options;
 

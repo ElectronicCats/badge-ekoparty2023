@@ -6,11 +6,25 @@ uint8_t selectedOption = 0;
 uint8_t previousLayer;
 uint8_t currentLayer;
 uint8_t optionsSize;
+uint8_t bannerSize;
+uint8_t menuOrientation;
+
+char *errorBanner[] = {
+    "Error"};
+
+// Option to horizontal menu
+char *oneOption[] = {
+    "Aceptar"};
+
+// Options to horizontal menu
+char *twoOptions[] = {
+    "Aceptar",
+    "Cancelar"};
 
 char *mainOptions[] = {
     "1. LEDs",
     "2. Escaner I2C",
-    "3. Buscar amigo"};
+    "3. Amigos"};
 
 char *neopixelsOptions[] = {
     "1. LED 1",
@@ -24,6 +38,17 @@ char *neopixelOptions[] = {
     "3. Azul",
     "4. Encender",
     "5. Apagar"};
+
+char *friendOptions[] = {
+    "1. Amigos: 0",
+    "2. Buscar",
+    "3. Ayuda"};
+
+// Friends help text
+char *friendHelp[] = {
+    " Acercate a un",
+    "   amigo para",
+    "   agregarlo"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -44,14 +69,20 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     {
         Display_Show_Logo();
         tmos_start_task(displayTaskID, DISPLAY_CLEAR_EVENT, MS1_TO_SYSTEM_TIME(SHOW_LOGO_DELAY));
-        tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
+        tmos_start_task(displayTaskID, DISPLAY_SHOW_VMENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
         return events ^ DISPLAY_SHOW_LOGO_EVENT;
     }
 
-    if (events & DISPLAY_SHOW_MENU_EVENT)
+    if (events & DISPLAY_SHOW_VMENU_EVENT)
     {
-        Display_Show_Menu();
-        return events ^ DISPLAY_SHOW_MENU_EVENT;
+        Display_Show_VMenu();
+        return events ^ DISPLAY_SHOW_VMENU_EVENT;
+    }
+
+    if (events & DISPLAY_SHOW_HMENU_EVENT)
+    {
+        Display_Show_HMenu();
+        return events ^ DISPLAY_SHOW_HMENU_EVENT;
     }
 }
 
@@ -286,9 +317,31 @@ void Display_Show_Logo()
     ssd1306_refresh();
 }
 
-void Display_Show_Menu()
+void Display_Update_Menu()
 {
-    char **options = Display_Update_Menu_Options();
+    APP_DBG("Orientation: %s", menuOrientation == VERTICAL_MENU ? "vertical" : "horizontal");
+
+    if (menuOrientation == VERTICAL_MENU)
+    {
+        Display_Update_VMenu();
+    }
+    else if (menuOrientation == HORIZONTAL_MENU)
+    {
+        Display_Update_HMenu();
+    }
+}
+
+// Start task to show horizontal menu
+void Display_Update_VMenu()
+{
+    menuOrientation = VERTICAL_MENU;
+    tmos_start_task(displayTaskID, DISPLAY_SHOW_VMENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+}
+
+// Show vertical menu
+void Display_Show_VMenu()
+{
+    char **options = Display_Update_VMenu_Options();
     ssd1306_setbuf(0);
 
     uint8_t startIdx = (selectedOption >= 4) ? selectedOption - 3 : 0;
@@ -309,12 +362,8 @@ void Display_Show_Menu()
     ssd1306_refresh();
 }
 
-void Display_Update_Menu()
-{
-    tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
-}
-
-char **Display_Update_Menu_Options()
+// Update horizontal menu options
+char **Display_Update_VMenu_Options()
 {
     char **options;
 
@@ -334,9 +383,97 @@ char **Display_Update_Menu_Options()
         options = neopixelOptions;
         optionsSize = sizeof(neopixelOptions) / sizeof(neopixelOptions[0]);
         break;
+    case LAYER_FRIENDS_MENU:
+        options = friendOptions;
+        optionsSize = sizeof(friendOptions) / sizeof(friendOptions[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
+        break;
+    }
+
+    return options;
+}
+
+// Start task to show horizontal menu
+void Display_Update_HMenu()
+{
+    menuOrientation = HORIZONTAL_MENU;
+    tmos_start_task(displayTaskID, DISPLAY_SHOW_HMENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+}
+
+// Show horizontal menu, one or two options
+void Display_Show_HMenu()
+{
+    char **banner = Display_Update_HMenu_Banner();
+    char **options = Display_Update_HMenu_Options();
+
+    // Structure: 64x32 pixels
+    /*
+    *  -------------------------
+    * |         Banner         |
+    * |------------------------|
+    * |   Cancelar   Aceptar   |
+    * -------------------------
+    */
+
+    ssd1306_setbuf(0);
+    
+    for (int i = 0; i < bannerSize; i++)
+    {
+        ssd1306_drawstr(0, i * 8, banner[i], WHITE);
+    }
+
+    if (optionsSize == 1)
+    {
+        ssd1306_drawstr(32, 24, options[0], BLACK);
+    }
+    else if (optionsSize == 2)
+    {
+        ssd1306_drawstr(0, 24, options[0], WHITE);
+        ssd1306_drawstr(62, 24, options[1], WHITE);
+    }
+
+    ssd1306_refresh();
+}
+
+char **Display_Update_HMenu_Banner()
+{
+    char **banner;
+
+    switch (currentLayer)
+    {
+    case LAYER_FRIENDS_HELP:
+        banner = friendHelp;
+        bannerSize = sizeof(friendHelp) / sizeof(friendHelp[0]);
+        break;
+    default:
+        banner = errorBanner;
+        bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
+        break;
+    }
+
+    return banner;
+}
+
+char **Display_Update_HMenu_Options()
+{
+    char **options;
+
+    switch (currentLayer)
+    {
+    case LAYER_FRIENDS_SEARCH:
+        options = twoOptions;
+        optionsSize = sizeof(twoOptions) / sizeof(twoOptions[0]);
+        break;
+    case LAYER_FRIENDS_HELP:
+        options = oneOption;
+        optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
+        break;
+    default:
+        options = oneOption;
+        optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
     }
 

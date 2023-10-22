@@ -48,6 +48,15 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_NEOPIXELS_RAINBOW:
         APP_DBG("Layer neopixels raibow");
         break;
+    case LAYER_FRIENDS_MENU:
+        APP_DBG("Layer friends menu");
+        break;
+    case LAYER_FRIENDS_SEARCH:
+        APP_DBG("Layer friends search");
+        break;
+    case LAYER_FRIENDS_HELP:
+        APP_DBG("Layer friends help");
+        break;
     default:
         APP_DBG("Missing layer");
         break;
@@ -56,43 +65,33 @@ void Keyboard_Print_Layer(uint8_t layer)
 
 void Keyboard_Scan_Callback(uint8_t keys)
 {
-    Keyboard_Print_Button(keys);
+    // Keyboard_Print_Button(keys);
 
     switch (keys)
     {
     case BUTTON_BACK:
-    {
         currentLayer = previousLayer;
         selectedOption = 0;
+        Keyboard_Update_Orientation();
         Display_Update_Menu();
         break;
-    }
     case BUTTON_UP:
-    {
         selectedOption--;
 
         if (selectedOption == 255) // Underflow
-        {
             selectedOption = 0;
-        }
 
         Display_Update_Menu();
         break;
-    }
     case BUTTON_DOWN:
-    {
         selectedOption++;
 
         if (selectedOption > optionsSize - 1)
-        {
             selectedOption = optionsSize - 1;
-        }
 
         Display_Update_Menu();
         break;
-    }
     case BUTTON_SELECT:
-    {
         switch (currentLayer)
         {
         case LAYER_MAIN:
@@ -106,13 +105,18 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_NEOPIXEL_3:
             Neopixel_Options();
             break;
+        case LAYER_FRIENDS_MENU:
+            Friends_Menu();
+            break;
+        case LAYER_FRIENDS_SEARCH:
+            break;
+        case LAYER_FRIENDS_HELP:
+            Friends_Help();
+            break;
         }
         break;
-    }
     default:
-    {
         break;
-    }
     }
 
     Update_Previous_Layer();
@@ -121,14 +125,33 @@ void Keyboard_Scan_Callback(uint8_t keys)
     APP_DBG("selectedOption %d", selectedOption);
 }
 
+void Keyboard_Update_Orientation()
+{
+    switch (currentLayer)
+    {
+    case LAYER_MAIN:
+    case LAYER_NEOPIXELS_MENU:
+    case LAYER_NEOPIXEL_1:
+    case LAYER_NEOPIXEL_2:
+    case LAYER_NEOPIXEL_3:
+    case LAYER_NEOPIXELS_RAINBOW:
+    case LAYER_FRIENDS_MENU:
+        menuOrientation = VERTICAL_MENU;
+        break;
+    case LAYER_FRIENDS_SEARCH:
+    case LAYER_FRIENDS_HELP:
+        menuOrientation = HORIZONTAL_MENU;
+        break;
+    }
+}
+
 void Update_Previous_Layer()
 {
     switch (currentLayer)
     {
     case LAYER_MAIN:
-        previousLayer = LAYER_MAIN;
-        break;
     case LAYER_NEOPIXELS_MENU:
+    case LAYER_FRIENDS_MENU:
         previousLayer = LAYER_MAIN;
         break;
     case LAYER_NEOPIXEL_1:
@@ -136,6 +159,10 @@ void Update_Previous_Layer()
     case LAYER_NEOPIXEL_3:
     case LAYER_NEOPIXELS_RAINBOW:
         previousLayer = LAYER_NEOPIXELS_MENU;
+        break;
+    case LAYER_FRIENDS_SEARCH:
+    case LAYER_FRIENDS_HELP:
+        previousLayer = LAYER_FRIENDS_MENU;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -149,18 +176,16 @@ void Main_Menu()
 {
     switch (selectedOption)
     {
-    case NEOPIXELS_MENU:
+    case MAIN_NEOPIXELS_MENU:
         currentLayer = LAYER_NEOPIXELS_MENU;
         break;
-    case 1:
+    case MAIN_I2C_SCANNER:
         // currentLayer = LAYER_BLE_MESH;
         // Display_Clear();
         // Display_Show_Ble_Mesh_Menu();
         break;
-    case 2:
-        // currentLayer = LAYER_SETTINGS;
-        // Display_Clear();
-        // Display_Show_Settings_Menu();
+    case MAIN_FRIENDS_MENU:
+        currentLayer = LAYER_FRIENDS_MENU;
         break;
     default:
         APP_DBG("Missing option");
@@ -168,7 +193,7 @@ void Main_Menu()
     }
 
     selectedOption = 0;
-    Display_Update_Menu();
+    Display_Update_VMenu();
 }
 
 void Neopixels_Menu()
@@ -194,7 +219,7 @@ void Neopixels_Menu()
     }
 
     selectedOption = 0;
-    Display_Update_Menu();
+    Display_Update_VMenu();
 }
 
 void Neopixel_Options()
@@ -275,4 +300,46 @@ void Neopixel_Options()
         APP_DBG("Missing option");
         break;
     }
+}
+
+void Friends_Menu()
+{
+    BOOL update = TRUE;
+
+    switch (selectedOption)
+    {
+    case FRIENDS_COUNTER:
+        update = FALSE;
+        break;
+    case FRIENDS_SEARCH:
+        menuOrientation = HORIZONTAL_MENU;
+        currentLayer = LAYER_FRIENDS_SEARCH;
+        break;
+    case FRIENDS_HELP:
+        menuOrientation = HORIZONTAL_MENU;
+        currentLayer = LAYER_FRIENDS_HELP;
+        break;
+    default:
+        APP_DBG("Missing option: %d", selectedOption);
+        break;
+    }
+
+    if (!update)
+        return;
+
+    selectedOption = 0;
+    Display_Update_HMenu();
+}
+
+void Friends_Help()
+{
+    switch (selectedOption)
+    {
+    case OK:
+        currentLayer = LAYER_FRIENDS_MENU;
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_VMenu();
 }

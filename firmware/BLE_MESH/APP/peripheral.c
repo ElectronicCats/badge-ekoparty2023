@@ -16,6 +16,7 @@
  */
 #include "CONFIG.h"
 #include "MESH_LIB.h"
+#include "app_mesh_config.h"
 #include "devinfoservice.h"
 #include "gattprofile.h"
 #include "peripheral.h"
@@ -377,7 +378,7 @@ static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
     {
     case GAP_SCAN_REQUEST_EVENT:
     {
-        // PRINT("Receive scan request from %X:%X:%X:%X:%X:%X\r\n", pEvent->scanReqEvt.scannerAddr[5],
+        // APP_DBG("Receive scan request from %X:%X:%X:%X:%X:%X", pEvent->scanReqEvt.scannerAddr[5],
         //       pEvent->scanReqEvt.scannerAddr[4], pEvent->scanReqEvt.scannerAddr[3], pEvent->scanReqEvt.scannerAddr[2],
         //       pEvent->scanReqEvt.scannerAddr[1], pEvent->scanReqEvt.scannerAddr[0]);
         break;
@@ -385,7 +386,7 @@ static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
 
     case GAP_PHY_UPDATE_EVENT:
     {
-        PRINT("Phy update Rx:%x Tx:%x ...\r\n", pEvent->linkPhyUpdate.connRxPHYS, pEvent->linkPhyUpdate.connTxPHYS);
+        APP_DBG("Phy update Rx:%x Tx:%x ...", pEvent->linkPhyUpdate.connRxPHYS, pEvent->linkPhyUpdate.connTxPHYS);
         break;
     }
 
@@ -435,7 +436,7 @@ static void Peripheral_LinkEstablished(gapRoleEvent_t *pEvent)
     if (peripheralConnList.connHandle != GAP_CONNHANDLE_INIT)
     {
         GAPRole_TerminateLink(pEvent->linkCmpl.connectionHandle);
-        PRINT("Connection max...\r\n");
+        APP_DBG("Connection max...");
     }
     else
     {
@@ -453,7 +454,7 @@ static void Peripheral_LinkEstablished(gapRoleEvent_t *pEvent)
         // Start read rssi
         tmos_start_task(Peripheral_TaskID, SBP_READ_RSSI_EVT, SBP_READ_RSSI_EVT_PERIOD);
 
-        PRINT("Conn %x - Int %x \r\n", event->connectionHandle, event->connInterval);
+        APP_DBG("Conn %x - Int %x ", event->connectionHandle, event->connInterval);
     }
 }
 
@@ -487,7 +488,7 @@ static void Peripheral_LinkTerminated(gapRoleEvent_t *pEvent)
     }
     else
     {
-        PRINT("ERR..\r\n");
+        APP_DBG("ERR..");
     }
 }
 
@@ -503,7 +504,7 @@ static void Peripheral_LinkTerminated(gapRoleEvent_t *pEvent)
  */
 static void peripheralRssiCB(uint16_t connHandle, int8_t rssi)
 {
-    PRINT("RSSI -%d dB Conn  %x \r\n", -rssi, connHandle);
+    // APP_DBG("RSSI -%d dB Conn  %x ", -rssi, connHandle);
 }
 
 /*********************************************************************
@@ -527,11 +528,11 @@ static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
         peripheralConnList.connSlaveLatency = connSlaveLatency;
         peripheralConnList.connTimeout = connTimeout;
 
-        PRINT("Update %x - Int %x \r\n", connHandle, connInterval);
+        APP_DBG("Update %x - Int %x ", connHandle, connInterval);
     }
     else
     {
-        PRINT("ERR..\r\n");
+        APP_DBG("ERR..");
     }
 }
 
@@ -549,16 +550,16 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
     switch (newState)
     {
     case GAPROLE_STARTED:
-        PRINT("Initialized..\r\n");
+        APP_DBG("Initialized..");
         break;
 
     case GAPROLE_ADVERTISING:
         if (pEvent->gap.opcode == GAP_LINK_TERMINATED_EVENT)
         {
             Peripheral_LinkTerminated(pEvent);
-            PRINT("Disconnected.. Reason:%x\r\n", pEvent->linkTerminate.reason);
+            APP_DBG("Disconnected.. Reason:%x", pEvent->linkTerminate.reason);
         }
-        PRINT("Advertising..\r\n");
+        APP_DBG("Advertising..");
         break;
 
     case GAPROLE_CONNECTED:
@@ -566,44 +567,44 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
         {
             Peripheral_LinkEstablished(pEvent);
         }
-        PRINT("Connected..\r\n");
+        APP_DBG("Connected..");
         break;
 
     case GAPROLE_CONNECTED_ADV:
-        PRINT("Connected Advertising..\r\n");
+        APP_DBG("Connected Advertising..");
         break;
 
     case GAPROLE_WAITING:
         if (pEvent->gap.opcode == GAP_END_DISCOVERABLE_DONE_EVENT)
         {
             uint8_t advertising_enable = TRUE;
-            PRINT("Waiting for advertising..\r\n");
+            APP_DBG("Waiting for advertising..");
             GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
         }
         else if (pEvent->gap.opcode == GAP_LINK_TERMINATED_EVENT)
         {
             Peripheral_LinkTerminated(pEvent);
-            PRINT("Disconnected.. Reason:%x\r\n", pEvent->linkTerminate.reason);
+            APP_DBG("Disconnected.. Reason:%x", pEvent->linkTerminate.reason);
         }
         else if (pEvent->gap.opcode == GAP_LINK_ESTABLISHED_EVENT)
         {
             if (pEvent->gap.hdr.status != SUCCESS)
             {
-                PRINT("Waiting for advertising..\r\n");
+                APP_DBG("Waiting for advertising..");
             }
             else
             {
-                PRINT("Error..\r\n");
+                APP_DBG("Error..");
             }
         }
         else
         {
-            PRINT("Error..%x\r\n", pEvent->gap.opcode);
+            APP_DBG("Error..%x", pEvent->gap.opcode);
         }
         break;
 
     case GAPROLE_ERROR:
-        PRINT("Error..\r\n");
+        APP_DBG("Error..");
         break;
 
     default:
@@ -646,7 +647,7 @@ void peripheralChar4Notify(uint8_t *pValue, uint16_t len)
         tmos_memcpy(noti.pValue, pValue, noti.len);
         if (simpleProfile_Notify(peripheralConnList.connHandle, &noti) != SUCCESS)
         {
-            PRINT("Notify ERR \r\n");
+            APP_DBG("Notify ERR ");
             GATT_bm_free((gattMsg_t *)&noti, ATT_HANDLE_VALUE_NOTI);
         }
     }
@@ -671,7 +672,7 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
     {
         uint8_t newValue[SIMPLEPROFILE_CHAR1_LEN];
         tmos_memcpy(newValue, pValue, len);
-        PRINT("profile ChangeCB CHAR1.. \r\n");
+        APP_DBG("profile ChangeCB CHAR1.. ");
         App_peripheral_reveived(newValue, len);
         break;
     }
@@ -680,7 +681,7 @@ static void simpleProfileChangeCB(uint8_t paramID, uint8_t *pValue, uint16_t len
     {
         uint8_t newValue[SIMPLEPROFILE_CHAR3_LEN];
         tmos_memcpy(newValue, pValue, len);
-        PRINT("profile ChangeCB CHAR3..\r\n");
+        APP_DBG("profile ChangeCB CHAR3..");
         break;
     }
 

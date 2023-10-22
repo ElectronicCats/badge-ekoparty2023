@@ -132,7 +132,7 @@ void Main_Menu()
 {
     switch (selectedOption)
     {
-    case NEOPIXELS_MENU:
+    case MAIN_NEOPIXELS_MENU:
         currentLayer = LAYER_NEOPIXELS_MENU;
         break;
     case 1:
@@ -151,7 +151,7 @@ void Main_Menu()
     }
 
     selectedOption = 0;
-    Display_Update_Menu();
+    Display_Update_VMenu();
 }
 
 void Neopixels_Menu()
@@ -177,7 +177,7 @@ void Neopixels_Menu()
     }
 
     selectedOption = 0;
-    Display_Update_Menu();
+    Display_Update_VMenu();
 }
 
 void Neopixel_Options()

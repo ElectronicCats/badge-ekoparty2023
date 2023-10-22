@@ -96,7 +96,7 @@ int main(void)
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
-    APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
+    APP_DBG("System clock: %d MHz", SystemCoreClock / 1000000);
     APP_DBG("%s", VER_LIB);
 
     WCHBLE_Init();

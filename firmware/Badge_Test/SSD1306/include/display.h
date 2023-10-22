@@ -64,8 +64,8 @@ void Display_Test();
 void Display_Init();
 void Display_Clear();
 void Display_Show_Logo();
-void Display_Show_Menu();
-void Display_Update_Menu();
-char **Display_Update_Menu_Options();
+void Display_Show_VMenu();
+void Display_Update_VMenu();
+char **Display_Update_VMenu_Options();
 
 #endif // DISPLAY_H

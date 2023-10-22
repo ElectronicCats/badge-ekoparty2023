@@ -545,7 +545,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
  */
 static void centralRssiCB(uint16_t connHandle, int8_t rssi)
 {
-    APP_DBG("RSSI : -%d dB ", -rssi);
+    // APP_DBG("RSSI : -%d dB ", -rssi);
 }
 
 /*********************************************************************
