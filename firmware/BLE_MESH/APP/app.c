@@ -797,8 +797,8 @@ void App_Init()
 {
     GAPRole_PeripheralInit();
     GAPRole_CentralInit();
-    // Peripheral_Init();
-    // Central_Init();
+    Peripheral_Init();
+    Central_Init();
     
     // GAPRole_ObserverInit();
     // Observer_Init();

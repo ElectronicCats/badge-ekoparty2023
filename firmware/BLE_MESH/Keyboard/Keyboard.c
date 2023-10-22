@@ -70,10 +70,7 @@ void Keyboard_Scan_Callback(uint8_t keys)
     switch (keys)
     {
     case BUTTON_BACK:
-        currentLayer = previousLayer;
-        selectedOption = 0;
-        Keyboard_Update_Orientation();
-        Display_Update_Menu();
+        Keyboard_Handle_Back_Button();
         break;
     case BUTTON_UP:
         selectedOption--;
@@ -123,6 +120,23 @@ void Keyboard_Scan_Callback(uint8_t keys)
     Keyboard_Print_Layer(previousLayer);
     Keyboard_Print_Layer(currentLayer);
     APP_DBG("selectedOption %d", selectedOption);
+}
+
+void Keyboard_Handle_Back_Button()
+{
+    switch (currentLayer)
+    {
+    case LAYER_FRIENDS_SEARCH:
+        enableFriendSearch = FALSE;
+        break;
+    default:
+        break;
+    }
+
+    currentLayer = previousLayer;
+    selectedOption = 0;
+    Keyboard_Update_Orientation();
+    Display_Update_Menu();
 }
 
 void Keyboard_Update_Orientation()
@@ -314,6 +328,7 @@ void Friends_Menu()
     case FRIENDS_SEARCH:
         menuOrientation = HORIZONTAL_MENU;
         currentLayer = LAYER_FRIENDS_SEARCH;
+        enableFriendSearch = TRUE;
         break;
     case FRIENDS_HELP:
         menuOrientation = HORIZONTAL_MENU;

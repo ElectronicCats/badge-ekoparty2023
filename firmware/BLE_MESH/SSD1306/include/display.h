@@ -8,6 +8,7 @@
 #include "ssd1306.h"
 #include "bomb.h"
 #include "HAL.h"
+#include "friend.h"
 
 #define I2C_TIMEOUT 1000
 #define TxAdderss 0x02

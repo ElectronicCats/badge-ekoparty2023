@@ -44,6 +44,11 @@ char *friendOptions[] = {
     "2. Buscar",
     "3. Ayuda"};
 
+char *friendSearch[] = {
+    "",
+    "  Buscando...",
+    ""};
+
 // Friends help text
 char *friendHelp[] = {
     " Acercate a un",
@@ -411,15 +416,15 @@ void Display_Show_HMenu()
 
     // Structure: 64x32 pixels
     /*
-    *  -------------------------
-    * |         Banner         |
-    * |------------------------|
-    * |   Cancelar   Aceptar   |
-    * -------------------------
-    */
+     *  -------------------------
+     * |         Banner         |
+     * |------------------------|
+     * |   Cancelar   Aceptar   |
+     * -------------------------
+     */
 
     ssd1306_setbuf(0);
-    
+
     for (int i = 0; i < bannerSize; i++)
     {
         ssd1306_drawstr(0, i * 8, banner[i], WHITE);
@@ -444,6 +449,10 @@ char **Display_Update_HMenu_Banner()
 
     switch (currentLayer)
     {
+    case LAYER_FRIENDS_SEARCH:
+        banner = friendSearch;
+        bannerSize = sizeof(friendSearch) / sizeof(friendSearch[0]);
+        break;
     case LAYER_FRIENDS_HELP:
         banner = friendHelp;
         bannerSize = sizeof(friendHelp) / sizeof(friendHelp[0]);
@@ -465,7 +474,7 @@ char **Display_Update_HMenu_Options()
     {
     case LAYER_FRIENDS_SEARCH:
         options = twoOptions;
-        optionsSize = sizeof(twoOptions) / sizeof(twoOptions[0]);
+        optionsSize = 0;
         break;
     case LAYER_FRIENDS_HELP:
         options = oneOption;

@@ -22,6 +22,7 @@
 #include "gattprofile.h"
 #include "central.h"
 #include "app_mesh_config.h"
+#include "friend.h"
 
 /*********************************************************************
  * MACROS
@@ -203,6 +204,7 @@ static uint8_t centralProcedureInProgress = FALSE;
 static void centralProcessGATTMsg(gattMsgEvent_t *pMsg);
 static void centralRssiCB(uint16_t connHandle, int8_t rssi);
 static void centralEventCB(gapRoleEvent_t *pEvent);
+static void centralDisconnect(gapRoleEvent_t *pEvent);
 static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets);
 static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
                               uint8_t uiInputs, uint8_t uiOutputs);
@@ -575,6 +577,7 @@ static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uin
  */
 static void centralEventCB(gapRoleEvent_t *pEvent)
 {
+
     switch (pEvent->gap.opcode)
     {
     case GAP_DEVICE_INIT_DONE_EVENT:
@@ -588,13 +591,25 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
     case GAP_DEVICE_INFO_EVENT:
     {
-        // Add device to list
-        centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+        if (enableFriendSearch)
+        {
+            // Add device to list
+            centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+        }
     }
     break;
 
     case GAP_DEVICE_DISCOVERY_EVENT:
     {
+        if (!enableFriendSearch)
+        {
+            centralScanRes = 0;
+            GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                          DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                          DEFAULT_DISCOVERY_WHITE_LIST);
+            break;
+        }
+
         uint8_t i;
         BOOL found = FALSE;
 
@@ -675,6 +690,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             }
 
             APP_DBG("Connected...");
+            friendFound = TRUE;
         }
         else
         {
@@ -690,18 +706,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
     case GAP_LINK_TERMINATED_EVENT:
     {
-        centralState = BLE_STATE_IDLE;
-        centralConnHandle = GAP_CONNHANDLE_INIT;
-        centralDiscState = BLE_DISC_STATE_IDLE;
-        centralCharHdl = 0;
-        centralScanRes = 0;
-        centralProcedureInProgress = FALSE;
-        tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
-        APP_DBG("Disconnected...Reason:%x", pEvent->linkTerminate.reason);
-        APP_DBG("Discovering...");
-        GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
-                                      DEFAULT_DISCOVERY_ACTIVE_SCAN,
-                                      DEFAULT_DISCOVERY_WHITE_LIST);
+        centralDisconnect(pEvent);
     }
     break;
 
@@ -738,6 +743,22 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
     default:
         break;
     }
+}
+
+static void centralDisconnect(gapRoleEvent_t *pEvent)
+{
+    centralState = BLE_STATE_IDLE;
+    centralConnHandle = GAP_CONNHANDLE_INIT;
+    centralDiscState = BLE_DISC_STATE_IDLE;
+    centralCharHdl = 0;
+    centralScanRes = 0;
+    centralProcedureInProgress = FALSE;
+    tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
+    APP_DBG("Disconnected... Reason: %X", pEvent->linkTerminate.reason);
+    APP_DBG("Discovering...");
+    GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                  DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                  DEFAULT_DISCOVERY_WHITE_LIST);
 }
 
 /*********************************************************************
