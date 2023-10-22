@@ -53,6 +53,42 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
         Display_Show_Menu();
         return events ^ DISPLAY_SHOW_MENU_EVENT;
     }
+
+    if (events & DISPLAY_SHOW_HELLO_WORLD_EVENT)
+    {
+        ssd1306_setbuf(0);
+        ssd1306_drawstr(0, 0, "Hello World!", WHITE);
+        ssd1306_refresh();
+        tmos_stop_task(displayTaskID, DISPLAY_SEND_CHAR_EVENT);
+        tmos_stop_task(displayTaskID, DISPLAY_LISTEN_CHAR_EVENT);
+        return events ^ DISPLAY_SHOW_HELLO_WORLD_EVENT;
+    }
+
+    if (events & DISPLAY_SEND_CHAR_EVENT)
+    {
+        printf("x\r\n");
+        tmos_start_task(displayTaskID, DISPLAY_SEND_CHAR_EVENT, MS1_TO_SYSTEM_TIME(100));
+        return events ^ DISPLAY_SEND_CHAR_EVENT;
+    }
+
+    if (events & DISPLAY_LISTEN_CHAR_EVENT)
+    {
+        // printf("Listening...\r\n");
+        if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+        {
+            // Store incoming data into a variable
+            uint8_t data = USART_ReceiveData(USART1);
+            printf("USART1 Receive Data: %c\r\n", data);
+
+            // Print hello world if 'x' is received
+            if (data == 'x')
+            {
+                tmos_start_task(displayTaskID, DISPLAY_SHOW_HELLO_WORLD_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+            }
+        }
+        tmos_start_task(displayTaskID, DISPLAY_LISTEN_CHAR_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+        return events ^ DISPLAY_LISTEN_CHAR_EVENT;
+    }
 }
 
 /*********************************************************************
@@ -149,7 +185,7 @@ void Scan_I2C_Devices()
 void Display_Test()
 {
     // APP_DBG("Looping on test modes...");
-    for (uint8_t mode = 0; mode < (SSD1306_H > 32 ? 9 : 8); mode++)
+    for (uint8_t mode = 0; mode < 8; mode++)
     {
         // clear buffer for next mode
         ssd1306_setbuf(0);
@@ -234,13 +270,9 @@ void Display_Test()
 
         ssd1306_refresh();
         Delay_Ms(200);
-
-        if (mode == 8)
-        {
-            Display_Clear();
-            break;
-        }
     }
+
+    Display_Clear();
 }
 
 void Display_Init(void)

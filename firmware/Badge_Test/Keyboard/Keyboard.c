@@ -68,7 +68,28 @@ void Keyboard_Scan_Callback(uint8_t keys)
         Leds_Off();
         break;
     case BUTTON_DOWN:
-        printf("Hello World!\r\n");
+        tmos_start_task(displayTaskID, DISPLAY_SEND_CHAR_EVENT, MS1_TO_SYSTEM_TIME(0));
+        tmos_start_task(displayTaskID, DISPLAY_LISTEN_CHAR_EVENT, MS1_TO_SYSTEM_TIME(0));
+        // printf("x\r\n");
+
+        // Print data from RX buffer
+        // if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+        // {
+        //     // Store incoming data into a variable
+        //     uint8_t data = USART_ReceiveData(USART1);
+        //     printf("USART1 Receive Data: %c\r\n", data);
+            
+        //     // Print hello world if 'x' is received
+        //     if (data == 'x')
+        //     {
+        //         tmos_start_task(ledsTaskID, LEDS_RAINBOW_EVENT, MS1_TO_SYSTEM_TIME(RAINBOW_DELAY_MS));
+        //         ssd1306_setbuf(0);
+        //         ssd1306_drawstr(0, 0, "Hello World!", WHITE);
+        //         ssd1306_refresh();
+        //     }
+        // }
+
+        // Delay_Ms(1000);
         break;
     case BUTTON_SELECT:
         Display_Test();
