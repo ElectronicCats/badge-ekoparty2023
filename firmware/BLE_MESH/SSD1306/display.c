@@ -1,5 +1,6 @@
 #include "display.h"
 #include "stdint.h"
+#include <stdlib.h>
 
 tmosTaskID displayTaskID;
 uint8_t selectedOption = 0;
@@ -40,7 +41,7 @@ char *neopixelOptions[] = {
     "5. Apagar"};
 
 char *friendOptions[] = {
-    "1. Amigos: 0",
+    "1. Amigos: ",
     "2. Buscar",
     "3. Ayuda"};
 
@@ -362,6 +363,7 @@ void Display_Show_VMenu()
         {
             ssd1306_drawstr(0, (i - startIdx) * 8, options[i], WHITE);
         }
+        APP_DBG("Option %d: %s", i, options[i]);
     }
 
     ssd1306_refresh();
@@ -389,6 +391,7 @@ char **Display_Update_VMenu_Options()
         optionsSize = sizeof(neopixelOptions) / sizeof(neopixelOptions[0]);
         break;
     case LAYER_FRIENDS_MENU:
+        Display_Update_Friends_Counter();
         options = friendOptions;
         optionsSize = sizeof(friendOptions) / sizeof(friendOptions[0]);
         break;
@@ -487,4 +490,11 @@ char **Display_Update_HMenu_Options()
     }
 
     return options;
+}
+
+void Display_Update_Friends_Counter()
+{
+    char *friendsCounterStr = (char *)malloc(12);
+    sprintf(friendsCounterStr, "1. Amigos: %d", friendsCounter);
+    friendOptions[0] = friendsCounterStr;
 }

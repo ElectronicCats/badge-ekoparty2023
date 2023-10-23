@@ -97,4 +97,6 @@ void Display_Show_HMenu();
 char **Display_Update_HMenu_Banner();
 char **Display_Update_HMenu_Options();
 
+void Display_Update_Friends_Counter();
+
 #endif // DISPLAY_H
