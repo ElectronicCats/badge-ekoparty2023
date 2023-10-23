@@ -6,5 +6,6 @@
 extern BOOL enableFriendSearch;
 extern uint16_t friendsCounter;
 extern BOOL friendFound;
+extern BOOL friendDisconnect;
 
 #endif

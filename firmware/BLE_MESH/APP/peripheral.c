@@ -386,7 +386,7 @@ static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
 
     case GAP_PHY_UPDATE_EVENT:
     {
-        APP_DBG("Phy update Rx:%x Tx:%x ...", pEvent->linkPhyUpdate.connRxPHYS, pEvent->linkPhyUpdate.connTxPHYS);
+        APP_DBG("Phy update Rx: %X Tx: %X ...", pEvent->linkPhyUpdate.connRxPHYS, pEvent->linkPhyUpdate.connTxPHYS);
         break;
     }
 
@@ -446,7 +446,7 @@ static void Peripheral_LinkEstablished(gapRoleEvent_t *pEvent)
         peripheralConnList.connTimeout = event->connTimeout;
 
         // Set timer for periodic event
-        //    tmos_start_task( Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD );
+        // tmos_start_task(Peripheral_TaskID, SBP_PERIODIC_EVT, SBP_PERIODIC_EVT_PERIOD);
 
         // Set timer for param update event
         tmos_start_task(Peripheral_TaskID, SBP_PARAM_UPDATE_EVT, SBP_PARAM_UPDATE_DELAY);
@@ -488,7 +488,7 @@ static void Peripheral_LinkTerminated(gapRoleEvent_t *pEvent)
     }
     else
     {
-        APP_DBG("ERR..");
+        APP_DBG("ERR...");
     }
 }
 
@@ -528,11 +528,11 @@ static void peripheralParamUpdateCB(uint16_t connHandle, uint16_t connInterval,
         peripheralConnList.connSlaveLatency = connSlaveLatency;
         peripheralConnList.connTimeout = connTimeout;
 
-        APP_DBG("Update %x - Int %x ", connHandle, connInterval);
+        APP_DBG("Update %x - Int %X ", connHandle, connInterval);
     }
     else
     {
-        APP_DBG("ERR..");
+        APP_DBG("ERR...");
     }
 }
 
@@ -550,61 +550,62 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
     switch (newState)
     {
     case GAPROLE_STARTED:
-        APP_DBG("Initialized..");
+        APP_DBG("Initialized...");
         break;
 
     case GAPROLE_ADVERTISING:
         if (pEvent->gap.opcode == GAP_LINK_TERMINATED_EVENT)
         {
             Peripheral_LinkTerminated(pEvent);
-            APP_DBG("Disconnected.. Reason:%x", pEvent->linkTerminate.reason);
+            APP_DBG("Disconnected... Reason: %X", pEvent->linkTerminate.reason);
         }
-        APP_DBG("Advertising..");
+        APP_DBG("Advertising...");
         break;
 
     case GAPROLE_CONNECTED:
         if (pEvent->gap.opcode == GAP_LINK_ESTABLISHED_EVENT)
         {
             Peripheral_LinkEstablished(pEvent);
+            // Peripheral_LinkTerminated(pEvent);
         }
-        APP_DBG("Connected..");
+        APP_DBG("Connected...");
         break;
 
     case GAPROLE_CONNECTED_ADV:
-        APP_DBG("Connected Advertising..");
+        APP_DBG("Connected Advertising...");
         break;
 
     case GAPROLE_WAITING:
         if (pEvent->gap.opcode == GAP_END_DISCOVERABLE_DONE_EVENT)
         {
             uint8_t advertising_enable = TRUE;
-            APP_DBG("Waiting for advertising..");
+            APP_DBG("Waiting for advertising...");
             GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advertising_enable);
         }
         else if (pEvent->gap.opcode == GAP_LINK_TERMINATED_EVENT)
         {
             Peripheral_LinkTerminated(pEvent);
-            APP_DBG("Disconnected.. Reason:%x", pEvent->linkTerminate.reason);
+            APP_DBG("Disconnected... Reason: %X", pEvent->linkTerminate.reason);
         }
         else if (pEvent->gap.opcode == GAP_LINK_ESTABLISHED_EVENT)
         {
             if (pEvent->gap.hdr.status != SUCCESS)
             {
-                APP_DBG("Waiting for advertising..");
+                APP_DBG("Waiting for advertising...");
             }
             else
             {
-                APP_DBG("Error..");
+                APP_DBG("Error...");
             }
         }
         else
         {
-            APP_DBG("Error..%x", pEvent->gap.opcode);
+            APP_DBG("Error... %X", pEvent->gap.opcode);
         }
         break;
 
     case GAPROLE_ERROR:
-        APP_DBG("Error..");
+        APP_DBG("Error...");
         break;
 
     default:
@@ -625,6 +626,7 @@ static void peripheralStateNotificationCB(gapRole_States_t newState, gapRoleEven
  */
 static void performPeriodicTask(void)
 {
+    APP_DBG("here");
 }
 
 /*********************************************************************

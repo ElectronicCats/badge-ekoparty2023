@@ -644,12 +644,12 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         }
         else
         {
-            APP_DBG("Device not found...");
+            // APP_DBG("Device not found...");
             centralScanRes = 0;
             GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                           DEFAULT_DISCOVERY_WHITE_LIST);
-            APP_DBG("Discovering...");
+            // APP_DBG("Discovering...");
         }
     }
     break;
@@ -657,40 +657,48 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
     case GAP_LINK_ESTABLISHED_EVENT:
     {
         tmos_stop_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT);
-        if (pEvent->gap.hdr.status == SUCCESS)
+        if (pEvent->gap.hdr.status == SUCCESS && enableFriendSearch)
         {
-            centralState = BLE_STATE_CONNECTED;
-            centralConnHandle = pEvent->linkCmpl.connectionHandle;
-            centralProcedureInProgress = TRUE;
+            // centralState = BLE_STATE_CONNECTED;
+            // centralConnHandle = pEvent->linkCmpl.connectionHandle;
+            // centralProcedureInProgress = TRUE;
 
-            // Update MTU
-            attExchangeMTUReq_t req = {
-                .clientRxMTU = BLE_BUFF_MAX_LEN - 4,
-            };
+            // // Update MTU
+            // attExchangeMTUReq_t req = {
+            //     .clientRxMTU = BLE_BUFF_MAX_LEN - 4,
+            // };
 
-            GATT_ExchangeMTU(centralConnHandle, &req, centralTaskId);
+            // GATT_ExchangeMTU(centralConnHandle, &req, centralTaskId);
 
-            // Initiate service discovery
-            tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
+            // // Initiate service discovery
+            // tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
 
-            // See if initiate connect parameter update
-            if (centralParamUpdate)
-            {
-                tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
-            }
-            // See if initiate PHY update
-            if (centralPhyUpdate)
-            {
-                tmos_start_task(centralTaskId, START_PHY_UPDATE_EVT, DEFAULT_PHY_UPDATE_DELAY);
-            }
-            // See if start RSSI polling
-            if (centralRssi)
-            {
-                tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
-            }
+            // // See if initiate connect parameter update
+            // if (centralParamUpdate)
+            // {
+            //     tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
+            // }
+            // // See if initiate PHY update
+            // if (centralPhyUpdate)
+            // {
+            //     tmos_start_task(centralTaskId, START_PHY_UPDATE_EVT, DEFAULT_PHY_UPDATE_DELAY);
+            // }
+            // // See if start RSSI polling
+            // if (centralRssi)
+            // {
+            //     tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
+            // }
 
             APP_DBG("Connected...");
             friendFound = TRUE;
+
+            // Disconnect
+            APP_DBG("Disconnected...");
+            GAPRole_TerminateLink(pEvent->linkCmpl.connectionHandle);
+            centralScanRes = 0;
+            GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                          DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                          DEFAULT_DISCOVERY_WHITE_LIST);
         }
         else
         {
@@ -713,6 +721,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
     case GAP_LINK_PARAM_UPDATE_EVENT:
     {
         APP_DBG("Param Update...");
+        // centralDisconnect(pEvent);
     }
     break;
 
