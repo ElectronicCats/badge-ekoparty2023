@@ -47,14 +47,17 @@ char *friendOptions[] = {
 
 char *friendSearch[] = {
     "",
-    "  Buscando...",
-    ""};
+    "  Buscando..."};
 
 // Friends help text
 char *friendHelp[] = {
     " Acercate a un",
     "   amigo para",
     "   agregarlo"};
+
+char *friendFoundBanner[] = {
+    "     Amigo",
+    "   encontrado"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -460,6 +463,10 @@ char **Display_Update_HMenu_Banner()
         banner = friendHelp;
         bannerSize = sizeof(friendHelp) / sizeof(friendHelp[0]);
         break;
+    case LAYER_FRIEND_FOUND:
+        banner = friendFoundBanner;
+        bannerSize = sizeof(friendFoundBanner) / sizeof(friendFoundBanner[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -483,6 +490,10 @@ char **Display_Update_HMenu_Options()
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
+    case LAYER_FRIEND_FOUND:
+        options = oneOption;
+        optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
+        break;
     default:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
@@ -497,4 +508,11 @@ void Display_Update_Friends_Counter()
     char *friendsCounterStr = (char *)malloc(12);
     sprintf(friendsCounterStr, "1. Amigos: %d", friendsCounter);
     friendOptions[0] = friendsCounterStr;
+}
+
+void Display_Friend_Found()
+{
+    currentLayer = LAYER_FRIEND_FOUND;
+    enableFriendSearch = FALSE;
+    Display_Update_HMenu();
 }

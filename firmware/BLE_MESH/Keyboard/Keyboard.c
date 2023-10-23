@@ -110,6 +110,9 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_FRIENDS_HELP:
             Friends_Help();
             break;
+        case LAYER_FRIEND_FOUND:
+            Friend_Found();
+            break;
         }
         break;
     default:
@@ -176,6 +179,9 @@ void Update_Previous_Layer()
         break;
     case LAYER_FRIENDS_SEARCH:
     case LAYER_FRIENDS_HELP:
+        previousLayer = LAYER_FRIENDS_MENU;
+        break;
+    case LAYER_FRIEND_FOUND:
         previousLayer = LAYER_FRIENDS_MENU;
         break;
     default:
@@ -353,6 +359,19 @@ void Friends_Help()
     case OK:
         currentLayer = LAYER_FRIENDS_MENU;
         break;
+    }
+
+    selectedOption = 0;
+    Display_Update_VMenu();
+}
+
+void Friend_Found()
+{
+    switch (selectedOption)
+    {
+        case OK:
+            currentLayer = LAYER_FRIENDS_MENU;
+            break;
     }
 
     selectedOption = 0;

@@ -692,6 +692,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             APP_DBG("Connected...");
             friendFound = TRUE;
             friendsCounter++;
+            Display_Friend_Found();
 
             // Disconnect
             APP_DBG("Disconnected...");
