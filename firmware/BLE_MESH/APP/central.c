@@ -502,7 +502,22 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
         else
         {
             // After a successful read, display the read value
-            APP_DBG("Read rsp: %x", *pMsg->msg.readRsp.pValue);
+            APP_DBG("Read rsp: %X", *pMsg->msg.readRsp.pValue);
+
+            // Eko badge found
+            if (*pMsg->msg.readRsp.pValue == 0x5A)
+            {
+                // Increase friend counter and close connection with badge
+                friendFound = TRUE;
+                friendsCounter++;
+                Display_Friend_Found();
+
+                GAPRole_TerminateLink(pMsg->connHandle);
+                centralScanRes = 0;
+                GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                              DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                              DEFAULT_DISCOVERY_WHITE_LIST);
+            }
         }
         centralProcedureInProgress = FALSE;
     }
@@ -659,48 +674,35 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         tmos_stop_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT);
         if (pEvent->gap.hdr.status == SUCCESS && enableFriendSearch)
         {
-            // centralState = BLE_STATE_CONNECTED;
-            // centralConnHandle = pEvent->linkCmpl.connectionHandle;
-            // centralProcedureInProgress = TRUE;
+            centralState = BLE_STATE_CONNECTED;
+            centralConnHandle = pEvent->linkCmpl.connectionHandle;
+            centralProcedureInProgress = TRUE;
 
-            // // Update MTU
-            // attExchangeMTUReq_t req = {
-            //     .clientRxMTU = BLE_BUFF_MAX_LEN - 4,
-            // };
+            // Update MTU
+            attExchangeMTUReq_t req = {
+                .clientRxMTU = BLE_BUFF_MAX_LEN - 4,
+            };
 
-            // GATT_ExchangeMTU(centralConnHandle, &req, centralTaskId);
+            GATT_ExchangeMTU(centralConnHandle, &req, centralTaskId);
 
-            // // Initiate service discovery
-            // tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
+            // Initiate service discovery
+            tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
 
-            // // See if initiate connect parameter update
-            // if (centralParamUpdate)
-            // {
-            //     tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
-            // }
-            // // See if initiate PHY update
-            // if (centralPhyUpdate)
-            // {
-            //     tmos_start_task(centralTaskId, START_PHY_UPDATE_EVT, DEFAULT_PHY_UPDATE_DELAY);
-            // }
-            // // See if start RSSI polling
-            // if (centralRssi)
-            // {
-            //     tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
-            // }
-
-            APP_DBG("Connected...");
-            friendFound = TRUE;
-            friendsCounter++;
-            Display_Friend_Found();
-
-            // Disconnect
-            APP_DBG("Disconnected...");
-            GAPRole_TerminateLink(pEvent->linkCmpl.connectionHandle);
-            centralScanRes = 0;
-            GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
-                                          DEFAULT_DISCOVERY_ACTIVE_SCAN,
-                                          DEFAULT_DISCOVERY_WHITE_LIST);
+            // See if initiate connect parameter update
+            if (centralParamUpdate)
+            {
+                tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
+            }
+            // See if initiate PHY update
+            if (centralPhyUpdate)
+            {
+                tmos_start_task(centralTaskId, START_PHY_UPDATE_EVT, DEFAULT_PHY_UPDATE_DELAY);
+            }
+            // See if start RSSI polling
+            if (centralRssi)
+            {
+                tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
+            }
         }
         else
         {
@@ -738,7 +740,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         // Display device addr
         APP_DBG("Recv ext adv ");
         // Add device to list
-        centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceInfo.rssi);
+        // centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceInfo.rssi);
     }
     break;
 
@@ -747,7 +749,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         // Display device addr
         APP_DBG("Recv direct adv ");
         // Add device to list
-        centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceInfo.rssi);
+        // centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceInfo.rssi);
     }
     break;
 
