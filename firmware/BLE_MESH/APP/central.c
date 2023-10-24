@@ -157,10 +157,11 @@ static uint8_t centralScanRes;
 
 // Scan result list
 static gapScanRec_t centralDevList[DEFAULT_MAX_SCAN_RES];
+static uint8_t nearbyDeviceAddress[B_ADDR_LEN];
 
 // Peer device address
 // static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x02, 0x02, 0x03, 0xE4, 0xC2, 0x84};
-static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x22, 0x3A, 0x88, 0x26, 0x3B, 0x38};
+static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x22, 0x3A, 0x88, 0x26, 0x3B, 0x38}; // Not used
 
 // RSSI polling state
 static uint8_t centralRssi = TRUE;
@@ -206,6 +207,7 @@ static void centralRssiCB(uint16_t connHandle, int8_t rssi);
 static void centralEventCB(gapRoleEvent_t *pEvent);
 static void centralDisconnect(gapRoleEvent_t *pEvent);
 static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets);
+static void centralAddFriend(uint16_t connHandle);
 static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
                               uint8_t uiInputs, uint8_t uiOutputs);
 static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status);
@@ -507,16 +509,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
             // Eko badge found
             if (*pMsg->msg.readRsp.pValue == 0x5A)
             {
-                // Increase friend counter and close connection with badge
-                friendFound = TRUE;
-                friendsCounter++;
-                Display_Friend_Found();
-
-                GAPRole_TerminateLink(pMsg->connHandle);
-                centralScanRes = 0;
-                GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
-                                              DEFAULT_DISCOVERY_ACTIVE_SCAN,
-                                              DEFAULT_DISCOVERY_WHITE_LIST);
+                centralAddFriend(pMsg->connHandle);
             }
         }
         centralProcedureInProgress = FALSE;
@@ -579,6 +572,35 @@ static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uin
 {
     APP_DBG(" HCI data length changed, Tx: %d, Rx: %d", maxTxOctets, maxRxOctets);
     centralProcedureInProgress = TRUE;
+}
+
+static void centralAddFriend(uint16_t connHandle)
+{
+    // Verify if nearby device is already in friends list
+    uint16_t j;
+    for (j = 0; j < friendsCounter; j++)
+    {
+        if (tmos_memcmp(nearbyDeviceAddress, friends[j].address, B_ADDR_LEN))
+            break;
+    }
+
+    // If nearby device is not in friends list, add it
+    if (j == friendsCounter)
+    {
+        for (uint8_t i = 0; i < B_ADDR_LEN; i++)
+        {
+            friends[friendsCounter].address[i] = nearbyDeviceAddress[i];
+        }
+        // Increase friend counter and close connection with badge
+        friendsCounter++;
+        Display_Friend_Found();
+    }
+
+    GAPRole_TerminateLink(connHandle);
+    centralScanRes = 0;
+    GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                  DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                  DEFAULT_DISCOVERY_WHITE_LIST);
 }
 
 /*********************************************************************
@@ -648,14 +670,42 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
         if (found)
         {
-            APP_DBG("New friend... %X:%X:%X:%X:%X:%X \t RSSI: %d",
+            APP_DBG("Nearby device... %X:%X:%X:%X:%X:%X \t RSSI: %d",
                     centralDevList[i].addr[5], centralDevList[i].addr[4], centralDevList[i].addr[3],
                     centralDevList[i].addr[2], centralDevList[i].addr[1], centralDevList[i].addr[0],
                     centralDevList[i].rssi);
-            GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
-                                         DEFAULT_LINK_WHITE_LIST,
-                                         centralDevList[i].addrType,
-                                         centralDevList[i].addr);
+
+            // Fill friend address
+            for (uint8_t j = 0; j < B_ADDR_LEN; j++)
+            {
+                nearbyDeviceAddress[j] = centralDevList[i].addr[j];
+            }
+
+            // Verify if nearby device is already in friends list
+            uint16_t j;
+            for (j = 0; j < friendsCounter; j++)
+            {
+                if (tmos_memcmp(nearbyDeviceAddress, friends[j].address, B_ADDR_LEN))
+                    break;
+            }
+
+            // If nearby device is not in friends list, try to connect to it
+            if (j == friendsCounter)
+            {
+                APP_DBG("Connecting...");
+                GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
+                                             DEFAULT_LINK_WHITE_LIST,
+                                             centralDevList[i].addrType,
+                                             centralDevList[i].addr);
+            }
+            else
+            {
+                APP_DBG("Friend already in list...");
+                centralScanRes = 0;
+                GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                              DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                              DEFAULT_DISCOVERY_WHITE_LIST);
+            }
         }
         else
         {

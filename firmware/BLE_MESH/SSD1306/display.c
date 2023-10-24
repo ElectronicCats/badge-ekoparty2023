@@ -299,6 +299,7 @@ void Display_Init(void)
     currentLayer = LAYER_MAIN;
     previousLayer = currentLayer;
     IIC_Init(80000, TxAdderss);
+    Friends_Init();
 
     // 48MHz internal clock
     SystemInit();
@@ -366,9 +367,10 @@ void Display_Show_VMenu()
         {
             ssd1306_drawstr(0, (i - startIdx) * 8, options[i], WHITE);
         }
-        APP_DBG("Option %d: %s", i, options[i]);
+        // APP_DBG("Option %d: %s", i, options[i]);
     }
 
+    Friends_List();
     ssd1306_refresh();
 }
 
