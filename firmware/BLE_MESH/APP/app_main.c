@@ -8,6 +8,15 @@
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ * 
+Desarrollado por Electronic Cats
+agradecemos a:
+
+    EkoParty Team gracias por creer en el proyecto
+    Firmware - Francisco @ DeimosHall
+    Hardware - Lizeth
+    Los que nos ayudaron a hacer llegar el hadware a Argentina
+    #QueVuelvaLaBarraEnLaEko
  *******************************************************************************/
 
 /******************************************************************************/

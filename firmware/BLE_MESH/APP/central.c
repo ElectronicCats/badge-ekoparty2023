@@ -199,6 +199,8 @@ static uint8_t centralDoWrite = TRUE;
 
 // GATT read/write procedure state
 static uint8_t centralProcedureInProgress = FALSE;
+
+static BOOL centralConnecting = FALSE;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -215,7 +217,7 @@ static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg);
 static void centralStartDiscovery(void);
 static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
-static void performPeriodicTask(void);
+static void centralConnectingChecker(void);
 /*********************************************************************
  * PROFILE CALLBACKS
  */
@@ -280,7 +282,7 @@ void Central_Init()
     GATT_RegisterForInd(centralTaskId);
     // Setup a delayed profile startup
     tmos_set_event(centralTaskId, START_DEVICE_EVT);
-    tmos_start_task(centralTaskId, PERIODIC_EVT, MS1_TO_SYSTEM_TIME(1000));
+    tmos_start_task(centralTaskId, CONNECTING_CHECKER_EVT, MS1_TO_SYSTEM_TIME(1000));
 }
 
 /*********************************************************************
@@ -298,8 +300,6 @@ void Central_Init()
  */
 uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 {
-    APP_DBG("Running tasks... %d", events);
-
     if (events & SYS_EVENT_MSG)
     {
         uint8_t *pMsg;
@@ -437,11 +437,11 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
         return (events ^ START_READ_RSSI_EVT);
     }
 
-    if (events & PERIODIC_EVT)
+    if (events & CONNECTING_CHECKER_EVT)
     {
-        performPeriodicTask();
-        tmos_start_task(centralTaskId, PERIODIC_EVT, MS1_TO_SYSTEM_TIME(8000));
-        return (events ^ PERIODIC_EVT);
+        centralConnectingChecker();
+        tmos_start_task(centralTaskId, CONNECTING_CHECKER_EVT, MS1_TO_SYSTEM_TIME(1000));
+        return (events ^ CONNECTING_CHECKER_EVT);
     }
 
     // Discard unknown events
@@ -703,12 +703,13 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             if (j == friendsCounter)
             {
                 APP_DBG("Connecting...");
+                centralConnecting = TRUE;
                 uint8_t status = GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
-                                             DEFAULT_LINK_WHITE_LIST,
-                                             centralDevList[i].addrType,
-                                             centralDevList[i].addr);
+                                                              DEFAULT_LINK_WHITE_LIST,
+                                                              centralDevList[i].addrType,
+                                                              centralDevList[i].addr);
 
-                APP_DBG("Status: %X", status);
+                APP_DBG("Status: 0x%X", status);
 
                 // If connection status is 0x11, it means that the connection is already in progress, so stop it
                 if (status == 0x11)
@@ -719,10 +720,6 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                                                   DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                                   DEFAULT_DISCOVERY_WHITE_LIST);
                 }
-                // else
-                // {
-                //     tmos_start_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT, ESTABLISH_LINK_TIMEOUT);
-                // }
             }
             else
             {
@@ -784,6 +781,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             }
 
             APP_DBG("Connected!");
+            centralConnecting = FALSE;
         }
         else
         {
@@ -1091,13 +1089,25 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
  *
  * @return  none
  */
-static void performPeriodicTask(void)
+static void centralConnectingChecker(void)
 {
-    // APP_DBG("Periodic task");
-    centralScanRes = 0;
-    GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
-                                  DEFAULT_DISCOVERY_ACTIVE_SCAN,
-                                  DEFAULT_DISCOVERY_WHITE_LIST);
+    static uint8_t connectingAttepts = 0;
+
+    if (centralConnecting)
+    {
+        connectingAttepts++;
+        APP_DBG("Trying to connect to device...");
+    }
+
+    if (connectingAttepts == 5)
+    {
+        centralConnecting = FALSE;
+        connectingAttepts = 0;
+        centralScanRes = 0;
+        GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                      DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                      DEFAULT_DISCOVERY_WHITE_LIST);
+    }
 }
 
 /************************ endfile @ central **************************/
