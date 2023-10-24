@@ -205,7 +205,7 @@ static uint8_t centralProcedureInProgress = FALSE;
 static void centralProcessGATTMsg(gattMsgEvent_t *pMsg);
 static void centralRssiCB(uint16_t connHandle, int8_t rssi);
 static void centralEventCB(gapRoleEvent_t *pEvent);
-static void centralDisconnect(gapRoleEvent_t *pEvent);
+static void centralDisconnect(uint8_t reason);
 static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets);
 static void centralAddFriend(uint16_t connHandle);
 static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
@@ -215,6 +215,7 @@ static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg);
 static void centralStartDiscovery(void);
 static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
+static void performPeriodicTask(void);
 /*********************************************************************
  * PROFILE CALLBACKS
  */
@@ -279,6 +280,7 @@ void Central_Init()
     GATT_RegisterForInd(centralTaskId);
     // Setup a delayed profile startup
     tmos_set_event(centralTaskId, START_DEVICE_EVT);
+    tmos_start_task(centralTaskId, PERIODIC_EVT, MS1_TO_SYSTEM_TIME(1000));
 }
 
 /*********************************************************************
@@ -296,6 +298,8 @@ void Central_Init()
  */
 uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 {
+    APP_DBG("Running tasks... %d", events);
+
     if (events & SYS_EVENT_MSG)
     {
         uint8_t *pMsg;
@@ -431,6 +435,13 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
         GAPRole_ReadRssiCmd(centralConnHandle);
         tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
         return (events ^ START_READ_RSSI_EVT);
+    }
+
+    if (events & PERIODIC_EVT)
+    {
+        performPeriodicTask();
+        tmos_start_task(centralTaskId, PERIODIC_EVT, MS1_TO_SYSTEM_TIME(8000));
+        return (events ^ PERIODIC_EVT);
     }
 
     // Discard unknown events
@@ -614,7 +625,6 @@ static void centralAddFriend(uint16_t connHandle)
  */
 static void centralEventCB(gapRoleEvent_t *pEvent)
 {
-
     switch (pEvent->gap.opcode)
     {
     case GAP_DEVICE_INIT_DONE_EVENT:
@@ -693,10 +703,26 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             if (j == friendsCounter)
             {
                 APP_DBG("Connecting...");
-                GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
+                uint8_t status = GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
                                              DEFAULT_LINK_WHITE_LIST,
                                              centralDevList[i].addrType,
                                              centralDevList[i].addr);
+
+                APP_DBG("Status: %X", status);
+
+                // If connection status is 0x11, it means that the connection is already in progress, so stop it
+                if (status == 0x11)
+                {
+                    GAPRole_TerminateLink(INVALID_CONNHANDLE);
+                    centralScanRes = 0;
+                    GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                                  DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                                  DEFAULT_DISCOVERY_WHITE_LIST);
+                }
+                // else
+                // {
+                //     tmos_start_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT, ESTABLISH_LINK_TIMEOUT);
+                // }
             }
             else
             {
@@ -706,6 +732,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                                               DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                               DEFAULT_DISCOVERY_WHITE_LIST);
             }
+            APP_DBG("Continue...");
         }
         else
         {
@@ -721,9 +748,11 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
     case GAP_LINK_ESTABLISHED_EVENT:
     {
+        APP_DBG("Link Established...");
         tmos_stop_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT);
         if (pEvent->gap.hdr.status == SUCCESS && enableFriendSearch)
         {
+            APP_DBG("Trying to pair...");
             centralState = BLE_STATE_CONNECTED;
             centralConnHandle = pEvent->linkCmpl.connectionHandle;
             centralProcedureInProgress = TRUE;
@@ -753,6 +782,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             {
                 tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
             }
+
+            APP_DBG("Connected!");
         }
         else
         {
@@ -768,7 +799,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
     case GAP_LINK_TERMINATED_EVENT:
     {
-        centralDisconnect(pEvent);
+        centralDisconnect(pEvent->linkTerminate.reason);
     }
     break;
 
@@ -804,11 +835,12 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
     break;
 
     default:
+        APP_DBG("Unknown event: %d", pEvent->gap.opcode);
         break;
     }
 }
 
-static void centralDisconnect(gapRoleEvent_t *pEvent)
+static void centralDisconnect(uint8_t reason)
 {
     centralState = BLE_STATE_IDLE;
     centralConnHandle = GAP_CONNHANDLE_INIT;
@@ -817,7 +849,7 @@ static void centralDisconnect(gapRoleEvent_t *pEvent)
     centralScanRes = 0;
     centralProcedureInProgress = FALSE;
     tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
-    APP_DBG("Disconnected... Reason: %X", pEvent->linkTerminate.reason);
+    APP_DBG("Disconnected... Reason: %X", reason);
     APP_DBG("Discovering...");
     GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                   DEFAULT_DISCOVERY_ACTIVE_SCAN,
@@ -1046,6 +1078,26 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
         //         centralDevList[centralScanRes - 1].addr[0],
         //         centralDevList[centralScanRes - 1].rssi);
     }
+}
+
+/*********************************************************************
+ * @fn      performPeriodicTask
+ *
+ * @brief   Perform a periodic application task. This function gets
+ *          called every five seconds as a result of the SBP_PERIODIC_EVT
+ *          TMOS event.
+ *
+ * @param   none
+ *
+ * @return  none
+ */
+static void performPeriodicTask(void)
+{
+    // APP_DBG("Periodic task");
+    centralScanRes = 0;
+    GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+                                  DEFAULT_DISCOVERY_ACTIVE_SCAN,
+                                  DEFAULT_DISCOVERY_WHITE_LIST);
 }
 
 /************************ endfile @ central **************************/
