@@ -386,7 +386,7 @@ static void Peripheral_ProcessGAPMsg(gapRoleEvent_t *pEvent)
 
     case GAP_PHY_UPDATE_EVENT:
     {
-        APP_DBG("Phy update Rx: %X Tx: %X ...", pEvent->linkPhyUpdate.connRxPHYS, pEvent->linkPhyUpdate.connTxPHYS);
+        APP_DBG("Phy update Rx: %X Tx: %X...", pEvent->linkPhyUpdate.connRxPHYS, pEvent->linkPhyUpdate.connTxPHYS);
         break;
     }
 

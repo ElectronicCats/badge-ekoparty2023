@@ -1,6 +1,7 @@
 eclipse.preferences.version=1
 encoding//APP/app.c=UTF-8
 encoding//APP/app_main.c=UTF-8
+encoding//APP/include/central.h=GBK
 encoding//HAL/Link.ld=GBK
 encoding//HAL/MCU.c=GBK
 encoding//HAL/include/HAL.h=GBK
