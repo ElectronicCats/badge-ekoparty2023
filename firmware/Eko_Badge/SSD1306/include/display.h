@@ -40,6 +40,7 @@
 #define LAYER_FRIENDS_SEARCH 8
 #define LAYER_FRIENDS_HELP 9
 #define LAYER_FRIEND_FOUND 10
+#define LAYER_MENU_UNLOCKED 11
 
 // Horizontal menu options
 #define OK 0

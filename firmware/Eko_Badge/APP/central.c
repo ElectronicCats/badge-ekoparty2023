@@ -604,6 +604,14 @@ static void centralAddFriend(uint16_t connHandle)
         }
         // Increase friend counter and close connection with badge
         friendsCounter++;
+    }
+
+    if (friendsCounter == FRIENDS_THRESHOLD)
+    {
+        Display_Menu_Unlocked();
+    }
+    else
+    {
         Display_Friend_Found();
     }
 

@@ -14,4 +14,4 @@ Description=Website: http://www.wch.cn/products/CH32V208.html?\nROM(byte): 160K,
 
 PeripheralVersion=1.7
 MCU=CH32V208WBU6
-Target Path=obj/BLE_MESH.hex
+Target Path=obj/Eko_Badge.hex

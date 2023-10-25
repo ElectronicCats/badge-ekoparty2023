@@ -25,7 +25,10 @@ char *twoOptions[] = {
 char *mainOptions[] = {
     "1. LEDs",
     "2. Escaner I2C",
-    "3. Amigos"};
+    "3. Amigos",
+    "4. Propiedades",
+    "5. Sensor",
+    "6. Serial"};
 
 char *neopixelsOptions[] = {
     "1. LED 1",
@@ -58,6 +61,10 @@ char *friendHelp[] = {
 char *friendFoundBanner[] = {
     "     Amigo",
     "   encontrado"};
+
+char *newMenuUnlocked[] = {
+    "   Nuevo menu",
+    "  desbloqueado!"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -383,7 +390,9 @@ char **Display_Update_VMenu_Options()
     {
     case LAYER_MAIN:
         options = mainOptions;
-        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
+        optionsSize = 4;
+        if (friendsCounter >= FRIENDS_THRESHOLD)
+            optionsSize = 5;
         break;
     case LAYER_NEOPIXELS_MENU:
         options = neopixelsOptions;
@@ -469,7 +478,11 @@ char **Display_Update_HMenu_Banner()
         banner = friendFoundBanner;
         bannerSize = sizeof(friendFoundBanner) / sizeof(friendFoundBanner[0]);
         break;
-    default:
+    case LAYER_MENU_UNLOCKED:
+        banner = newMenuUnlocked;
+        bannerSize = sizeof(newMenuUnlocked) / sizeof(newMenuUnlocked[0]);
+        break;
+    default:    
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
         break;
@@ -489,10 +502,8 @@ char **Display_Update_HMenu_Options()
         optionsSize = 0;
         break;
     case LAYER_FRIENDS_HELP:
-        options = oneOption;
-        optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
-        break;
     case LAYER_FRIEND_FOUND:
+    case LAYER_MENU_UNLOCKED:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
@@ -515,6 +526,13 @@ void Display_Update_Friends_Counter()
 void Display_Friend_Found()
 {
     currentLayer = LAYER_FRIEND_FOUND;
+    enableFriendSearch = FALSE;
+    Display_Update_HMenu();
+}
+
+void Display_Menu_Unlocked()
+{
+    currentLayer = LAYER_MENU_UNLOCKED;
     enableFriendSearch = FALSE;
     Display_Update_HMenu();
 }

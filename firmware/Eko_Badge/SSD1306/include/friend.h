@@ -5,6 +5,7 @@
 #include "app_mesh_config.h"
 
 #define FRIENDS_MAX 500
+#define FRIENDS_THRESHOLD 30
 
 typedef struct {
     uint8_t address[6];

@@ -57,6 +57,9 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_FRIENDS_HELP:
         APP_DBG("Layer friends help");
         break;
+    case LAYER_MENU_UNLOCKED:
+        APP_DBG("Layer menu unlocked");
+        break;
     default:
         APP_DBG("Missing layer");
         break;
@@ -108,10 +111,11 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_FRIENDS_SEARCH:
             break;
         case LAYER_FRIENDS_HELP:
-            Friends_Help();
-            break;
         case LAYER_FRIEND_FOUND:
-            Friend_Found();
+            Friend_Option_Ok();
+            break;
+        case LAYER_MENU_UNLOCKED:
+            Friend_Menu_Unlocked();
             break;
         }
         break;
@@ -179,9 +183,8 @@ void Update_Previous_Layer()
         break;
     case LAYER_FRIENDS_SEARCH:
     case LAYER_FRIENDS_HELP:
-        previousLayer = LAYER_FRIENDS_MENU;
-        break;
     case LAYER_FRIEND_FOUND:
+    case LAYER_MENU_UNLOCKED:
         previousLayer = LAYER_FRIENDS_MENU;
         break;
     default:
@@ -352,20 +355,7 @@ void Friends_Menu()
     Display_Update_HMenu();
 }
 
-void Friends_Help()
-{
-    switch (selectedOption)
-    {
-    case OK:
-        currentLayer = LAYER_FRIENDS_MENU;
-        break;
-    }
-
-    selectedOption = 0;
-    Display_Update_VMenu();
-}
-
-void Friend_Found()
+void Friend_Option_Ok()
 {
     switch (selectedOption)
     {
@@ -375,5 +365,18 @@ void Friend_Found()
     }
 
     selectedOption = 0;
+    Display_Update_VMenu();
+}
+
+void Friend_Menu_Unlocked()
+{
+    switch (selectedOption)
+    {
+        case OK:
+            currentLayer = LAYER_MAIN;
+            break;
+    }
+
+    selectedOption = 4; // Select sensor option
     Display_Update_VMenu();
 }
