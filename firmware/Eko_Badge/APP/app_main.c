@@ -1,22 +1,16 @@
 /********************************** (C) COPYRIGHT *******************************
- * File Name          : main.c
- * Author             : WCH
- * Version            : V1.2
- * Date               : 2022/06/22
- * Description        :
+ * File Name          : app.c
+ * Authors            : WCH, Electronic Cats
+ * Version            : V1.1
+ * Date               : 2023/10/27
+ * Description        : This project is based on the WCH BLE Mesh demo and it was
+ *                      adapted to work with the Eko Badge board made by Electronic
+ *                      Cats for the Eko Party 2023, Argentina.
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  * 
-Desarrollado por Electronic Cats
-agradecemos a:
-
-    EkoParty Team gracias por creer en el proyecto
-    Firmware - Francisco @ DeimosHall
-    Hardware - Lizeth
-    Los que nos ayudaron a hacer llegar el hadware a Argentina
-    #QueVuelvaLaBarraEnLaEko
  *******************************************************************************/
 
 /******************************************************************************/

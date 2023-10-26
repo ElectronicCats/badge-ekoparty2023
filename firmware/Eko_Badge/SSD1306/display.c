@@ -66,6 +66,31 @@ char *newMenuUnlocked[] = {
     "   Nuevo menu",
     "  desbloqueado!"};
 
+char *properties[] = {
+    "Creditos"};
+
+// Scrollable banners
+char *credits[] = {
+    "Desarrollado por",
+    "Electroic Cats,",
+    "Agradecemos a:",
+    "EkoParty Team,",
+    "gracias por",
+    "creer en el",
+    "proyecto.",
+    "Firmware:",
+    "Francisco -",
+    "@DeimosHall",
+    "Hardware:",
+    "Lizeth",
+    "Los que nos",
+    "ayudaron a",
+    "hacer llegar el",
+    "hardware a",
+    "Argentina",
+    "#QueVuelvaLa",
+    "BarraEnLaEko"};
+
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
     if (events & DISPLAY_TEST_EVENT)
@@ -330,13 +355,13 @@ void Display_Clear()
 void Display_Show_Logo()
 {
     ssd1306_setbuf(0);
-    ssd1306_drawstr_sz(0, 16, "EKOPARTY", 1, fontsize_16x16);
+    ssd1306_drawstr_sz(0, 10, "EKOPARTY", 1, fontsize_16x16);
     ssd1306_refresh();
 }
 
 void Display_Update_Menu()
 {
-    APP_DBG("Orientation: %s", menuOrientation == VERTICAL_MENU ? "vertical" : "horizontal");
+    APP_DBG("Orientation: %s", menuOrientation == VERTICAL_MENU ? "Vertical" : "Horizontal");
 
     if (menuOrientation == VERTICAL_MENU)
     {
@@ -377,7 +402,7 @@ void Display_Show_VMenu()
         // APP_DBG("Option %d: %s", i, options[i]);
     }
 
-    Friends_List();
+    // Friends_List();
     ssd1306_refresh();
 }
 
@@ -409,6 +434,14 @@ char **Display_Update_VMenu_Options()
         options = friendOptions;
         optionsSize = sizeof(friendOptions) / sizeof(friendOptions[0]);
         break;
+    case LAYER_PROPERTIES:
+        options = properties;
+        optionsSize = sizeof(properties) / sizeof(properties[0]);
+        break;
+    case LAYER_CREDITS:
+        options = credits;
+        optionsSize = sizeof(credits) / sizeof(credits[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
@@ -436,7 +469,7 @@ void Display_Show_HMenu()
      *  -------------------------
      * |         Banner         |
      * |------------------------|
-     * |   Cancelar   Aceptar   |
+     * |   Aceptar   Cancelar   |
      * -------------------------
      */
 
@@ -453,8 +486,16 @@ void Display_Show_HMenu()
     }
     else if (optionsSize == 2)
     {
-        ssd1306_drawstr(0, 24, options[0], WHITE);
-        ssd1306_drawstr(62, 24, options[1], WHITE);
+        if (selectedOption == 0)
+        {
+            ssd1306_drawstr(0, 24, options[0], BLACK);
+            ssd1306_drawstr(62, 24, options[1], WHITE);
+        }
+        else
+        {
+            ssd1306_drawstr(0, 24, options[0], WHITE);
+            ssd1306_drawstr(62, 24, options[1], BLACK);
+        }
     }
 
     ssd1306_refresh();
@@ -478,11 +519,11 @@ char **Display_Update_HMenu_Banner()
         banner = friendFoundBanner;
         bannerSize = sizeof(friendFoundBanner) / sizeof(friendFoundBanner[0]);
         break;
-    case LAYER_MENU_UNLOCKED:
+    case LAYER_FRIENDS_MENU_UNLOCKED:
         banner = newMenuUnlocked;
         bannerSize = sizeof(newMenuUnlocked) / sizeof(newMenuUnlocked[0]);
         break;
-    default:    
+    default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
         break;
@@ -503,7 +544,7 @@ char **Display_Update_HMenu_Options()
         break;
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIEND_FOUND:
-    case LAYER_MENU_UNLOCKED:
+    case LAYER_FRIENDS_MENU_UNLOCKED:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
@@ -532,7 +573,7 @@ void Display_Friend_Found()
 
 void Display_Menu_Unlocked()
 {
-    currentLayer = LAYER_MENU_UNLOCKED;
+    currentLayer = LAYER_FRIENDS_MENU_UNLOCKED;
     enableFriendSearch = FALSE;
     Display_Update_HMenu();
 }

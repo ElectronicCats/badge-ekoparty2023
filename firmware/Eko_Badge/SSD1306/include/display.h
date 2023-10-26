@@ -40,7 +40,9 @@
 #define LAYER_FRIENDS_SEARCH 8
 #define LAYER_FRIENDS_HELP 9
 #define LAYER_FRIEND_FOUND 10
-#define LAYER_MENU_UNLOCKED 11
+#define LAYER_FRIENDS_MENU_UNLOCKED 11
+#define LAYER_PROPERTIES 12
+#define LAYER_CREDITS 13
 
 // Horizontal menu options
 #define OK 0
@@ -50,6 +52,7 @@
 #define MAIN_NEOPIXELS_MENU 0
 #define MAIN_I2C_SCANNER 1
 #define MAIN_FRIENDS_MENU 2
+#define MAIN_PROPERTIES_MENU 3
 
 // Neopixels menu options
 #define NEOPIXEL_1 0
@@ -68,6 +71,9 @@
 #define FRIENDS_COUNTER 0
 #define FRIENDS_SEARCH 1
 #define FRIENDS_HELP 2
+
+// Properties menu options
+#define PROPERTIES_CREDITS 0
 
 /* Global variables */
 extern tmosTaskID displayTaskID;

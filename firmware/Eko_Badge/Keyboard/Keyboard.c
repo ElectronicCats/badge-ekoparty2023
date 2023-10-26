@@ -57,8 +57,14 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_FRIENDS_HELP:
         APP_DBG("Layer friends help");
         break;
-    case LAYER_MENU_UNLOCKED:
+    case LAYER_FRIENDS_MENU_UNLOCKED:
         APP_DBG("Layer menu unlocked");
+        break;
+    case LAYER_PROPERTIES:
+        APP_DBG("Layer properties");
+        break;
+    case LAYER_CREDITS:
+        APP_DBG("Layer credits");
         break;
     default:
         APP_DBG("Missing layer");
@@ -114,8 +120,11 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_FRIEND_FOUND:
             Friend_Option_Ok();
             break;
-        case LAYER_MENU_UNLOCKED:
+        case LAYER_FRIENDS_MENU_UNLOCKED:
             Friend_Menu_Unlocked();
+            break;
+        case LAYER_PROPERTIES:
+            Properties_Menu();
             break;
         }
         break;
@@ -126,7 +135,7 @@ void Keyboard_Scan_Callback(uint8_t keys)
     Update_Previous_Layer();
     Keyboard_Print_Layer(previousLayer);
     Keyboard_Print_Layer(currentLayer);
-    APP_DBG("selectedOption %d", selectedOption);
+    // APP_DBG("selectedOption %d", selectedOption);
 }
 
 void Keyboard_Handle_Back_Button()
@@ -150,18 +159,12 @@ void Keyboard_Update_Orientation()
 {
     switch (currentLayer)
     {
-    case LAYER_MAIN:
-    case LAYER_NEOPIXELS_MENU:
-    case LAYER_NEOPIXEL_1:
-    case LAYER_NEOPIXEL_2:
-    case LAYER_NEOPIXEL_3:
-    case LAYER_NEOPIXELS_RAINBOW:
-    case LAYER_FRIENDS_MENU:
-        menuOrientation = VERTICAL_MENU;
-        break;
     case LAYER_FRIENDS_SEARCH:
     case LAYER_FRIENDS_HELP:
         menuOrientation = HORIZONTAL_MENU;
+        break;
+    default: // Most of layers are vertical menus
+        menuOrientation = VERTICAL_MENU;
         break;
     }
 }
@@ -173,6 +176,7 @@ void Update_Previous_Layer()
     case LAYER_MAIN:
     case LAYER_NEOPIXELS_MENU:
     case LAYER_FRIENDS_MENU:
+    case LAYER_PROPERTIES:
         previousLayer = LAYER_MAIN;
         break;
     case LAYER_NEOPIXEL_1:
@@ -184,8 +188,11 @@ void Update_Previous_Layer()
     case LAYER_FRIENDS_SEARCH:
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIEND_FOUND:
-    case LAYER_MENU_UNLOCKED:
+    case LAYER_FRIENDS_MENU_UNLOCKED:
         previousLayer = LAYER_FRIENDS_MENU;
+        break;
+    case LAYER_CREDITS:
+        previousLayer = LAYER_PROPERTIES;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -209,6 +216,9 @@ void Main_Menu()
         break;
     case MAIN_FRIENDS_MENU:
         currentLayer = LAYER_FRIENDS_MENU;
+        break;
+    case MAIN_PROPERTIES_MENU:
+        currentLayer = LAYER_PROPERTIES;
         break;
     default:
         APP_DBG("Missing option");
@@ -359,9 +369,9 @@ void Friend_Option_Ok()
 {
     switch (selectedOption)
     {
-        case OK:
-            currentLayer = LAYER_FRIENDS_MENU;
-            break;
+    case OK:
+        currentLayer = LAYER_FRIENDS_MENU;
+        break;
     }
 
     selectedOption = 0;
@@ -372,11 +382,26 @@ void Friend_Menu_Unlocked()
 {
     switch (selectedOption)
     {
-        case OK:
-            currentLayer = LAYER_MAIN;
-            break;
+    case OK:
+        currentLayer = LAYER_MAIN;
+        break;
     }
 
     selectedOption = 4; // Select sensor option
+    Display_Update_VMenu();
+}
+
+void Properties_Menu()
+{
+    switch (selectedOption)
+    {
+    case PROPERTIES_CREDITS:
+        currentLayer = LAYER_CREDITS;
+        break;
+    default:
+        currentLayer = LAYER_MAIN;
+    }
+
+    selectedOption = 0;
     Display_Update_VMenu();
 }
