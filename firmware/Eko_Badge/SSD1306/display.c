@@ -88,12 +88,44 @@ char *credits[] = {
     "Hardware:",
     "Lizeth",
     "Los que nos",
-    "ayudaron a",
-    "hacer llegar el",
+    "ayudaron a hacer",
+    "llegar el",
     "hardware a",
     "Argentina",
     "#QueVuelvaLa",
     "BarraEnLaEko"};
+
+char *sensorMenu[] = {
+    "1. Ingresar",
+    "2. Ayuda"};
+
+// LAYER SENSOR ENTER
+char *sensorQuestion[] = {
+    "",
+    "   Anio:"};
+
+// LAYER SENSOR HELP
+char *sensorHelp[] = {
+    "Debes ingresar",
+    "el anio en que",
+    "nacio Ekoparty.",
+    "Puedes usar tu",
+    "telefono movil",
+    "para conectarte",
+    "a tu Eko Badge,",
+    "revisa tu",
+    "direccion MAC",
+    "en propiedades.",
+    "Para comunicarte",
+    "con el badge",
+    "puedes usar",
+    "alguna de las",
+    "siguientes apps:",
+    "- BLE Scanner",
+    "- nRF Connect",
+    "Envia el dato",
+    "en el servicio",
+    "SC CONTROL POINT"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -447,6 +479,14 @@ char **Display_Update_VMenu_Options()
         options = credits;
         optionsSize = sizeof(credits) / sizeof(credits[0]);
         break;
+    case LAYER_SENSOR_MENU:
+        options = sensorMenu;
+        optionsSize = sizeof(sensorMenu) / sizeof(sensorMenu[0]);
+        break;
+    case LAYER_SENSOR_HELP:
+        options = sensorHelp;
+        optionsSize = sizeof(sensorHelp) / sizeof(sensorHelp[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
@@ -528,6 +568,10 @@ char **Display_Update_HMenu_Banner()
         banner = newMenuUnlocked;
         bannerSize = sizeof(newMenuUnlocked) / sizeof(newMenuUnlocked[0]);
         break;
+    case LAYER_SENSOR_QUESTION:
+        banner = sensorQuestion;
+        bannerSize = sizeof(sensorQuestion) / sizeof(sensorQuestion[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -546,6 +590,10 @@ char **Display_Update_HMenu_Options()
     case LAYER_FRIENDS_SEARCH:
         options = twoOptions;
         optionsSize = 0;
+        break;
+    case LAYER_SENSOR_QUESTION:
+        options = twoOptions;
+        optionsSize = sizeof(twoOptions) / sizeof(twoOptions[0]);
         break;
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIEND_FOUND:

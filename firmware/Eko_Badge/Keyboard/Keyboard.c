@@ -66,6 +66,15 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_CREDITS:
         APP_DBG("Layer credits");
         break;
+    case LAYER_SENSOR_MENU:
+        APP_DBG("Layer sensor menu");
+        break;
+    case LAYER_SENSOR_QUESTION:
+        APP_DBG("Layer sensor question");
+        break;
+    case LAYER_SENSOR_HELP:
+        APP_DBG("Layer sensor help");
+        break;
     default:
         APP_DBG("Missing layer");
         break;
@@ -126,6 +135,12 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_PROPERTIES:
             Properties_Menu();
             break;
+        case LAYER_SENSOR_MENU:
+            Sensor_Menu();
+            break;
+        case LAYER_SENSOR_QUESTION:
+            Sensor_Question_Menu();
+            break;
         }
         break;
     default:
@@ -177,6 +192,7 @@ void Update_Previous_Layer()
     case LAYER_NEOPIXELS_MENU:
     case LAYER_FRIENDS_MENU:
     case LAYER_PROPERTIES:
+    case LAYER_SENSOR_MENU:
         previousLayer = LAYER_MAIN;
         break;
     case LAYER_NEOPIXEL_1:
@@ -193,6 +209,10 @@ void Update_Previous_Layer()
         break;
     case LAYER_CREDITS:
         previousLayer = LAYER_PROPERTIES;
+        break;
+    case LAYER_SENSOR_QUESTION:
+    case LAYER_SENSOR_HELP:
+        previousLayer = LAYER_SENSOR_MENU;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -219,6 +239,9 @@ void Main_Menu()
         break;
     case MAIN_PROPERTIES_MENU:
         currentLayer = LAYER_PROPERTIES;
+        break;
+    case MAIN_SENSOR_MENU:
+        currentLayer = LAYER_SENSOR_MENU;
         break;
     default:
         APP_DBG("Missing option");
@@ -398,10 +421,39 @@ void Properties_Menu()
     case PROPERTIES_CREDITS:
         currentLayer = LAYER_CREDITS;
         break;
-    default:
-        currentLayer = LAYER_MAIN;
     }
 
     selectedOption = 0;
     Display_Update_VMenu();
+}
+
+void Sensor_Menu()
+{
+    switch (selectedOption)
+    {
+    case SENSOR_QUESTION:
+        currentLayer = LAYER_SENSOR_QUESTION;
+        selectedOption = 0;
+        Display_Update_HMenu();
+        break;
+    case SENSOR_HELP:
+        currentLayer = LAYER_SENSOR_HELP;
+        selectedOption = 0;
+        Display_Update_VMenu();
+        break;
+    }
+}
+
+void Sensor_Question_Menu()
+{
+    switch (selectedOption)
+    {
+    case OK:
+        break;
+    case CANCEL:
+        currentLayer = LAYER_SENSOR_MENU;
+        selectedOption = 0;
+        Display_Update_VMenu();
+        break;
+    }
 }

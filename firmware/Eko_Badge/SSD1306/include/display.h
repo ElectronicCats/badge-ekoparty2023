@@ -43,6 +43,9 @@
 #define LAYER_FRIENDS_MENU_UNLOCKED 11
 #define LAYER_PROPERTIES 12
 #define LAYER_CREDITS 13
+#define LAYER_SENSOR_MENU 14
+#define LAYER_SENSOR_QUESTION 15
+#define LAYER_SENSOR_HELP 16
 
 // Horizontal menu options
 #define OK 0
@@ -75,6 +78,10 @@
 
 // Properties menu options
 #define PROPERTIES_CREDITS 0
+
+// Sensor menu options
+#define SENSOR_QUESTION 0
+#define SENSOR_HELP 1
 
 /* Global variables */
 extern tmosTaskID displayTaskID;
