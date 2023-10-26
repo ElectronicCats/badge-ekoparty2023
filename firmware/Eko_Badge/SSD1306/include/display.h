@@ -10,6 +10,9 @@
 #include "HAL.h"
 #include "friend.h"
 
+// Eko Party foundation year
+#define FOUNDATION_YEAR 2001
+
 #define I2C_TIMEOUT 1000
 #define TxAdderss 0x02
 
@@ -46,6 +49,8 @@
 #define LAYER_SENSOR_MENU 14
 #define LAYER_SENSOR_QUESTION 15
 #define LAYER_SENSOR_HELP 16
+#define LAYER_WRONG_YEAR 17
+#define LAYER_CORRECT_YEAR 18
 
 // Horizontal menu options
 #define OK 0

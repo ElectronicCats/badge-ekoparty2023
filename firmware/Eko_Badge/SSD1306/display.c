@@ -10,9 +10,11 @@ uint8_t optionsSize;
 uint8_t bannerSize;
 uint8_t menuOrientation;
 uint8_t macAddress[6];
+static uint32_t foundationYear;
 
 char *errorBanner[] = {
-    "Error"};
+    "",
+    "    Error"};
 
 // Option to horizontal menu
 char *oneOption[] = {
@@ -103,6 +105,16 @@ char *sensorMenu[] = {
 char *sensorQuestion[] = {
     "",
     "   Anio:"};
+
+// LAYER WRONG YEAR
+char *wrongYear[] = {
+    "",
+    " Anio incorrecto"};
+
+// LAYER CORRECT YEAR
+char *correctYear[] = {
+    "",
+    "  Anio correcto"};
 
 // LAYER SENSOR HELP
 char *sensorHelp[] = {
@@ -366,6 +378,7 @@ void Display_Init(void)
     displayTaskID = TMOS_ProcessEventRegister(Display_ProcessEvent);
     currentLayer = LAYER_MAIN;
     previousLayer = currentLayer;
+    foundationYear = 0;
     IIC_Init(80000, TxAdderss);
     Friends_Init();
 
@@ -572,6 +585,14 @@ char **Display_Update_HMenu_Banner()
         banner = sensorQuestion;
         bannerSize = sizeof(sensorQuestion) / sizeof(sensorQuestion[0]);
         break;
+    case LAYER_WRONG_YEAR:
+        banner = wrongYear;
+        bannerSize = sizeof(wrongYear) / sizeof(wrongYear[0]);
+        break;
+    case LAYER_CORRECT_YEAR:
+        banner = correctYear;
+        bannerSize = sizeof(correctYear) / sizeof(correctYear[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -598,6 +619,8 @@ char **Display_Update_HMenu_Options()
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIEND_FOUND:
     case LAYER_FRIENDS_MENU_UNLOCKED:
+    case LAYER_WRONG_YEAR:
+    case LAYER_CORRECT_YEAR:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
@@ -641,4 +664,27 @@ void Display_Fill_Mac_Address()
             macAddress[2], macAddress[1], macAddress[0]);
     properties[2] = macAddressStr;
     properties[3] = macAddressStr2;
+}
+
+void Display_Update_Foundation_Year(uint32_t year)
+{
+    char *yearStr = (char *)malloc(12);
+    sprintf(yearStr, "   Anio: %d", year);
+    foundationYear = year;
+
+    if (year == -1)
+    {
+        sensorQuestion[1] = " Anio: Invalido";
+    }
+    else
+    {
+        sensorQuestion[1] = yearStr;
+    }
+
+    Display_Update_HMenu();
+}
+
+uint32_t Get_Foundation_Year()
+{
+    return foundationYear;
 }

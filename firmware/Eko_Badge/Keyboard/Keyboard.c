@@ -449,6 +449,7 @@ void Sensor_Question_Menu()
     switch (selectedOption)
     {
     case OK:
+        Sensor_Answer();
         break;
     case CANCEL:
         currentLayer = LAYER_SENSOR_MENU;
@@ -456,4 +457,19 @@ void Sensor_Question_Menu()
         Display_Update_VMenu();
         break;
     }
+}
+
+void Sensor_Answer()
+{
+    if (Get_Foundation_Year() == FOUNDATION_YEAR)
+    {
+        currentLayer = LAYER_CORRECT_YEAR;
+    }
+    else
+    {
+        currentLayer = LAYER_WRONG_YEAR;
+    }
+
+    selectedOption = 0;
+    Display_Update_HMenu();
 }
