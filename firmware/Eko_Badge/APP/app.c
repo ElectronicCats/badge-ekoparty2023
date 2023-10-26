@@ -15,7 +15,9 @@
 #include "MESH_LIB.h"
 #include "app_vendor_model_srv.h"
 #include "app.h"
-#include "peripheral.h"
+// #include "peripheral.h"
+#include "cyclingservice.h"
+#include "cyclingsensor.h"
 #include "central.h"
 #include "HAL.h"
 #include "app_trans_process.h"
@@ -797,7 +799,8 @@ void App_Init()
 {
     GAPRole_PeripheralInit();
     GAPRole_CentralInit();
-    Peripheral_Init();
+    // Peripheral_Init();
+    CyclingSensor_Init();
     Central_Init();
 
     App_TaskID = TMOS_ProcessEventRegister(App_ProcessEvent);
