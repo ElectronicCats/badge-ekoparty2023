@@ -520,7 +520,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
             // Eko badge found
             if (*pMsg->msg.readRsp.pValue == 0x5A)
             {
-                centralAddFriend(pMsg->connHandle);
+                // centralAddFriend(pMsg->connHandle);
             }
         }
         centralProcedureInProgress = FALSE;
@@ -975,7 +975,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
             centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
 
             // Display Profile Service handle range
-            APP_DBG("Found Profile Service handle : %x ~ %x ", centralSvcStartHdl, centralSvcEndHdl);
+            APP_DBG("Found Profile Service handle : %X ~ %X ", centralSvcStartHdl, centralSvcEndHdl);
         }
         // If procedure complete
         if ((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP &&
@@ -1009,7 +1009,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
             tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
 
             // Display Characteristic 1 handle
-            APP_DBG("Found Characteristic 1 handle : %x ", centralCharHdl);
+            APP_DBG("Found Characteristic 1 handle : %X ", centralCharHdl);
         }
         if ((pMsg->method == ATT_READ_BY_TYPE_RSP &&
              pMsg->hdr.status == bleProcedureComplete) ||
@@ -1040,7 +1040,13 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
             tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
 
             // Display Characteristic 1 handle
-            APP_DBG("Found client characteristic configuration handle : %x ", centralCCCDHdl);
+            APP_DBG("Found client characteristic configuration handle : %X ", centralCCCDHdl);
+
+            // Eko Badge found
+            if (centralCCCDHdl == 0x38)
+            {
+                centralAddFriend(pMsg->connHandle);
+            }
         }
         centralDiscState = BLE_DISC_STATE_IDLE;
     }

@@ -19,6 +19,7 @@
 #include "devinfoservice.h"
 #include "cyclingservice.h"
 #include "cyclingsensor.h"
+#include "app_mesh_config.h"
 
 /*********************************************************************
  * MACROS
@@ -265,6 +266,7 @@ void CyclingSensor_Init()
     GATTServApp_AddService(GATT_ALL_SERVICES); // GATT attributes
     Cycling_AddService(GATT_ALL_SERVICES);
     DevInfo_AddService();
+    SimpleProfile_AddService(GATT_ALL_SERVICES); // Simple GATT Profile
 
     // Register for cycling service callback
     Cycling_Register(SensorCB);
@@ -486,6 +488,7 @@ static void SensorGapStateCB(gapRole_States_t newState, gapRoleEvent_t *pEvent)
             // 5 seconds should allow enough time for Service Discovery by the collector to finish
             tmos_start_task(sensor_TaskID, CSC_CONN_PARAM_UPDATE_EVT, SVC_DISC_DELAY);
         }
+        APP_DBG("Connected!");
     }
     // If disconnected
     else if (gapProfileState == GAPROLE_CONNECTED &&
@@ -519,6 +522,7 @@ static void SensorGapStateCB(gapRole_States_t newState, gapRoleEvent_t *pEvent)
 
         // Enable advertising
         GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &advState);
+        APP_DBG("Advertising...");
     }
     // if advertising stopped
     else if (gapProfileState == GAPROLE_ADVERTISING &&
@@ -569,6 +573,7 @@ static void SensorGapStateCB(gapRole_States_t newState, gapRoleEvent_t *pEvent)
     // if started
     else if (newState == GAPROLE_STARTED)
     {
+        APP_DBG("Initialized...");
         // Set the system ID from the bd addr
         uint8_t systemId[DEVINFO_SYSTEM_ID_LEN];
         GAPRole_GetParameter(GAPROLE_BD_ADDR, systemId);
