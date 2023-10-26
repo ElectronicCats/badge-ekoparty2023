@@ -53,6 +53,7 @@
 #define MAIN_I2C_SCANNER 1
 #define MAIN_FRIENDS_MENU 2
 #define MAIN_PROPERTIES_MENU 3
+#define MAIN_SENSOR_MENU 4
 
 // Neopixels menu options
 #define NEOPIXEL_1 0
@@ -83,6 +84,7 @@ extern uint8_t currentLayer;
 extern uint8_t optionsSize;
 extern uint8_t bannerSize;
 extern uint8_t menuOrientation;
+extern uint8_t macAddress[6];
 
 /* Function protopotypes */
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events);

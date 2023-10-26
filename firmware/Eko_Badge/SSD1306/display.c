@@ -9,6 +9,7 @@ uint8_t currentLayer;
 uint8_t optionsSize;
 uint8_t bannerSize;
 uint8_t menuOrientation;
+uint8_t macAddress[6];
 
 char *errorBanner[] = {
     "Error"};
@@ -67,7 +68,10 @@ char *newMenuUnlocked[] = {
     "  desbloqueado!"};
 
 char *properties[] = {
-    "Creditos"};
+    "1. Creditos",
+    "2. Chip:CH32V208",
+    "3. MAC:",
+    ""};
 
 // Scrollable banners
 char *credits[] = {
@@ -341,6 +345,7 @@ void Display_Init(void)
     APP_DBG("Initializing i2c oled...");
     ssd1306_init();
     APP_DBG("Done.");
+    Display_Fill_Mac_Address();
 
     // tmos_start_task(displayTaskID, DISPLAY_TEST_EVENT, MS1_TO_SYSTEM_TIME(100));
     tmos_start_task(displayTaskID, DISPLAY_SHOW_LOGO_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
@@ -576,4 +581,16 @@ void Display_Menu_Unlocked()
     currentLayer = LAYER_FRIENDS_MENU_UNLOCKED;
     enableFriendSearch = FALSE;
     Display_Update_HMenu();
+}
+
+void Display_Fill_Mac_Address()
+{
+    char *macAddressStr = (char *)malloc(12);
+    char *macAddressStr2 = (char *)malloc(12);
+    sprintf(macAddressStr, "3. MAC: %02X:%02X:%02X",
+            macAddress[5], macAddress[4], macAddress[3]);
+    sprintf(macAddressStr2, "        %02X:%02X:%02X",
+            macAddress[2], macAddress[1], macAddress[0]);
+    properties[2] = macAddressStr;
+    properties[3] = macAddressStr2;
 }

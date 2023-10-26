@@ -108,9 +108,9 @@ int main(void)
 
     Leds_Init();
     APP_DBG("LEDs setup ready!");
+    App_Init();
     Display_Init();
     
-    App_Init();
     Main_Circulation();
 }
 

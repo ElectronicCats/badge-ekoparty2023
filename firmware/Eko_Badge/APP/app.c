@@ -687,15 +687,14 @@ void blemesh_on_sync(void)
     err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
 #else
     {
-        uint8_t MacAddr[6];
-        FLASH_GetMACAddress(MacAddr);
-        tmos_memcpy(dev_uuid, MacAddr, 6);
+        FLASH_GetMACAddress(macAddress);
+        tmos_memcpy(dev_uuid, macAddress, 6);
         // ʹ��оƬmac��ַ
-        err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, MacAddr, &info);
+        err = bt_mesh_cfg_set(&app_mesh_cfg, &app_dev, macAddress, &info);
 
         // Print MAC address
         APP_DBG("MAC address: %02X:%02X:%02X:%02X:%02X:%02X",
-                MacAddr[5], MacAddr[4], MacAddr[3], MacAddr[2], MacAddr[1], MacAddr[0]);
+                macAddress[5], macAddress[4], macAddress[3], macAddress[2], macAddress[1], macAddress[0]);
     }
 #endif
     if (err)
