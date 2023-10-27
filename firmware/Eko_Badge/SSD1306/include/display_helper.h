@@ -20,6 +20,12 @@ char *newMenuUnlocked[] = {
 
 /*************** Level welcome messages ************************/
 
+// LAYER LEVEL 2
+char *bannerLevel2[] = {
+    "****************",
+    "***  Nivel 2 ***",
+    "****************"};
+
 // LAYER WELCOME 2
 char *welcomeLevel2[] = {
     "Bienvenido al",
@@ -146,12 +152,7 @@ char *correctYear[] = {
 
 // LAYER SENSOR HELP
 char *sensorHelp[] = {
-    "Para comunicarte",
-    "con el badge",
-    "puedes usar",
-    "alguna de las",
-    "siguientes apps:",
-    "- BLE Scanner",
-    "- nRF Connect"};
+    "     No hay     ",
+    "      ayuda     "};
 
 #endif

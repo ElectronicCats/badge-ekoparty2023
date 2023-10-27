@@ -381,6 +381,10 @@ char **Display_Update_VMenu_Options()
         options = finishLevel1;
         optionsSize = sizeof(finishLevel1) / sizeof(finishLevel1[0]);
         break;
+    case LAYER_WELCOME_LEVEL_2:
+        options = welcomeLevel2;
+        optionsSize = sizeof(welcomeLevel2) / sizeof(welcomeLevel2[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
@@ -475,6 +479,10 @@ char **Display_Update_HMenu_Banner()
         banner = correctYear;
         bannerSize = sizeof(correctYear) / sizeof(correctYear[0]);
         break;
+    case LAYER_BANNER_LEVEL_2:
+        banner = bannerLevel2;
+        bannerSize = sizeof(bannerLevel2) / sizeof(bannerLevel2[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -504,6 +512,7 @@ char **Display_Update_HMenu_Options()
     case LAYER_SENSOR_MENU_UNLOCKED:
     case LAYER_WRONG_YEAR:
     case LAYER_CORRECT_YEAR:
+    case LAYER_BANNER_LEVEL_2:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
@@ -533,6 +542,7 @@ void Display_Friend_Found()
 void Display_Finish_Level_1()
 {
     currentLayer = LAYER_FINISH_LEVEL_1;
+    previousLayer = currentLayer;
     enableFriendSearch = FALSE;
     Display_Update_VMenu();
 }

@@ -162,6 +162,12 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_FINISH_LEVEL_1:
             Finish_Level_1();
             break;
+        case LAYER_BANNER_LEVEL_2:
+            Banner_Level_2();
+            break;
+        case LAYER_WELCOME_LEVEL_2:
+            Welcome_Level_2();
+            break;
         }
         break;
     default:
@@ -202,6 +208,7 @@ void Keyboard_Update_Orientation()
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIENDS_MENU_UNLOCKED:
     case LAYER_SENSOR_MENU_UNLOCKED:
+    case LAYER_BANNER_LEVEL_2:
         menuOrientation = HORIZONTAL_MENU;
         break;
     default: // Most of layers are vertical menus
@@ -251,6 +258,12 @@ void Update_Previous_Layer()
         break;
     case LAYER_FINISH_LEVEL_1:
         previousLayer = LAYER_FINISH_LEVEL_1;
+        break;
+    case LAYER_BANNER_LEVEL_2:
+        previousLayer = LAYER_BANNER_LEVEL_2;
+        break;
+    case LAYER_WELCOME_LEVEL_2:
+        previousLayer = LAYER_WELCOME_LEVEL_2;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -555,7 +568,37 @@ void Sensor_Menu_Unlocked()
     Display_Update_VMenu();
 }
 
+// Finishing level 1 shows the level 2 banner
 void Finish_Level_1()
+{
+    switch (selectedOption)
+    {
+    case OK:
+    default:
+        currentLayer = LAYER_BANNER_LEVEL_2;
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_HMenu();
+}
+
+// Press OK show the level 2 welcome
+void Banner_Level_2()
+{
+    switch (selectedOption)
+    {
+    case OK:
+    default:
+        currentLayer = LAYER_WELCOME_LEVEL_2;
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_VMenu();
+}
+
+Welcome_Level_2()
 {
     currentLayer = LAYER_FRIENDS_MENU_UNLOCKED;
     selectedOption = 0;
