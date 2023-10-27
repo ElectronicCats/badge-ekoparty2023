@@ -26,7 +26,13 @@ char *bannerLevel2[] = {
     "***  Nivel 2 ***",
     "****************"};
 
-// LAYER WELCOME 2
+// LAYER LEVEL 3
+char *bannerLevel3[] = {
+    "****************",
+    "***  Nivel 3 ***",
+    "****************"};
+
+// LAYER WELCOME LEVEL 2
 char *welcomeLevel2[] = {
     "Bienvenido al",
     "mundo de Harald,",
@@ -41,6 +47,24 @@ char *welcomeLevel2[] = {
     "en propiedades.",
     "Te veo en el",
     "SC CONTROL POINT"};
+
+// LAYER WELCOME LEVEL 3
+char *welcomeLevel3[] = {
+    "Tardaste en     ",
+    "llegar. Has oido",
+    "del I2C? del    ",
+    "UART? del I2C?  ",
+    "del CAN? del    ",
+    "IoT? jajaja     ",
+    "por TODOS lados ",
+    "hasta por los   ",
+    "GPIOS...        ",
+    "Ven, acercate,  ",
+    "tengo algo que  ",
+    "contarte... pero",
+    "es muuuy secreto",
+    "Ay no se donde  ",
+    "deje la llave   "};
 
 /*************** Level finish messages ************************/
 
@@ -62,6 +86,16 @@ char *finishLevel1[] = {
     "tenemos algo",
     "que tal vez",
     "te interese..."};
+
+// LAYER FINISH LEVEL 2
+char *finishLevel2[] = {
+    "Excelente, pense",
+    "que no lo ibas a",
+    "lograr, es",
+    "broma... La",
+    "siguiente no es",
+    "facil, prepara",
+    "el hardware..."};
 
 char *mainOptions[] = {
     "1. LEDs",

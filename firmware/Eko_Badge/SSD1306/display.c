@@ -385,6 +385,14 @@ char **Display_Update_VMenu_Options()
         options = welcomeLevel2;
         optionsSize = sizeof(welcomeLevel2) / sizeof(welcomeLevel2[0]);
         break;
+    case LAYER_FINISH_LEVEL_2:
+        options = finishLevel2;
+        optionsSize = sizeof(finishLevel2) / sizeof(finishLevel2[0]);
+        break;
+    case LAYER_WELCOME_LEVEL_3:
+        options = welcomeLevel3;
+        optionsSize = sizeof(welcomeLevel3) / sizeof(welcomeLevel3[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
@@ -483,6 +491,10 @@ char **Display_Update_HMenu_Banner()
         banner = bannerLevel2;
         bannerSize = sizeof(bannerLevel2) / sizeof(bannerLevel2[0]);
         break;
+    case LAYER_BANNER_LEVEL_3:
+        banner = bannerLevel3;
+        bannerSize = sizeof(bannerLevel3) / sizeof(bannerLevel3[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -513,6 +525,7 @@ char **Display_Update_HMenu_Options()
     case LAYER_WRONG_YEAR:
     case LAYER_CORRECT_YEAR:
     case LAYER_BANNER_LEVEL_2:
+    case LAYER_BANNER_LEVEL_3:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;

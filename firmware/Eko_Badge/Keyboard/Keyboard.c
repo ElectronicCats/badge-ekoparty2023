@@ -165,8 +165,17 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_BANNER_LEVEL_2:
             Banner_Level_2();
             break;
+        case LAYER_BANNER_LEVEL_3:
+            Banner_Level_3();
+            break;
         case LAYER_WELCOME_LEVEL_2:
             Welcome_Level_2();
+            break;
+        case LAYER_WELCOME_LEVEL_3:
+            Welcome_Level_3();
+            break;
+        case LAYER_FINISH_LEVEL_2:
+            Finish_Level_2();
             break;
         }
         break;
@@ -208,7 +217,9 @@ void Keyboard_Update_Orientation()
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIENDS_MENU_UNLOCKED:
     case LAYER_SENSOR_MENU_UNLOCKED:
+    case LAYER_CORRECT_YEAR:
     case LAYER_BANNER_LEVEL_2:
+    case LAYER_BANNER_LEVEL_3:
         menuOrientation = HORIZONTAL_MENU;
         break;
     default: // Most of layers are vertical menus
@@ -253,6 +264,8 @@ void Update_Previous_Layer()
         previousLayer = LAYER_SENSOR_QUESTION;
         break;
     case LAYER_CORRECT_YEAR:
+        previousLayer = LAYER_CORRECT_YEAR;
+        break;
     case LAYER_SENSOR_MENU_UNLOCKED:
         previousLayer = LAYER_SENSOR_MENU_UNLOCKED;
         break;
@@ -262,8 +275,17 @@ void Update_Previous_Layer()
     case LAYER_BANNER_LEVEL_2:
         previousLayer = LAYER_BANNER_LEVEL_2;
         break;
+    case LAYER_BANNER_LEVEL_3:
+        previousLayer = LAYER_BANNER_LEVEL_3;
+        break;
     case LAYER_WELCOME_LEVEL_2:
         previousLayer = LAYER_WELCOME_LEVEL_2;
+        break;
+    case LAYER_FINISH_LEVEL_2:
+        previousLayer = LAYER_FINISH_LEVEL_2;
+        break;
+    case LAYER_WELCOME_LEVEL_3:
+        previousLayer = LAYER_WELCOME_LEVEL_3;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -547,12 +569,12 @@ void Sensor_Correct_Year()
     switch (selectedOption)
     {
     case OK:
-        currentLayer = LAYER_SENSOR_MENU_UNLOCKED;
+        currentLayer = LAYER_FINISH_LEVEL_2;
         break;
     }
 
     selectedOption = 0;
-    Display_Update_HMenu();
+    Display_Update_VMenu();
 }
 
 void Sensor_Menu_Unlocked()
@@ -601,6 +623,43 @@ void Banner_Level_2()
 Welcome_Level_2()
 {
     currentLayer = LAYER_FRIENDS_MENU_UNLOCKED;
+    selectedOption = 0;
+    Display_Update_HMenu();
+}
+
+// Finishing level 2 shows the level 3 banner
+void Finish_Level_2()
+{
+    switch (selectedOption)
+    {
+    case OK:
+    default:
+        currentLayer = LAYER_BANNER_LEVEL_3;
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_HMenu();
+}
+
+// Press OK show the level 3 welcome
+void Banner_Level_3()
+{
+    switch (selectedOption)
+    {
+    case OK:
+    default:
+        currentLayer = LAYER_WELCOME_LEVEL_3;
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_VMenu();
+}
+
+Welcome_Level_3()
+{
+    currentLayer = LAYER_SENSOR_MENU_UNLOCKED;
     selectedOption = 0;
     Display_Update_HMenu();
 }
