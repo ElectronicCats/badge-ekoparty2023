@@ -608,7 +608,7 @@ static void centralAddFriend(uint16_t connHandle)
 
     if (friendsCounter == FRIENDS_THRESHOLD)
     {
-        Display_Menu_Unlocked();
+        Display_Finish_Level_1();
     }
     else
     {

@@ -159,6 +159,9 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_SENSOR_MENU_UNLOCKED:
             Sensor_Menu_Unlocked();
             break;
+        case LAYER_FINISH_LEVEL_1:
+            Finish_Level_1();
+            break;
         }
         break;
     default:
@@ -227,8 +230,10 @@ void Update_Previous_Layer()
     case LAYER_FRIENDS_SEARCH:
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIEND_FOUND:
-    case LAYER_FRIENDS_MENU_UNLOCKED:
         previousLayer = LAYER_FRIENDS_MENU;
+        break;
+    case LAYER_FRIENDS_MENU_UNLOCKED:
+        previousLayer = LAYER_FRIENDS_MENU_UNLOCKED;
         break;
     case LAYER_CREDITS:
         previousLayer = LAYER_PROPERTIES;
@@ -243,6 +248,9 @@ void Update_Previous_Layer()
     case LAYER_CORRECT_YEAR:
     case LAYER_SENSOR_MENU_UNLOCKED:
         previousLayer = LAYER_SENSOR_MENU_UNLOCKED;
+        break;
+    case LAYER_FINISH_LEVEL_1:
+        previousLayer = LAYER_FINISH_LEVEL_1;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -545,4 +553,11 @@ void Sensor_Menu_Unlocked()
 
     selectedOption = MAIN_SERIAL_MENU; // Select serial option
     Display_Update_VMenu();
+}
+
+void Finish_Level_1()
+{
+    currentLayer = LAYER_FRIENDS_MENU_UNLOCKED;
+    selectedOption = 0;
+    Display_Update_HMenu();
 }

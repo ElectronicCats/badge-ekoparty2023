@@ -1,6 +1,7 @@
 #include "display.h"
 #include "stdint.h"
 #include <stdlib.h>
+#include "display_helper.h"
 
 tmosTaskID displayTaskID;
 uint8_t selectedOption = 0;
@@ -12,134 +13,6 @@ uint8_t menuOrientation;
 uint8_t macAddress[6];
 static uint32_t foundationYear;
 static BOOL receiveData;
-
-char *errorBanner[] = {
-    "",
-    "    Error"};
-
-// Option to horizontal menu
-char *oneOption[] = {
-    "Aceptar"};
-
-// Options to horizontal menu
-char *twoOptions[] = {
-    "Aceptar",
-    "Cancelar"};
-
-char *mainOptions[] = {
-    "1. LEDs",
-    "2. Escaner I2C",
-    "3. Amigos",
-    "4. Propiedades",
-    "5. Sensor",
-    "6. Serial"};
-
-char *neopixelsOptions[] = {
-    "1. LED 1",
-    "2. LED 2",
-    "3. LED 3",
-    "4. Modo arcoiris"};
-
-char *neopixelOptions[] = {
-    "1. Rojo",
-    "2. Verde",
-    "3. Azul",
-    "4. Encender",
-    "5. Apagar"};
-
-char *friendOptions[] = {
-    "1. Amigos: ",
-    "2. Buscar",
-    "3. Ayuda"};
-
-char *friendSearch[] = {
-    "",
-    "  Buscando..."};
-
-// Friends help text
-char *friendHelp[] = {
-    " Acercate a un",
-    "   amigo para",
-    "   agregarlo"};
-
-char *friendFoundBanner[] = {
-    "     Amigo",
-    "   encontrado"};
-
-char *newMenuUnlocked[] = {
-    "   Nuevo menu",
-    "  desbloqueado!"};
-
-char *properties[] = {
-    "1. Creditos",
-    "2. Chip:CH32V208",
-    "3. MAC:",
-    ""};
-
-// Scrollable banners
-char *credits[] = {
-    "Desarrollado por",
-    "Electroic Cats,",
-    "Agradecemos a:",
-    "EkoParty Team,",
-    "gracias por",
-    "creer en el",
-    "proyecto.",
-    "Firmware:",
-    "Francisco -",
-    "@DeimosHall",
-    "Hardware:",
-    "Lizeth",
-    "Los que nos",
-    "ayudaron a hacer",
-    "llegar el",
-    "hardware a",
-    "Argentina",
-    "#QueVuelvaLa",
-    "BarraEnLaEko"};
-
-char *sensorMenu[] = {
-    "1. Ingresar",
-    "2. Ayuda"};
-
-// LAYER SENSOR ENTER
-char *sensorQuestion[] = {
-    "",
-    "   Anio:"};
-
-// LAYER WRONG YEAR
-char *wrongYear[] = {
-    "",
-    " Anio incorrecto"};
-
-// LAYER CORRECT YEAR
-char *correctYear[] = {
-    "",
-    "  Anio correcto"};
-
-// LAYER SENSOR HELP
-char *sensorHelp[] = {
-    "Debes ingresar",
-    "el anio en que",
-    "se fundo",
-    "Ekoparty.",
-    "Puedes usar tu",
-    "telefono movil",
-    "para conectarte",
-    "a tu Eko Badge,",
-    "revisa tu",
-    "direccion MAC",
-    "en propiedades.",
-    "Para comunicarte",
-    "con el badge",
-    "puedes usar",
-    "alguna de las",
-    "siguientes apps:",
-    "- BLE Scanner",
-    "- nRF Connect",
-    "Envia el dato",
-    "en el servicio",
-    "SC CONTROL POINT"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -504,6 +377,10 @@ char **Display_Update_VMenu_Options()
         options = sensorHelp;
         optionsSize = sizeof(sensorHelp) / sizeof(sensorHelp[0]);
         break;
+    case LAYER_FINISH_LEVEL_1:
+        options = finishLevel1;
+        optionsSize = sizeof(finishLevel1) / sizeof(finishLevel1[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
@@ -653,11 +530,11 @@ void Display_Friend_Found()
     Display_Update_HMenu();
 }
 
-void Display_Menu_Unlocked()
+void Display_Finish_Level_1()
 {
-    currentLayer = LAYER_FRIENDS_MENU_UNLOCKED;
+    currentLayer = LAYER_FINISH_LEVEL_1;
     enableFriendSearch = FALSE;
-    Display_Update_HMenu();
+    Display_Update_VMenu();
 }
 
 void Display_Fill_Mac_Address()

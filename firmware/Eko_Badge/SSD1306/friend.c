@@ -7,7 +7,7 @@ friend_t friends[FRIENDS_MAX];
 void Friends_Init()
 {
     enableFriendSearch = FALSE;
-    friendsCounter = 30;
+    friendsCounter = 29;
 }
 
 void Friends_List()

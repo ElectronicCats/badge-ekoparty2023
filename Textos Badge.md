@@ -2,7 +2,7 @@
 
 Bienvenida1:
 
-como resolver: el suario debe conectarse a 30 o 50 abadges
+como resolver: el usario debe conectarse a 30 o 50 abadges
 
 Respuesta1: Para los 30 amigos - {Lo has logrado el primer reto... en que momento inicio esto?? 
 Es solo un numero de 4 digitos, nos vemos en el siguiente nivel BLE BLE BLE

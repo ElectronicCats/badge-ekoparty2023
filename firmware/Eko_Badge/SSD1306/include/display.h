@@ -52,6 +52,7 @@
 #define LAYER_WRONG_YEAR 17
 #define LAYER_CORRECT_YEAR 18
 #define LAYER_SENSOR_MENU_UNLOCKED 19
+#define LAYER_FINISH_LEVEL_1 20
 
 // Horizontal menu options
 #define OK 0
