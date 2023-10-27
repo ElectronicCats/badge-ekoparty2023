@@ -51,6 +51,7 @@
 #define LAYER_SENSOR_HELP 16
 #define LAYER_WRONG_YEAR 17
 #define LAYER_CORRECT_YEAR 18
+#define LAYER_SENSOR_MENU_UNLOCKED 19
 
 // Horizontal menu options
 #define OK 0
@@ -62,6 +63,7 @@
 #define MAIN_FRIENDS_MENU 2
 #define MAIN_PROPERTIES_MENU 3
 #define MAIN_SENSOR_MENU 4
+#define MAIN_SERIAL_MENU 5
 
 // Neopixels menu options
 #define NEOPIXEL_1 0

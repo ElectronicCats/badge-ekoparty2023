@@ -752,33 +752,7 @@ static bStatus_t cycling_WriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr
                                      uint8_t *pValue, uint16_t len, uint16_t offset,
                                      uint8_t method)
 {
-    uint32_t foundationYear;
-
-    switch (len)
-    {
-    case 1:
-        foundationYear = pValue[0];
-        break;
-    case 2:
-        for (uint16_t i = 0; i < len; i += 2)
-        {
-            uint16_t value = (pValue[i] << 8) | pValue[i + 1];
-            foundationYear = value;
-        }
-        break;
-    case 4:
-    {
-        uint32_t value = (pValue[0] << 24) | (pValue[1] << 16) | (pValue[2] << 8) | pValue[3];
-        foundationYear = value;
-        break;
-    }
-    default:
-        foundationYear = -1;
-        break;
-    }
-
-    APP_DBG("Foundation year: %d", foundationYear);
-    Display_Update_Foundation_Year(foundationYear);
+    Handle_Received_Data(pValue, len);
 
     bStatus_t status = SUCCESS;
     uint16_t uuid = BUILD_UINT16(pAttr->type.uuid[0], pAttr->type.uuid[1]);
@@ -844,6 +818,40 @@ static bStatus_t cycling_WriteAttrCB(uint16_t connHandle, gattAttribute_t *pAttr
     }
 
     return (status);
+}
+
+void Handle_Received_Data(uint8_t *pValue, uint16_t len)
+{
+    if (!Is_Receive_Data_Enabled())
+        return;
+
+    uint32_t foundationYear;
+
+    switch (len)
+    {
+    case 1:
+        foundationYear = pValue[0];
+        break;
+    case 2:
+        for (uint16_t i = 0; i < len; i += 2)
+        {
+            uint16_t value = (pValue[i] << 8) | pValue[i + 1];
+            foundationYear = value;
+        }
+        break;
+    case 4:
+    {
+        uint32_t value = (pValue[0] << 24) | (pValue[1] << 16) | (pValue[2] << 8) | pValue[3];
+        foundationYear = value;
+        break;
+    }
+    default:
+        foundationYear = -1;
+        break;
+    }
+
+    APP_DBG("Foundation year: %d", foundationYear);
+    Display_Update_Foundation_Year(foundationYear);
 }
 
 /*********************************************************************

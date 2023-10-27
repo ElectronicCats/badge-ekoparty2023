@@ -75,6 +75,15 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_SENSOR_HELP:
         APP_DBG("Layer sensor help");
         break;
+    case LAYER_WRONG_YEAR:
+        APP_DBG("Layer wrong year");
+        break;
+    case LAYER_CORRECT_YEAR:
+        APP_DBG("Layer correct year");
+        break;
+    case LAYER_SENSOR_MENU_UNLOCKED:
+        APP_DBG("Layer sensor menu unlocked");
+        break;
     default:
         APP_DBG("Missing layer");
         break;
@@ -141,6 +150,15 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_SENSOR_QUESTION:
             Sensor_Question_Menu();
             break;
+        case LAYER_WRONG_YEAR:
+            Sensor_Wrong_Year();
+            break;
+        case LAYER_CORRECT_YEAR:
+            Sensor_Correct_Year();
+            break;
+        case LAYER_SENSOR_MENU_UNLOCKED:
+            Sensor_Menu_Unlocked();
+            break;
         }
         break;
     default:
@@ -160,6 +178,9 @@ void Keyboard_Handle_Back_Button()
     case LAYER_FRIENDS_SEARCH:
         enableFriendSearch = FALSE;
         break;
+    case LAYER_SENSOR_QUESTION:
+        Disable_Receive_Data();
+        break;
     default:
         break;
     }
@@ -176,6 +197,8 @@ void Keyboard_Update_Orientation()
     {
     case LAYER_FRIENDS_SEARCH:
     case LAYER_FRIENDS_HELP:
+    case LAYER_FRIENDS_MENU_UNLOCKED:
+    case LAYER_SENSOR_MENU_UNLOCKED:
         menuOrientation = HORIZONTAL_MENU;
         break;
     default: // Most of layers are vertical menus
@@ -213,6 +236,13 @@ void Update_Previous_Layer()
     case LAYER_SENSOR_QUESTION:
     case LAYER_SENSOR_HELP:
         previousLayer = LAYER_SENSOR_MENU;
+        break;
+    case LAYER_WRONG_YEAR:
+        previousLayer = LAYER_SENSOR_QUESTION;
+        break;
+    case LAYER_CORRECT_YEAR:
+    case LAYER_SENSOR_MENU_UNLOCKED:
+        previousLayer = LAYER_SENSOR_MENU_UNLOCKED;
         break;
     default:
         previousLayer = LAYER_MAIN;
@@ -410,7 +440,7 @@ void Friend_Menu_Unlocked()
         break;
     }
 
-    selectedOption = 4; // Select sensor option
+    selectedOption = MAIN_SENSOR_MENU; // Select sensor option
     Display_Update_VMenu();
 }
 
@@ -435,6 +465,7 @@ void Sensor_Menu()
         currentLayer = LAYER_SENSOR_QUESTION;
         selectedOption = 0;
         Display_Update_HMenu();
+        Enable_Receive_Data();
         break;
     case SENSOR_HELP:
         currentLayer = LAYER_SENSOR_HELP;
@@ -457,6 +488,8 @@ void Sensor_Question_Menu()
         Display_Update_VMenu();
         break;
     }
+
+    Disable_Receive_Data();
 }
 
 void Sensor_Answer()
@@ -472,4 +505,44 @@ void Sensor_Answer()
 
     selectedOption = 0;
     Display_Update_HMenu();
+}
+
+void Sensor_Wrong_Year()
+{
+    switch (selectedOption)
+    {
+    case OK:
+        currentLayer = LAYER_SENSOR_QUESTION;
+        Enable_Receive_Data();
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_HMenu();
+}
+
+void Sensor_Correct_Year()
+{
+    switch (selectedOption)
+    {
+    case OK:
+        currentLayer = LAYER_SENSOR_MENU_UNLOCKED;
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_HMenu();
+}
+
+void Sensor_Menu_Unlocked()
+{
+    switch (selectedOption)
+    {
+    case OK:
+        currentLayer = LAYER_MAIN;
+        break;
+    }
+
+    selectedOption = MAIN_SERIAL_MENU; // Select serial option
+    Display_Update_VMenu();
 }

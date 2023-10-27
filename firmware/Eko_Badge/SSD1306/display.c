@@ -11,6 +11,7 @@ uint8_t bannerSize;
 uint8_t menuOrientation;
 uint8_t macAddress[6];
 static uint32_t foundationYear;
+static BOOL receiveData;
 
 char *errorBanner[] = {
     "",
@@ -120,7 +121,8 @@ char *correctYear[] = {
 char *sensorHelp[] = {
     "Debes ingresar",
     "el anio en que",
-    "nacio Ekoparty.",
+    "se fundo",
+    "Ekoparty.",
     "Puedes usar tu",
     "telefono movil",
     "para conectarte",
@@ -379,6 +381,8 @@ void Display_Init(void)
     currentLayer = LAYER_MAIN;
     previousLayer = currentLayer;
     foundationYear = 0;
+    Disable_Receive_Data();
+
     IIC_Init(80000, TxAdderss);
     Friends_Init();
 
@@ -578,6 +582,7 @@ char **Display_Update_HMenu_Banner()
         bannerSize = sizeof(friendFoundBanner) / sizeof(friendFoundBanner[0]);
         break;
     case LAYER_FRIENDS_MENU_UNLOCKED:
+    case LAYER_SENSOR_MENU_UNLOCKED:
         banner = newMenuUnlocked;
         bannerSize = sizeof(newMenuUnlocked) / sizeof(newMenuUnlocked[0]);
         break;
@@ -619,6 +624,7 @@ char **Display_Update_HMenu_Options()
     case LAYER_FRIENDS_HELP:
     case LAYER_FRIEND_FOUND:
     case LAYER_FRIENDS_MENU_UNLOCKED:
+    case LAYER_SENSOR_MENU_UNLOCKED:
     case LAYER_WRONG_YEAR:
     case LAYER_CORRECT_YEAR:
         options = oneOption;
@@ -687,4 +693,19 @@ void Display_Update_Foundation_Year(uint32_t year)
 uint32_t Get_Foundation_Year()
 {
     return foundationYear;
+}
+
+void Enable_Receive_Data()
+{
+    receiveData = TRUE;
+}
+
+void Disable_Receive_Data()
+{
+    receiveData = FALSE;
+}
+
+BOOL Is_Receive_Data_Enabled()
+{
+    return receiveData;
 }
