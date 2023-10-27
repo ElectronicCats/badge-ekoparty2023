@@ -43,9 +43,11 @@ La siguiente no es facil, prepara el hardware...
     "pero es muuuuy secreto"
     "ay no se donde deje la llave"};
 
-Comoresolver: el usuario debe decifrar el texto en que se encuentra cifrado en AES256 con la llave "TEAMOEKOPARTY"
+Comoresolver: el usuario debe decifrar el texto "Dime "EC/r/n" " que se encuentra cifrado en AES256 con la llave "TEAMOEKOPARTY"
 
-Respuesta2: Via Serial
+Comoresolver: el usuario debe decifrar el texto "Dime "ezkrachoteam/r/n" " que se encuentra cifrado en AES256 con la llave "TEAMOEKOPARTY"
+
+Respuesta2:
 Lo has logrado, has superado todos lo retos de este badge, acercate al stand de ElectronicCats, mostrando el texto ¨L33t Hacker¨ en la pantalla del badge. Por favor no reveles a otros el secreto, dejemos que se diviertan
 
 En OLED: {"L33t Hacker"};
