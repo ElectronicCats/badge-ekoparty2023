@@ -301,7 +301,7 @@ void Display_Show_Logo()
 
 void Display_Update_Menu()
 {
-    APP_DBG("Orientation: %s", menuOrientation == VERTICAL_MENU ? "Vertical" : "Horizontal");
+    // APP_DBG("Orientation: %s", menuOrientation == VERTICAL_MENU ? "Vertical" : "Horizontal");
 
     if (menuOrientation == VERTICAL_MENU)
     {
@@ -540,6 +540,10 @@ char **Display_Update_HMenu_Banner()
         banner = level1Help;
         bannerSize = sizeof(level1Help) / sizeof(level1Help[0]);
         break;
+    case LAYER_GET_50_FRIENDS:
+        banner = get50Friends;
+        bannerSize = sizeof(get50Friends) / sizeof(get50Friends[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -573,6 +577,7 @@ char **Display_Update_HMenu_Options()
     case LAYER_CORRECT_YEAR:
     case LAYER_BANNER_LEVEL_2:
     case LAYER_BANNER_LEVEL_3:
+    case LAYER_GET_50_FRIENDS:
         options = oneOption;
         optionsSize = sizeof(oneOption) / sizeof(oneOption[0]);
         break;
@@ -605,6 +610,14 @@ void Display_Finish_Level_1()
     previousLayer = currentLayer;
     enableFriendSearch = FALSE;
     Display_Update_VMenu();
+}
+
+void Display_Get_50_Friends()
+{
+    currentLayer = LAYER_GET_50_FRIENDS;
+    previousLayer = currentLayer;
+    enableFriendSearch = FALSE;
+    Display_Update_HMenu();
 }
 
 void Display_Fill_Mac_Address()

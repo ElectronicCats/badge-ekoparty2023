@@ -86,6 +86,11 @@ char *finishLevel1[] = {
     "que tal vez     ",
     "te interese...  "};
 
+// LAYER_GET_50_FRIENDS
+char *get50Friends[] = {
+    "EKO{connecting_w",
+    "ith_a_purpose}  "};
+
 // LAYER FINISH LEVEL 2
 char *finishLevel2[] = {
     "Excelente, pense",

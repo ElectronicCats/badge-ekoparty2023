@@ -609,7 +609,13 @@ static void centralAddFriend(uint16_t connHandle)
     if (friendsCounter == FRIENDS_THRESHOLD_1)
     {
         Display_Finish_Level_1();
-        Set_Level(2);
+        
+        if (Get_Level() < 2)
+            Set_Level(2);
+    }
+    else if (friendsCounter == FRIENDS_THRESHOLD_2)
+    {
+        Display_Get_50_Friends();
     }
     else
     {

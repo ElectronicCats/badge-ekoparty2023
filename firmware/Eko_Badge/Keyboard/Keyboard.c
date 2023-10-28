@@ -139,6 +139,7 @@ void Keyboard_Scan_Callback(uint8_t keys)
             break;
         case LAYER_FRIENDS_HELP:
         case LAYER_FRIEND_FOUND:
+        case LAYER_GET_50_FRIENDS:
             Friend_Option_Ok();
             break;
         case LAYER_FRIENDS_MENU_UNLOCKED:
