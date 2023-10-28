@@ -18,7 +18,6 @@
 #include "app_mesh_config.h"
 #include "app.h"
 #include "display.h"
-#include "observer.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -111,27 +110,5 @@ int main(void)
     App_Init();
     Main_Circulation();
 }
-
-// int main(void)
-// {
-//     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-//     SystemCoreClockUpdate();
-//     Delay_Init();
-//     USART_Printf_Init(115200);
-//     printf("SystemClk:%d\r\n", SystemCoreClock);
-//     printf("USART MultiProcessor TEST\r\n");
-
-//     while (1)
-//     {
-//         // Print data from RX buffer
-//         if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
-//         {
-//             printf("USART1 Receive Data: %c\r\n", USART_ReceiveData(USART1));
-//         }
-
-//         printf("x\r\n");
-//         Delay_Ms(1000);
-//     }
-// }
 
 /******************************** endfile @ main ******************************/

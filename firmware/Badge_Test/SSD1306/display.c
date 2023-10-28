@@ -2,28 +2,6 @@
 #include "stdint.h"
 
 tmosTaskID displayTaskID;
-uint8_t selectedOption = 0;
-uint8_t previousLayer;
-uint8_t currentLayer;
-uint8_t optionsSize;
-
-char *mainOptions[] = {
-    "1. LEDs",
-    "2. Escaner I2C",
-    "3. Buscar amigo"};
-
-char *neopixelsOptions[] = {
-    "1. LED 1",
-    "2. LED 2",
-    "3. LED 3",
-    "4. Modo arcoiris"};
-
-char *neopixelOptions[] = {
-    "1. Rojo",
-    "2. Verde",
-    "3. Azul",
-    "4. Encender",
-    "5. Apagar"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -44,14 +22,7 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     {
         Display_Show_Logo();
         tmos_start_task(displayTaskID, DISPLAY_CLEAR_EVENT, MS1_TO_SYSTEM_TIME(SHOW_LOGO_DELAY));
-        tmos_start_task(displayTaskID, DISPLAY_SHOW_VMENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
         return events ^ DISPLAY_SHOW_LOGO_EVENT;
-    }
-
-    if (events & DISPLAY_SHOW_VMENU_EVENT)
-    {
-        Display_Show_VMenu();
-        return events ^ DISPLAY_SHOW_VMENU_EVENT;
     }
 
     if (events & DISPLAY_SHOW_HELLO_WORLD_EVENT)
@@ -278,8 +249,6 @@ void Display_Test()
 void Display_Init(void)
 {
     displayTaskID = TMOS_ProcessEventRegister(Display_ProcessEvent);
-    currentLayer = LAYER_MAIN;
-    previousLayer = currentLayer;
     IIC_Init(80000, TxAdderss);
 
     // 48MHz internal clock
@@ -306,61 +275,4 @@ void Display_Show_Logo()
     ssd1306_setbuf(0);
     ssd1306_drawstr_sz(0, 16, "EKOPARTY", 1, fontsize_16x16);
     ssd1306_refresh();
-}
-
-void Display_Show_VMenu()
-{
-    char **options = Display_Update_VMenu_Options();
-    ssd1306_setbuf(0);
-
-    uint8_t startIdx = (selectedOption >= 4) ? selectedOption - 3 : 0;
-    uint8_t endIdx = (selectedOption >= 4) ? selectedOption + 1 : optionsSize - 1;
-
-    for (uint8_t i = startIdx; i <= endIdx; i++)
-    {
-        if (i == selectedOption)
-        {
-            ssd1306_drawstr(0, (i - startIdx) * 8, options[i], BLACK);
-        }
-        else
-        {
-            ssd1306_drawstr(0, (i - startIdx) * 8, options[i], WHITE);
-        }
-    }
-
-    ssd1306_refresh();
-}
-
-void Display_Update_VMenu()
-{
-    tmos_start_task(displayTaskID, DISPLAY_SHOW_VMENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
-}
-
-char **Display_Update_VMenu_Options()
-{
-    char **options;
-
-    switch (currentLayer)
-    {
-    case LAYER_MAIN:
-        options = mainOptions;
-        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
-        break;
-    case LAYER_NEOPIXELS_MENU:
-        options = neopixelsOptions;
-        optionsSize = sizeof(neopixelsOptions) / sizeof(neopixelsOptions[0]);
-        break;
-    case LAYER_NEOPIXEL_1:
-    case LAYER_NEOPIXEL_2:
-    case LAYER_NEOPIXEL_3:
-        options = neopixelOptions;
-        optionsSize = sizeof(neopixelOptions) / sizeof(neopixelOptions[0]);
-        break;
-    default:
-        options = mainOptions;
-        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
-        break;
-    }
-
-    return options;
 }
