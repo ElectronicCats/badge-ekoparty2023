@@ -34,18 +34,18 @@ char *bannerLevel3[] = {
 
 // LAYER WELCOME LEVEL 2
 char *welcomeLevel2[] = {
-    "Bienvenido al",
+    "Bienvenido al   ",
     "mundo de Harald,",
-    "dile al rey la",
-    "fecha correcta.",
-    "Puedes usar tu",
-    "movil para",
-    "conectarte",
-    "conmigo ;)",
-    "TIP: revisa tu",
-    "direccion MAC",
-    "en propiedades.",
-    "Te veo en el",
+    "dile al rey la  ",
+    "fecha correcta. ",
+    "Puedes usar tu  ",
+    "movil para      ",
+    "conectarte      ",
+    "conmigo ;)      ",
+    "TIP: revisa tu  ",
+    "direccion MAC   ",
+    "en propiedades. ",
+    "Te veo en el    ",
     "SC CONTROL POINT"};
 
 // LAYER WELCOME LEVEL 3
@@ -53,9 +53,8 @@ char *welcomeLevel3[] = {
     "Tardaste en     ",
     "llegar. Has oido",
     "del I2C? del    ",
-    "UART? del I2C?  ",
-    "del CAN? del    ",
-    "IoT? jajaja     ",
+    "UART? del CAN?  ",
+    "del IoT? jajaja ",
     "por TODOS lados ",
     "hasta por los   ",
     "GPIOS...        ",
@@ -70,32 +69,32 @@ char *welcomeLevel3[] = {
 
 // LAYER FINISH LEVEL 1
 char *finishLevel1[] = {
-    "Has logrado el",
-    "primer reto...",
-    "en que momento",
-    "inicio esto??",
-    "Es solo un",
-    "numero de 4",
-    "digitos, nos",
-    "vemos en el",
-    "siguiente nivel",
-    "BLE BLE BLE",
-    "Por cierto, si",
-    "sigues buscando",
-    "conexiones",
-    "tenemos algo",
-    "que tal vez",
-    "te interese..."};
+    "Has logrado el  ",
+    "primer reto...  ",
+    "en que momento  ",
+    "inicio esto??   ",
+    "Es solo un      ",
+    "numero de 4     ",
+    "digitos, nos    ",
+    "vemos en el     ",
+    "siguiente nivel ",
+    "BLE BLE BLE     ",
+    "Por cierto, si  ",
+    "sigues buscando ",
+    "conexiones      ",
+    "tenemos algo    ",
+    "que tal vez     ",
+    "te interese...  "};
 
 // LAYER FINISH LEVEL 2
 char *finishLevel2[] = {
     "Excelente, pense",
     "que no lo ibas a",
-    "lograr, es",
-    "broma... La",
-    "siguiente no es",
-    "facil, prepara",
-    "el hardware..."};
+    "lograr, es      ",
+    "broma... La     ",
+    "siguiente no es ",
+    "facil, prepara  ",
+    "el hardware...  "};
 
 char *mainOptions[] = {
     "1. LEDs",
@@ -103,7 +102,7 @@ char *mainOptions[] = {
     "3. Amigos",
     "4. Propiedades",
     "5. Sensor",
-    "6. Serial"};
+    "6. Secreto"};
 
 char *neopixelsOptions[] = {
     "1. LED 1",
@@ -146,24 +145,28 @@ char *properties[] = {
 // Scrollable banners
 char *credits[] = {
     "Desarrollado por",
-    "Electroic Cats,",
-    "Agradecemos a:",
-    "EkoParty Team,",
-    "gracias por",
-    "creer en el",
-    "proyecto.",
-    "Firmware:",
-    "Francisco -",
-    "@DeimosHall",
-    "Hardware:",
-    "Lizeth",
-    "Los que nos",
+    "Electroic Cats, ",
+    "Agradecemos a:  ",
+    "EkoParty Team,  ",
+    "gracias por     ",
+    "creer en el     ",
+    "proyecto.       ",
+    "Firmware:       ",
+    "Francisco -     ",
+    "@DeimosHall     ",
+    "Hardware:       ",
+    "Lizeth          ",
+    "Los que nos     ",
     "ayudaron a hacer",
-    "llegar el",
-    "hardware a",
-    "Argentina",
-    "#QueVuelvaLa",
-    "BarraEnLaEko"};
+    "llegar el       ",
+    "hardware a      ",
+    "Argentina       ",
+    "#QueVuelvaLa    ",
+    "BarraEnLaEko    ",
+    "                ",
+    "La Llave siempre",
+    "    ha sido:    ",
+    " TEAMOEKOPARTY  "};
 
 char *sensorMenu[] = {
     "1. Ingresar",
@@ -172,17 +175,17 @@ char *sensorMenu[] = {
 // LAYER SENSOR ENTER
 char *sensorQuestion[] = {
     "",
-    "   Anio:"};
+    "   Dato:"};
 
 // LAYER WRONG YEAR
 char *wrongYear[] = {
     "",
-    " Anio incorrecto"};
+    "   Incorrecto"};
 
 // LAYER CORRECT YEAR
 char *correctYear[] = {
     "",
-    "  Anio correcto"};
+    "    Correcto"};
 
 // LAYER SENSOR HELP
 char *sensorHelp[] = {

@@ -8,10 +8,7 @@
 #include "ssd1306.h"
 #include "bomb.h"
 #include "HAL.h"
-#include "friend.h"
-
-// Eko Party foundation year
-#define FOUNDATION_YEAR 2001
+#include "levels.h"
 
 #define I2C_TIMEOUT 1000
 #define TxAdderss 0x02
@@ -71,7 +68,7 @@ enum DisplayLayer {
 #define MAIN_FRIENDS_MENU 2
 #define MAIN_PROPERTIES_MENU 3
 #define MAIN_SENSOR_MENU 4
-#define MAIN_SERIAL_MENU 5
+#define MAIN_SECRET_MENU 5
 
 // Neopixels menu options
 #define NEOPIXEL_1 0

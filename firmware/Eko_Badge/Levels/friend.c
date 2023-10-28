@@ -7,13 +7,12 @@ friend_t friends[FRIENDS_MAX];
 void Friends_Init()
 {
     enableFriendSearch = FALSE;
-    friendsCounter = 30;
+    friendsCounter = 0;
 }
 
 void Friends_List()
 {
-    uint16_t i;
-    for (i = 0; i < friendsCounter; i++)
+    for (uint16_t i = 0; i < friendsCounter; i++)
     {
         APP_DBG("Friend %d: %02X:%02X:%02X:%02X:%02X:%02X", i,
                 friends[i].address[5], friends[i].address[4],

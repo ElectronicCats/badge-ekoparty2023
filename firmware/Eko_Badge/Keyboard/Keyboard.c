@@ -540,6 +540,7 @@ void Sensor_Answer()
     if (Get_Foundation_Year() == FOUNDATION_YEAR)
     {
         currentLayer = LAYER_CORRECT_YEAR;
+        Set_Level(3);
     }
     else
     {
@@ -586,7 +587,7 @@ void Sensor_Menu_Unlocked()
         break;
     }
 
-    selectedOption = MAIN_SERIAL_MENU; // Select serial option
+    selectedOption = MAIN_SECRET_MENU; // Select serial option
     Display_Update_VMenu();
 }
 

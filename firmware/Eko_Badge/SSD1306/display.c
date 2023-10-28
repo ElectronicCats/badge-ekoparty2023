@@ -11,8 +11,6 @@ uint8_t optionsSize;
 uint8_t bannerSize;
 uint8_t menuOrientation;
 uint8_t macAddress[6];
-static uint32_t foundationYear;
-static BOOL receiveData;
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -253,11 +251,9 @@ void Display_Init(void)
     displayTaskID = TMOS_ProcessEventRegister(Display_ProcessEvent);
     currentLayer = LAYER_MAIN;
     previousLayer = currentLayer;
-    foundationYear = 0;
-    Disable_Receive_Data();
+    Levels_Init();
 
     IIC_Init(80000, TxAdderss);
-    Friends_Init();
 
     // 48MHz internal clock
     SystemInit();
@@ -342,9 +338,11 @@ char **Display_Update_VMenu_Options()
     {
     case LAYER_MAIN:
         options = mainOptions;
-        optionsSize = 4;
-        if (friendsCounter >= FRIENDS_THRESHOLD)
+        optionsSize = 4; // Hide Sensor and Serial options
+        if (Get_Level() == 2)
             optionsSize = 5;
+        if (Get_Level() == 3)
+            optionsSize = 6;
         break;
     case LAYER_NEOPIXELS_MENU:
         options = neopixelsOptions;
@@ -575,8 +573,8 @@ void Display_Fill_Mac_Address()
 void Display_Update_Foundation_Year(uint32_t year)
 {
     char *yearStr = (char *)malloc(12);
-    sprintf(yearStr, "   Anio: %d", year);
-    foundationYear = year;
+    sprintf(yearStr, "   Dato: %d", year);
+    Set_Foundation_Year(year);
 
     if (year == -1)
     {
@@ -588,24 +586,4 @@ void Display_Update_Foundation_Year(uint32_t year)
     }
 
     Display_Update_HMenu();
-}
-
-uint32_t Get_Foundation_Year()
-{
-    return foundationYear;
-}
-
-void Enable_Receive_Data()
-{
-    receiveData = TRUE;
-}
-
-void Disable_Receive_Data()
-{
-    receiveData = FALSE;
-}
-
-BOOL Is_Receive_Data_Enabled()
-{
-    return receiveData;
 }
