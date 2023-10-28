@@ -19,17 +19,20 @@
 #define DISPLAY_SHOW_VMENU_EVENT 0x0004
 #define DISPLAY_SHOW_HMENU_EVENT 0x0008
 #define DISPLAY_SHOW_LOGO_EVENT 0x0010
+#define DISPLAY_SEND_SECRET_EVENT 0x0020
 
 #define NO_DELAY 0
 #define SHOW_LOGO_DELAY 1000
 #define SHOW_MENU_DELAY 1200
+#define SEND_SECRET_DELAY 1000
 
 #define WHITE 1
 #define BLACK 0
 #define VERTICAL_MENU 0
 #define HORIZONTAL_MENU 1
 
-enum DisplayLayer {
+enum DisplayLayer
+{
     LAYER_MAIN = 0,
     LAYER_NEOPIXELS_MENU,
     LAYER_NEOPIXEL_1,
@@ -55,7 +58,8 @@ enum DisplayLayer {
     LAYER_BANNER_LEVEL_2,
     LAYER_BANNER_LEVEL_3,
     LAYER_WELCOME_LEVEL_2,
-    LAYER_WELCOME_LEVEL_3
+    LAYER_WELCOME_LEVEL_3,
+    LAYER_SECRET_BANNER
 };
 
 // Horizontal menu options
@@ -68,7 +72,7 @@ enum DisplayLayer {
 #define MAIN_FRIENDS_MENU 2
 #define MAIN_PROPERTIES_MENU 3
 #define MAIN_SENSOR_MENU 4
-#define MAIN_SECRET_MENU 5
+#define MAIN_SECRET_BANNER 5
 
 // Neopixels menu options
 #define NEOPIXEL_1 0

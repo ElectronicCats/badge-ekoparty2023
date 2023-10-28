@@ -46,6 +46,15 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
         Display_Show_HMenu();
         return events ^ DISPLAY_SHOW_HMENU_EVENT;
     }
+
+    if (events & DISPLAY_SEND_SECRET_EVENT)
+    {
+        printf("f3JFK9KzLoopHQHbyi9Zlw==\r\n");
+        tmos_start_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT, MS1_TO_SYSTEM_TIME(SEND_SECRET_DELAY));
+        return events ^ DISPLAY_SEND_SECRET_EVENT;
+    }
+
+    return 0;
 }
 
 /*********************************************************************
@@ -493,6 +502,10 @@ char **Display_Update_HMenu_Banner()
         banner = bannerLevel3;
         bannerSize = sizeof(bannerLevel3) / sizeof(bannerLevel3[0]);
         break;
+    case LAYER_SECRET_BANNER:
+        banner = bannerSecret;
+        bannerSize = sizeof(bannerSecret) / sizeof(bannerSecret[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -509,6 +522,7 @@ char **Display_Update_HMenu_Options()
     switch (currentLayer)
     {
     case LAYER_FRIENDS_SEARCH:
+    case LAYER_SECRET_BANNER:
         options = twoOptions;
         optionsSize = 0;
         break;

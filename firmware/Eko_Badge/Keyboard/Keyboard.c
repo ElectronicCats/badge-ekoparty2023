@@ -84,6 +84,9 @@ void Keyboard_Print_Layer(uint8_t layer)
     case LAYER_SENSOR_MENU_UNLOCKED:
         APP_DBG("Layer sensor menu unlocked");
         break;
+    case LAYER_SECRET_BANNER:
+        APP_DBG("Layer secret banner");
+        break;
     default:
         APP_DBG("Missing layer");
         break;
@@ -184,8 +187,8 @@ void Keyboard_Scan_Callback(uint8_t keys)
     }
 
     Update_Previous_Layer();
-    Keyboard_Print_Layer(previousLayer);
-    Keyboard_Print_Layer(currentLayer);
+    // Keyboard_Print_Layer(previousLayer);
+    // Keyboard_Print_Layer(currentLayer);
     // APP_DBG("selectedOption %d", selectedOption);
 }
 
@@ -198,6 +201,9 @@ void Keyboard_Handle_Back_Button()
         break;
     case LAYER_SENSOR_QUESTION:
         Disable_Receive_Data();
+        break;
+    case LAYER_SECRET_BANNER:
+        tmos_stop_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT);
         break;
     default:
         break;
@@ -237,6 +243,7 @@ void Update_Previous_Layer()
     case LAYER_FRIENDS_MENU:
     case LAYER_PROPERTIES:
     case LAYER_SENSOR_MENU:
+    case LAYER_SECRET_BANNER:
         previousLayer = LAYER_MAIN;
         break;
     case LAYER_NEOPIXEL_1:
@@ -297,6 +304,8 @@ void Update_Previous_Layer()
 
 void Main_Menu()
 {
+    BOOL vertical = TRUE;
+
     switch (selectedOption)
     {
     case MAIN_NEOPIXELS_MENU:
@@ -316,13 +325,22 @@ void Main_Menu()
     case MAIN_SENSOR_MENU:
         currentLayer = LAYER_SENSOR_MENU;
         break;
+    case MAIN_SECRET_BANNER:
+        currentLayer = LAYER_SECRET_BANNER;
+        tmos_start_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT, MS1_TO_SYSTEM_TIME(SEND_SECRET_DELAY));
+        vertical = FALSE;
+        break;
     default:
         APP_DBG("Missing option");
         break;
     }
 
     selectedOption = 0;
-    Display_Update_VMenu();
+    
+    if (vertical)
+        Display_Update_VMenu();
+    else
+        Display_Update_HMenu();
 }
 
 void Neopixels_Menu()
@@ -587,7 +605,7 @@ void Sensor_Menu_Unlocked()
         break;
     }
 
-    selectedOption = MAIN_SECRET_MENU; // Select serial option
+    selectedOption = MAIN_SECRET_BANNER; // Select secret option
     Display_Update_VMenu();
 }
 

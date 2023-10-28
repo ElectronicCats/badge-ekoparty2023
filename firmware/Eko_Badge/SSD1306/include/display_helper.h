@@ -192,4 +192,9 @@ char *sensorHelp[] = {
     "     No hay     ",
     "      ayuda     "};
 
+// LAYER SECRET MENU
+char *bannerSecret[] = {
+    "",
+    "    AES256      "};
+
 #endif
