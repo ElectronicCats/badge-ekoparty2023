@@ -88,8 +88,8 @@ char *finishLevel1[] = {
 
 // LAYER_GET_50_FRIENDS
 char *get50Friends[] = {
-    "EKO{connecting_w",
-    "ith_a_purpose}  "};
+    "EKO{connecting_",
+    "with_a_purpose}  "};
 
 // LAYER FINISH LEVEL 2
 char *finishLevel2[] = {
