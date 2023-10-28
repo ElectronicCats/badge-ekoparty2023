@@ -204,6 +204,7 @@ void Keyboard_Handle_Back_Button()
         break;
     case LAYER_SECRET_BANNER:
         tmos_stop_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT);
+        tmos_stop_task(displayTaskID, DISPLAY_RECEIVE_SECRET_EVENT);
         break;
     default:
         break;
@@ -327,6 +328,7 @@ void Main_Menu()
         break;
     case MAIN_SECRET_BANNER:
         currentLayer = LAYER_SECRET_BANNER;
+        tmos_start_task(displayTaskID, DISPLAY_RECEIVE_SECRET_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
         tmos_start_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT, MS1_TO_SYSTEM_TIME(SEND_SECRET_DELAY));
         vertical = FALSE;
         break;

@@ -49,9 +49,17 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 
     if (events & DISPLAY_SEND_SECRET_EVENT)
     {
-        printf("f3JFK9KzLoopHQHbyi9Zlw==\r\n");
+        // printf("V0BwAjOtHR+g1KamDBw+EQ==\r\n");
+        printf("EC\r\n");
         tmos_start_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT, MS1_TO_SYSTEM_TIME(SEND_SECRET_DELAY));
         return events ^ DISPLAY_SEND_SECRET_EVENT;
+    }
+
+    if (events & DISPLAY_RECEIVE_SECRET_EVENT)
+    {
+        Display_Receive_Secret();
+        tmos_start_task(displayTaskID, DISPLAY_RECEIVE_SECRET_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+        return events ^ DISPLAY_RECEIVE_SECRET_EVENT;
     }
 
     return 0;
@@ -592,7 +600,7 @@ void Display_Update_Foundation_Year(uint32_t year)
 
     if (year == -1)
     {
-        sensorQuestion[1] = " Anio: Invalido";
+        sensorQuestion[1] = " Dato: Invalido";
     }
     else
     {
@@ -600,4 +608,28 @@ void Display_Update_Foundation_Year(uint32_t year)
     }
 
     Display_Update_HMenu();
+}
+
+void Display_Receive_Secret()
+{
+    if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+    {
+        static uint8_t counter = 0;
+        static char receivedSecret[2] = {'\0', '\0'};
+
+        receivedSecret[counter] = USART_ReceiveData(USART1);
+        counter = (counter + 1) % 2;
+
+        APP_DBG("USART1 Receive Data: %c%c", receivedSecret[0], receivedSecret[1]);
+        APP_DBG("Secret phrase: %s", SECRET_PHRASE);
+
+        if (strcmp(receivedSecret, SECRET_PHRASE) == 0)
+        {
+            printf("Lo has logrado, has superado todos lo retos de este badge, acercate al stand de ElectronicCats, mostrando el texto ¨L33t Hacker¨ en la pantalla del badge. Por favor no reveles a otros el secreto, dejemos que se diviertan\r\n");
+            bannerSecret[1] = WINNER_BANNER;
+            Display_Update_HMenu();
+
+            tmos_stop_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT);
+        }
+    }
 }
