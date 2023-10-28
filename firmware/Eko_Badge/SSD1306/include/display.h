@@ -60,7 +60,14 @@ enum DisplayLayer
     LAYER_BANNER_LEVEL_3,
     LAYER_WELCOME_LEVEL_2,
     LAYER_WELCOME_LEVEL_3,
-    LAYER_SECRET_BANNER
+    LAYER_SECRET_BANNER,
+    LAYER_LEVELS_MENU,
+    LAYER_LEVEL_1_OPTONS,
+    LAYER_LEVEL_2_OPTONS,
+    LAYER_LEVEL_3_OPTONS,
+    LAYER_LEVEL_1_HELP,
+    LAYER_LEVEL_2_HELP,
+    LAYER_LEVEL_3_HELP
 };
 
 // Horizontal menu options
@@ -69,11 +76,19 @@ enum DisplayLayer
 
 // Main menu options
 #define MAIN_NEOPIXELS_MENU 0
-#define MAIN_I2C_SCANNER 1
+#define MAIN_LEVELS_MENU 1
 #define MAIN_FRIENDS_MENU 2
 #define MAIN_PROPERTIES_MENU 3
 #define MAIN_SENSOR_MENU 4
 #define MAIN_SECRET_BANNER 5
+
+// Levels menu options
+#define LEVEL_1 0
+#define LEVEL_2 1
+#define LEVEL_3 2
+
+// Levels options
+#define LEVELS_HELP 0
 
 // Neopixels menu options
 #define NEOPIXEL_1 0

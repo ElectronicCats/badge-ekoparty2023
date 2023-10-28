@@ -49,8 +49,8 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 
     if (events & DISPLAY_SEND_SECRET_EVENT)
     {
-        // printf("V0BwAjOtHR+g1KamDBw+EQ==\r\n");
-        printf("EC\r\n");
+        printf("V0BwAjOtHR+g1KamDBw+EQ==\r\n");
+        // printf("EC\r\n");
         tmos_start_task(displayTaskID, DISPLAY_SEND_SECRET_EVENT, MS1_TO_SYSTEM_TIME(SEND_SECRET_DELAY));
         return events ^ DISPLAY_SEND_SECRET_EVENT;
     }
@@ -408,6 +408,28 @@ char **Display_Update_VMenu_Options()
         options = welcomeLevel3;
         optionsSize = sizeof(welcomeLevel3) / sizeof(welcomeLevel3[0]);
         break;
+    case LAYER_LEVELS_MENU:
+        options = levelsMenu;
+        optionsSize = 1;
+        if (Get_Level() == 2)
+            optionsSize = 2;
+        if (Get_Level() == 3)
+            optionsSize = 3;
+        break;
+    case LAYER_LEVEL_1_OPTONS:
+    case LAYER_LEVEL_2_OPTONS:
+    case LAYER_LEVEL_3_OPTONS:
+        options = levelsOptions;
+        optionsSize = sizeof(levelsOptions) / sizeof(levelsOptions[0]);
+        break;
+    case LAYER_LEVEL_2_HELP:
+        options = welcomeLevel2;
+        optionsSize = sizeof(welcomeLevel2) / sizeof(welcomeLevel2[0]);
+        break;
+    case LAYER_LEVEL_3_HELP:
+        options = welcomeLevel3;
+        optionsSize = sizeof(welcomeLevel3) / sizeof(welcomeLevel3[0]);
+        break;
     default:
         options = mainOptions;
         optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
@@ -514,6 +536,10 @@ char **Display_Update_HMenu_Banner()
         banner = bannerSecret;
         bannerSize = sizeof(bannerSecret) / sizeof(bannerSecret[0]);
         break;
+    case LAYER_LEVEL_1_HELP:
+        banner = level1Help;
+        bannerSize = sizeof(level1Help) / sizeof(level1Help[0]);
+        break;
     default:
         banner = errorBanner;
         bannerSize = sizeof(errorBanner) / sizeof(errorBanner[0]);
@@ -531,6 +557,7 @@ char **Display_Update_HMenu_Options()
     {
     case LAYER_FRIENDS_SEARCH:
     case LAYER_SECRET_BANNER:
+    case LAYER_LEVEL_1_HELP:
         options = twoOptions;
         optionsSize = 0;
         break;

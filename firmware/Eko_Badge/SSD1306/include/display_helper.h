@@ -96,13 +96,17 @@ char *finishLevel2[] = {
     "facil, prepara  ",
     "el hardware...  "};
 
+/************************ Main menu ***************************/
+
 char *mainOptions[] = {
     "1. LEDs",
-    "2. Escaner I2C",
+    "2. Niveles",
     "3. Amigos",
     "4. Propiedades",
     "5. Sensor",
     "6. Secreto"};
+
+/************************ LEDs menu ***************************/
 
 char *neopixelsOptions[] = {
     "1. LED 1",
@@ -116,6 +120,24 @@ char *neopixelOptions[] = {
     "3. Azul",
     "4. Encender",
     "5. Apagar"};
+
+/*********************** Levels menu **************************/
+
+// LAYER_LEVELS_MENU
+char *levelsMenu[] = {
+    "1. Nivel 1",
+    "2. Nivel 2",
+    "3. Nivel 3"};
+
+// LAYER_LEVEL_1_OPTONS, LAYER_LEVEL_2_OPTONS, LAYER_LEVEL_3_OPTONS
+char *levelsOptions[] = {
+    "1. Ayuda"};
+
+char *level1Help[] = {
+    "",
+    "Consigue amigos "};
+
+/*********************** Friends menu *************************/
 
 char *friendOptions[] = {
     "1. Amigos: ",
@@ -136,13 +158,15 @@ char *friendFoundBanner[] = {
     "     Amigo",
     "   encontrado"};
 
+/********************** Properties menu ***********************/
+
 char *properties[] = {
-    "1. Creditos",
+    "1. Creditos     ",
     "2. Chip:CH32V208",
     "3. MAC:",
-    ""};
+    "",
+    "4. Codigo:000000"};
 
-// Scrollable banners
 char *credits[] = {
     "Desarrollado por",
     "Electroic Cats, ",
@@ -168,11 +192,13 @@ char *credits[] = {
     "    ha sido:    ",
     " TEAMOEKOPARTY  "};
 
+/*********************** Sensor menu **************************/
+
 char *sensorMenu[] = {
     "1. Ingresar",
     "2. Ayuda"};
 
-// LAYER SENSOR ENTER
+// LAYER SENSOR QUESTION
 char *sensorQuestion[] = {
     "",
     "   Dato:"};
@@ -191,6 +217,8 @@ char *correctYear[] = {
 char *sensorHelp[] = {
     "     No hay     ",
     "      ayuda     "};
+
+/*********************** Secret menu **************************/
 
 // LAYER SECRET MENU
 char *bannerSecret[] = {

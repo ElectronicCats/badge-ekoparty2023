@@ -180,6 +180,13 @@ void Keyboard_Scan_Callback(uint8_t keys)
         case LAYER_FINISH_LEVEL_2:
             Finish_Level_2();
             break;
+        case LAYER_LEVELS_MENU:
+            Levels_Menu();
+            break;
+        case LAYER_LEVEL_1_OPTONS:
+        case LAYER_LEVEL_2_OPTONS:
+        case LAYER_LEVEL_3_OPTONS:
+            Levels_Options();
         }
         break;
     default:
@@ -245,6 +252,7 @@ void Update_Previous_Layer()
     case LAYER_PROPERTIES:
     case LAYER_SENSOR_MENU:
     case LAYER_SECRET_BANNER:
+    case LAYER_LEVELS_MENU:
         previousLayer = LAYER_MAIN;
         break;
     case LAYER_NEOPIXEL_1:
@@ -295,6 +303,20 @@ void Update_Previous_Layer()
     case LAYER_WELCOME_LEVEL_3:
         previousLayer = LAYER_WELCOME_LEVEL_3;
         break;
+    case LAYER_LEVEL_1_OPTONS:
+    case LAYER_LEVEL_2_OPTONS:
+    case LAYER_LEVEL_3_OPTONS:
+        previousLayer = LAYER_LEVELS_MENU;
+        break;
+    case LAYER_LEVEL_1_HELP:
+        previousLayer = LAYER_LEVEL_1_OPTONS;
+        break;
+    case LAYER_LEVEL_2_HELP:
+        previousLayer = LAYER_LEVEL_2_OPTONS;
+        break;
+    case LAYER_LEVEL_3_HELP:
+        previousLayer = LAYER_LEVEL_3_OPTONS;
+        break;
     default:
         previousLayer = LAYER_MAIN;
         APP_DBG("Unknown layer:");
@@ -312,10 +334,8 @@ void Main_Menu()
     case MAIN_NEOPIXELS_MENU:
         currentLayer = LAYER_NEOPIXELS_MENU;
         break;
-    case MAIN_I2C_SCANNER:
-        // currentLayer = LAYER_BLE_MESH;
-        // Display_Clear();
-        // Display_Show_Ble_Mesh_Menu();
+    case MAIN_LEVELS_MENU:
+        currentLayer = LAYER_LEVELS_MENU;
         break;
     case MAIN_FRIENDS_MENU:
         currentLayer = LAYER_FRIENDS_MENU;
@@ -338,7 +358,81 @@ void Main_Menu()
     }
 
     selectedOption = 0;
-    
+
+    if (vertical)
+        Display_Update_VMenu();
+    else
+        Display_Update_HMenu();
+}
+
+void Levels_Menu()
+{
+    switch (selectedOption)
+    {
+    case LEVEL_1:
+        currentLayer = LAYER_LEVEL_1_OPTONS;
+        break;
+    case LEVEL_2:
+        currentLayer = LAYER_LEVEL_2_OPTONS;
+        break;
+    case LEVEL_3:
+        currentLayer = LAYER_LEVEL_3_OPTONS;
+        break;
+    default:
+        APP_DBG("Missing option");
+        break;
+    }
+
+    selectedOption = 0;
+    Display_Update_VMenu();
+}
+
+Levels_Options()
+{
+    BOOL vertical = TRUE; // for level 1
+
+    switch (currentLayer)
+    {
+    case LAYER_LEVEL_1_OPTONS:
+        switch (selectedOption)
+        {
+        case LEVELS_HELP:
+            currentLayer = LAYER_LEVEL_1_HELP;
+            vertical = FALSE;
+            break;
+        default:
+            APP_DBG("Missing option");
+            break;
+        }
+        break;
+    case LAYER_LEVEL_2_OPTONS:
+        switch (selectedOption)
+        {
+        case LEVELS_HELP:
+            currentLayer = LAYER_LEVEL_2_HELP;
+            vertical = TRUE;
+            break;
+        default:
+            APP_DBG("Missing option");
+            break;
+        }
+        break;
+    case LAYER_LEVEL_3_OPTONS:
+        switch (selectedOption)
+        {
+        case LEVELS_HELP:
+            currentLayer = LAYER_LEVEL_3_HELP;
+            vertical = TRUE;
+            break;
+        default:
+            APP_DBG("Missing option");
+            break;
+        }
+        break;
+    }
+
+    selectedOption = 0;
+
     if (vertical)
         Display_Update_VMenu();
     else

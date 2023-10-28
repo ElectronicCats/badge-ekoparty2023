@@ -9,7 +9,7 @@ void Levels_Init()
     Friends_Init();
     foundationYear = 0;
     Disable_Receive_Data();
-    Set_Level(3);
+    Set_Level(1);
 }
 
 uint8_t Get_Level()
