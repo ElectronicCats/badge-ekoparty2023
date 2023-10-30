@@ -2,28 +2,6 @@
 #include "stdint.h"
 
 tmosTaskID displayTaskID;
-uint8_t selectedOption = 0;
-uint8_t previousLayer;
-uint8_t currentLayer;
-uint8_t optionsSize;
-
-char *mainOptions[] = {
-    "1. LEDs",
-    "2. Escaner I2C",
-    "3. Buscar amigo"};
-
-char *neopixelsOptions[] = {
-    "1. LED 1",
-    "2. LED 2",
-    "3. LED 3",
-    "4. Modo arcoiris"};
-
-char *neopixelOptions[] = {
-    "1. Rojo",
-    "2. Verde",
-    "3. Azul",
-    "4. Encender",
-    "5. Apagar"};
 
 tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
 {
@@ -44,14 +22,43 @@ tmosEvents Display_ProcessEvent(tmosTaskID task_id, tmosEvents events)
     {
         Display_Show_Logo();
         tmos_start_task(displayTaskID, DISPLAY_CLEAR_EVENT, MS1_TO_SYSTEM_TIME(SHOW_LOGO_DELAY));
-        tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(SHOW_MENU_DELAY));
         return events ^ DISPLAY_SHOW_LOGO_EVENT;
     }
 
-    if (events & DISPLAY_SHOW_MENU_EVENT)
+    if (events & DISPLAY_SHOW_HELLO_WORLD_EVENT)
     {
-        Display_Show_Menu();
-        return events ^ DISPLAY_SHOW_MENU_EVENT;
+        ssd1306_setbuf(0);
+        ssd1306_drawstr(0, 0, "Hello World!", WHITE);
+        ssd1306_refresh();
+        tmos_stop_task(displayTaskID, DISPLAY_SEND_CHAR_EVENT);
+        tmos_stop_task(displayTaskID, DISPLAY_LISTEN_CHAR_EVENT);
+        return events ^ DISPLAY_SHOW_HELLO_WORLD_EVENT;
+    }
+
+    if (events & DISPLAY_SEND_CHAR_EVENT)
+    {
+        printf("x\r\n");
+        tmos_start_task(displayTaskID, DISPLAY_SEND_CHAR_EVENT, MS1_TO_SYSTEM_TIME(100));
+        return events ^ DISPLAY_SEND_CHAR_EVENT;
+    }
+
+    if (events & DISPLAY_LISTEN_CHAR_EVENT)
+    {
+        // printf("Listening...\r\n");
+        if (USART_GetFlagStatus(USART1, USART_FLAG_RXNE) != RESET)
+        {
+            // Store incoming data into a variable
+            uint8_t data = USART_ReceiveData(USART1);
+            printf("USART1 Receive Data: %c\r\n", data);
+
+            // Print hello world if 'x' is received
+            if (data == 'x')
+            {
+                tmos_start_task(displayTaskID, DISPLAY_SHOW_HELLO_WORLD_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+            }
+        }
+        tmos_start_task(displayTaskID, DISPLAY_LISTEN_CHAR_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
+        return events ^ DISPLAY_LISTEN_CHAR_EVENT;
     }
 }
 
@@ -143,18 +150,13 @@ void Scan_I2C_Devices()
     if (found == 0)
     {
         APP_DBG("No I2C devices found");
-        APP_DBG("Wait for ever...");
-        while (1)
-        {
-            Delay_Ms(1000);
-        }
     }
 }
 
 void Display_Test()
 {
     // APP_DBG("Looping on test modes...");
-    for (uint8_t mode = 0; mode < (SSD1306_H > 32 ? 9 : 8); mode++)
+    for (uint8_t mode = 0; mode < 8; mode++)
     {
         // clear buffer for next mode
         ssd1306_setbuf(0);
@@ -239,20 +241,14 @@ void Display_Test()
 
         ssd1306_refresh();
         Delay_Ms(200);
-
-        if (mode == 8)
-        {
-            Display_Clear();
-            break;
-        }
     }
+
+    Display_Clear();
 }
 
 void Display_Init(void)
 {
     displayTaskID = TMOS_ProcessEventRegister(Display_ProcessEvent);
-    currentLayer = LAYER_MAIN;
-    previousLayer = currentLayer;
     IIC_Init(80000, TxAdderss);
 
     // 48MHz internal clock
@@ -279,61 +275,4 @@ void Display_Show_Logo()
     ssd1306_setbuf(0);
     ssd1306_drawstr_sz(0, 16, "EKOPARTY", 1, fontsize_16x16);
     ssd1306_refresh();
-}
-
-void Display_Show_Menu()
-{
-    char **options = Display_Update_Menu_Options();
-    ssd1306_setbuf(0);
-
-    uint8_t startIdx = (selectedOption >= 4) ? selectedOption - 3 : 0;
-    uint8_t endIdx = (selectedOption >= 4) ? selectedOption + 1 : optionsSize - 1;
-
-    for (uint8_t i = startIdx; i <= endIdx; i++)
-    {
-        if (i == selectedOption)
-        {
-            ssd1306_drawstr(0, (i - startIdx) * 8, options[i], BLACK);
-        }
-        else
-        {
-            ssd1306_drawstr(0, (i - startIdx) * 8, options[i], WHITE);
-        }
-    }
-
-    ssd1306_refresh();
-}
-
-void Display_Update_Menu()
-{
-    tmos_start_task(displayTaskID, DISPLAY_SHOW_MENU_EVENT, MS1_TO_SYSTEM_TIME(NO_DELAY));
-}
-
-char **Display_Update_Menu_Options()
-{
-    char **options;
-
-    switch (currentLayer)
-    {
-    case LAYER_MAIN:
-        options = mainOptions;
-        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
-        break;
-    case LAYER_NEOPIXELS_MENU:
-        options = neopixelsOptions;
-        optionsSize = sizeof(neopixelsOptions) / sizeof(neopixelsOptions[0]);
-        break;
-    case LAYER_NEOPIXEL_1:
-    case LAYER_NEOPIXEL_2:
-    case LAYER_NEOPIXEL_3:
-        options = neopixelOptions;
-        optionsSize = sizeof(neopixelOptions) / sizeof(neopixelOptions[0]);
-        break;
-    default:
-        options = mainOptions;
-        optionsSize = sizeof(mainOptions) / sizeof(mainOptions[0]);
-        break;
-    }
-
-    return options;
 }

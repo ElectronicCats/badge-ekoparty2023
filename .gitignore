@@ -75,3 +75,5 @@ hardware/panel/ekoBadgePanel.kicad_pro
 
 # macOS Finder files
 **/.DS_Store
+
+firmware/BLE_Keyboard/

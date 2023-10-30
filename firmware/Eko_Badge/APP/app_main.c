@@ -1,13 +1,16 @@
 /********************************** (C) COPYRIGHT *******************************
- * File Name          : main.c
- * Author             : WCH
- * Version            : V1.2
- * Date               : 2022/06/22
- * Description        :
+ * File Name          : app.c
+ * Authors            : WCH, Electronic Cats
+ * Version            : V1.1
+ * Date               : 2023/10/27
+ * Description        : This project is based on the WCH BLE Mesh demo and it was
+ *                      adapted to work with the Eko Badge board made by Electronic
+ *                      Cats for the Eko Party 2023, Argentina.
  *********************************************************************************
  * Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
  * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
+ * 
  *******************************************************************************/
 
 /******************************************************************************/
@@ -96,7 +99,7 @@ int main(void)
     SystemCoreClockUpdate();
     Delay_Init();
     USART_Printf_Init(115200);
-    APP_DBG("SystemClk: %d MHz", SystemCoreClock / 1000000);
+    APP_DBG("System clock: %d MHz", SystemCoreClock / 1000000);
     APP_DBG("%s", VER_LIB);
 
     WCHBLE_Init();
@@ -105,9 +108,9 @@ int main(void)
 
     Leds_Init();
     APP_DBG("LEDs setup ready!");
-    Display_Init();
-
     App_Init();
+    Display_Init();
+    
     Main_Circulation();
 }
 
