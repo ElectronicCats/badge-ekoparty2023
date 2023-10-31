@@ -30,6 +30,7 @@ void Flash_Init(void)
         FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
         FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
         Flash_Set_Friends_Counter(0);
+        Flash_Set_Level(1);
     }
     else if (rebootCounterFlag)
     {
@@ -210,4 +211,16 @@ void Flash_Set_Friends_Counter(uint16_t counter)
 uint16_t Flash_Get_Friends_Counter()
 {
     return *((uint16_t *)FRIENDS_COUNTER_ADDRESS);
+}
+
+void Flash_Set_Level(uint16_t level)
+{
+    FLASH_Unlock();
+    FLASHStatus = FLASH_ProgramHalfWord(LEVEL_ADDRESS, level);
+    FLASH_Lock();
+}
+
+uint16_t Flash_Get_Level()
+{
+    return *((uint16_t *)LEVEL_ADDRESS);
 }

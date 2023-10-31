@@ -9,6 +9,7 @@ void Friends_Init()
     enableFriendSearch = FALSE;
     // friendsCounter = 0;
     friendsCounter = Flash_Get_Friends_Counter();
+    APP_DBG("Friends Counter: %d", friendsCounter);
 }
 
 void Friends_List()

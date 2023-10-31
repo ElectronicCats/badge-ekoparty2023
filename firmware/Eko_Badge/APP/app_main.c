@@ -105,6 +105,7 @@ int main(void)
 
     Flash_Init(); // Must be called before any other function
     APP_DBG("Reboot Counter: %d", Flash_Get_Reboot_Counter());
+    APP_DBG("Level: %d", Get_Level());
     // Flash_Erase();
     // Flash_Test();
 
@@ -116,7 +117,7 @@ int main(void)
     APP_DBG("LEDs setup ready!");
     App_Init();
     Display_Init();
-    
+
     Main_Circulation();
 }
 
