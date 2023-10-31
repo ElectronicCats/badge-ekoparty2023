@@ -15,7 +15,7 @@ void Flash_Init(void)
 {
     FLASH_Unlock();
     // Attempt to read rebootCounterFlag from flash
-    rebootCounterFlag = *((uint32_t *)REBOOT_COUNTER_ADDRESS_FLAG);
+    rebootCounterFlag = *((uint16_t *)REBOOT_COUNTER_ADDRESS_FLAG);
     // printf("Reboot Counter Flag: %d\r\n", rebootCounterFlag);
 
     // Check if the value is not valid (initialized)
@@ -29,10 +29,11 @@ void Flash_Init(void)
         // FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
         FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
         FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
+        Flash_Set_Friends_Counter(0);
     }
     else if (rebootCounterFlag)
     {
-        rebootCounter = *((uint32_t *)REBOOT_COUNTER_ADDRESS);
+        rebootCounter = *((uint16_t *)REBOOT_COUNTER_ADDRESS);
     }
 
     rebootCounter++;
@@ -197,4 +198,16 @@ void Flash_Test_Fast(void)
 
     FLASH_Lock_Fast();
     FLASH_Lock();
+}
+
+void Flash_Set_Friends_Counter(uint16_t counter)
+{
+    FLASH_Unlock();
+    FLASHStatus = FLASH_ProgramHalfWord(FRIENDS_COUNTER_ADDRESS, counter);
+    FLASH_Lock();
+}
+
+uint16_t Flash_Get_Friends_Counter()
+{
+    return *((uint16_t *)FRIENDS_COUNTER_ADDRESS);
 }

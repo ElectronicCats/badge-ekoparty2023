@@ -19,11 +19,14 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 /* Reboot define */
 #define REBOOT_COUNTER_ADDRESS ((uint32_t)0x0806A000)
 #define REBOOT_COUNTER_ADDRESS_FLAG ((uint32_t)0x0806A002)
+#define FRIENDS_COUNTER_ADDRESS ((uint32_t)0x0806A004)
 
 void Flash_Init();
 void Flash_Erase();
 uint32_t Flash_Get_Reboot_Counter();
 void Flash_Test(void);
 void Flash_Test_Fast(void);
+void Flash_Set_Friends_Counter(uint16_t friends_counter);
+uint16_t Flash_Get_Friends_Counter();
 
 #endif

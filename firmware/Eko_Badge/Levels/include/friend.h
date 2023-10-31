@@ -3,6 +3,7 @@
 
 #include "HAL.h"
 #include "app_mesh_config.h"
+#include "flash.h"
 
 #define FRIENDS_MAX 500
 #define FRIENDS_THRESHOLD_1 30

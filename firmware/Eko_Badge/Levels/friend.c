@@ -7,7 +7,8 @@ friend_t friends[FRIENDS_MAX];
 void Friends_Init()
 {
     enableFriendSearch = FALSE;
-    friendsCounter = 0;
+    // friendsCounter = 0;
+    friendsCounter = Flash_Get_Friends_Counter();
 }
 
 void Friends_List()
