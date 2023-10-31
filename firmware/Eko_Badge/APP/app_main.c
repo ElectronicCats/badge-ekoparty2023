@@ -21,6 +21,7 @@
 #include "app_mesh_config.h"
 #include "app.h"
 #include "display.h"
+#include "flash.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -110,6 +111,10 @@ int main(void)
     APP_DBG("LEDs setup ready!");
     App_Init();
     Display_Init();
+
+    Flash_Init();
+    APP_DBG("Reboot Counter: %d", Flash_Get_Reboot_Counter());
+    // Flash_Test();
     
     Main_Circulation();
 }

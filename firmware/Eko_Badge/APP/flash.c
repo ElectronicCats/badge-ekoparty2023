@@ -1,8 +1,7 @@
 #include "flash.h"\n
 
 /* Private Variable */
-static uint32_t rebootCounter = 0;
-static uint32_t rebootCounterFlag = 0;
+static uint16_t rebootCounter = 0, rebootCounterFlag = 0;
 uint32_t EraseCounter = 0x0, Address = 0x0;
 uint16_t Data = 0xAAAA;
 uint32_t WRPR_Value = 0xFFFFFFFF, ProtectedPages = 0x0;
@@ -27,8 +26,9 @@ void Flash_Init(void)
         FLASHStatus = FLASH_ErasePage(REBOOT_COUNTER_ADDRESS);
         rebootCounter = 0;
         rebootCounterFlag = 1;
-        FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
-        FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
+        // FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+        FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+        FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
     }
     else if (rebootCounterFlag)
     {
@@ -37,7 +37,8 @@ void Flash_Init(void)
 
     rebootCounter++;
     // printf("Reboot Counter: %d\r\n", rebootCounter);
-    FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+    // FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+    FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
 
     // Erase the page
     // FLASHStatus = FLASH_ErasePage(REBOOT_COUNTER_ADDRESS_FLAG);
@@ -71,13 +72,13 @@ void Flash_Test(void)
 
     FLASH_Unlock();
 
-    NbrOfPage = (PAGE_WRITE_END_ADDR - PAGE_WRITE_START_ADDR) / FLASH_PAGE_SIZE;
+    NbrOfPage = (PAGE_WRITE_END_ADDR - PAGE_WRITE_START_ADDR) / FLASH_PAGE_SIZE_LOCAL;
 
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP |FLASH_FLAG_WRPRTERR);
 
     for(EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
     {
-      FLASHStatus = FLASH_ErasePage(PAGE_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));  //Erase 4KB
+      FLASHStatus = FLASH_ErasePage(PAGE_WRITE_START_ADDR + (FLASH_PAGE_SIZE_LOCAL * EraseCounter));  //Erase 4KB
 
       if(FLASHStatus != FLASH_COMPLETE)
       {
@@ -92,6 +93,7 @@ void Flash_Test(void)
     while((Address < PAGE_WRITE_END_ADDR) && (FLASHStatus == FLASH_COMPLETE))
     {
       FLASHStatus = FLASH_ProgramHalfWord(Address, Data);
+    //   printf("Address: %08x, Data: %04x\r\n", Address, Data);
       Address = Address + 2;
     }
 
