@@ -423,6 +423,10 @@ char **Display_Update_VMenu_Options()
         options = levelsOptions;
         optionsSize = sizeof(levelsOptions) / sizeof(levelsOptions[0]);
         break;
+    case LAYER_LEVEL_1_HELP:
+        options = level1Help;
+        optionsSize = sizeof(level1Help) / sizeof(level1Help[0]);
+        break;
     case LAYER_LEVEL_2_HELP:
         options = welcomeLevel2;
         optionsSize = sizeof(welcomeLevel2) / sizeof(welcomeLevel2[0]);
@@ -537,10 +541,6 @@ char **Display_Update_HMenu_Banner()
         banner = bannerSecret;
         bannerSize = sizeof(bannerSecret) / sizeof(bannerSecret[0]);
         break;
-    case LAYER_LEVEL_1_HELP:
-        banner = level1Help;
-        bannerSize = sizeof(level1Help) / sizeof(level1Help[0]);
-        break;
     case LAYER_GET_50_FRIENDS:
         banner = get50Friends;
         bannerSize = sizeof(get50Friends) / sizeof(get50Friends[0]);
@@ -562,10 +562,6 @@ char **Display_Update_HMenu_Options()
     {
     case LAYER_FRIENDS_SEARCH:
     case LAYER_SECRET_BANNER:
-    case LAYER_LEVEL_1_HELP:
-        options = twoOptions;
-        optionsSize = 0;
-        break;
     case LAYER_SENSOR_QUESTION:
         options = twoOptions;
         optionsSize = sizeof(twoOptions) / sizeof(twoOptions[0]);
