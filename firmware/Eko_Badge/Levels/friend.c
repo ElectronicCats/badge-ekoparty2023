@@ -7,7 +7,7 @@ friend_t friends[FRIENDS_MAX];
 void Friends_Init()
 {
     enableFriendSearch = FALSE;
-    // Flash_Set_Friends_Counter(1);
+    // Flash_Set_Friends_Counter(29);
     friendsCounter = Flash_Get_Friends_Counter();
     APP_DBG("Friends Counter: %d", friendsCounter);
 

@@ -598,15 +598,19 @@ static void centralAddFriend(uint16_t connHandle)
     // If nearby device is not in friends list, add it
     if (j == friendsCounter)
     {
-        // for (uint8_t i = 0; i < B_ADDR_LEN; i++)
-        // {
-        //     friends[friendsCounter].address[i] = nearbyDeviceAddress[i];
-        // }
-        // // Increase friend counter and close connection with badge
-        // friendsCounter++;
-        // Flash_Set_Friends_Counter(friendsCounter);
+        for (uint8_t i = 0; i < B_ADDR_LEN; i++)
+        {
+            friends[friendsCounter].address[i] = nearbyDeviceAddress[i];
+        }
+        // Increase friend counter and close connection with badge
+        friendsCounter++;
+        
+        if (friendsCounter >= 30)
+        {
+            Flash_Set_Friends_Counter(friendsCounter);
+        }
 
-        Friends_Add(nearbyDeviceAddress);
+        // Friends_Add(nearbyDeviceAddress);
     }
 
     if (friendsCounter == FRIENDS_THRESHOLD_1)

@@ -204,7 +204,7 @@ extern "C"
 #define CONFIG_MESH_RF_CHANNEL_39 (34)
 
 #define APP_DBG(X...)                         \
-  if (1)                                    \
+  if (0)                                    \
   {                                         \
     PRINT("[APP_DBG] <%s> ", __FUNCTION__); \
     PRINT(X);                               \

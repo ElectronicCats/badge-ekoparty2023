@@ -561,6 +561,9 @@ char **Display_Update_HMenu_Options()
     switch (currentLayer)
     {
     case LAYER_FRIENDS_SEARCH:
+        options = oneOption;
+        optionsSize = 0;
+        break;
     case LAYER_SECRET_BANNER:
     case LAYER_SENSOR_QUESTION:
         options = twoOptions;

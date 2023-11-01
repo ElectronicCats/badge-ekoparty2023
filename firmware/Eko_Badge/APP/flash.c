@@ -251,6 +251,28 @@ void Flash_Save_Friends(friend_t *friends, uint16_t friends_counter)
     APP_DBG("Done saving friends to flash");
 }
 
+void Print_Flash_Addresses(uint16_t friends_counter) {
+    APP_DBG("Printing flash addresses");
+    
+    for (uint16_t i = 0; i < friends_counter; i++)
+    {
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        
+        APP_DBG("Friend %d:", i);
+        
+        for (int j = 0; j < 6; j++) {
+            uint16_t flashAddress = address + (j * 2);
+            uint16_t friendAddress;
+            FLASH_Unlock();
+            friendAddress = *(__IO uint16_t*)flashAddress;
+            FLASH_Lock();
+            
+            APP_DBG("Byte %d: %04X", j, friendAddress);
+        }
+    }
+    APP_DBG("Done printing flash addresses");
+}
+
 void Flash_Load_Friends(friend_t *friends, uint16_t friends_counter)
 {
     FLASH_Unlock();
@@ -261,7 +283,8 @@ void Flash_Load_Friends(friend_t *friends, uint16_t friends_counter)
         uint16_t address = FRIENDS_ADDRESS + (i * 6);
         
         for (int j = 0; j < 6; j += 2) {
-            *((uint16_t *)(friends[i].address + j)) = *((uint16_t *)address);
+            // *((uint16_t *)(friends[i].address + j)) = *((uint16_t *)address);
+            friends[i].address[j] = *((uint16_t *)address);
             address += 2;
         }
 
@@ -270,23 +293,5 @@ void Flash_Load_Friends(friend_t *friends, uint16_t friends_counter)
                 friends[i].address[2], friends[i].address[1], friends[i].address[0]);
     }
     APP_DBG("Done loading friends from flash");
-    FLASH_Lock();
-}
-
-void Print_Flash_Addresses(uint16_t friends_counter) {
-    FLASH_Unlock();
-    for (uint16_t i = 0; i < friends_counter; i++) {
-        uint16_t address = FRIENDS_ADDRESS + (i * 6);
-        
-        uint16_t friendAddress[3];
-        for (int j = 0; j < 6; j++) {
-            friendAddress[j] = *((uint16_t *)address);
-            address += 2;
-        }
-        
-        APP_DBG("Address: %02X:%02X:%02X:%02X:%02X:%02X", 
-                friendAddress[5], friendAddress[4], friendAddress[3], 
-                friendAddress[2], friendAddress[1], friendAddress[0]);
-    }
     FLASH_Lock();
 }
