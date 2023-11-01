@@ -1,4 +1,4 @@
-#include "flash.h"\n
+#include "flash.h"
 
 /* Private Variable */
 static uint16_t rebootCounter = 0, rebootCounterFlag = 0;
@@ -223,4 +223,70 @@ void Flash_Set_Level(uint16_t level)
 uint16_t Flash_Get_Level()
 {
     return *((uint16_t *)LEVEL_ADDRESS);
+}
+
+void Flash_Save_Friends(friend_t *friends, uint16_t friends_counter)
+{
+    FLASH_Unlock();
+    
+    APP_DBG("Saving friends to flash");
+    for (uint16_t i = 0; i < friends_counter; i++)
+    {
+        APP_DBG("i: %d", i);
+        APP_DBG("Address: %02X:%02X:%02X:%02X:%02X:%02X", 
+                friends[i].address[5], friends[i].address[4], friends[i].address[3], 
+                friends[i].address[2], friends[i].address[1], friends[i].address[0]);
+        
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        for (int j = 0; j < 6; j++) {
+            uint16_t friendAddress = friends[i].address[j];
+            uint16_t flashAddress = address + (j * 2);
+            FLASHStatus = FLASH_ProgramHalfWord(flashAddress, friendAddress);
+            APP_DBG("Flash Address: %08X", flashAddress);
+            APP_DBG("Friend Address: %04X", friendAddress);
+            APP_DBG("Status: %d", FLASHStatus);
+        }
+    }
+    FLASH_Lock();
+    APP_DBG("Done saving friends to flash");
+}
+
+void Flash_Load_Friends(friend_t *friends, uint16_t friends_counter)
+{
+    FLASH_Unlock();
+    APP_DBG("Loading friends from flash");
+    for (uint16_t i = 0; i < friends_counter; i++)
+    {
+        APP_DBG("i: %d", i);
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        
+        for (int j = 0; j < 6; j += 2) {
+            *((uint16_t *)(friends[i].address + j)) = *((uint16_t *)address);
+            address += 2;
+        }
+
+        APP_DBG("Address: %02X:%02X:%02X:%02X:%02X:%02X", 
+                friends[i].address[5], friends[i].address[4], friends[i].address[3], 
+                friends[i].address[2], friends[i].address[1], friends[i].address[0]);
+    }
+    APP_DBG("Done loading friends from flash");
+    FLASH_Lock();
+}
+
+void Print_Flash_Addresses(uint16_t friends_counter) {
+    FLASH_Unlock();
+    for (uint16_t i = 0; i < friends_counter; i++) {
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        
+        uint16_t friendAddress[3];
+        for (int j = 0; j < 6; j++) {
+            friendAddress[j] = *((uint16_t *)address);
+            address += 2;
+        }
+        
+        APP_DBG("Address: %02X:%02X:%02X:%02X:%02X:%02X", 
+                friendAddress[5], friendAddress[4], friendAddress[3], 
+                friendAddress[2], friendAddress[1], friendAddress[0]);
+    }
+    FLASH_Lock();
 }

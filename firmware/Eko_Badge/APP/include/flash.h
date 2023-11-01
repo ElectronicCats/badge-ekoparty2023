@@ -4,6 +4,10 @@
 #include "app_mesh_config.h"
 #include "debug.h"
 
+typedef struct {
+    uint8_t address[6];
+} friend_t;
+
 /* Global define */
 typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 #define PAGE_WRITE_START_ADDR  ((uint32_t)0x08068000) /* Start from 32K */
@@ -21,6 +25,7 @@ typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 #define REBOOT_COUNTER_ADDRESS_FLAG ((uint32_t)0x0806A002)
 #define FRIENDS_COUNTER_ADDRESS ((uint32_t)0x0806A004)
 #define LEVEL_ADDRESS ((uint32_t)0x0806A006)
+#define FRIENDS_ADDRESS ((uint32_t)0x0806A008)
 
 void Flash_Init();
 void Flash_Erase();
@@ -31,5 +36,7 @@ void Flash_Set_Friends_Counter(uint16_t friends_counter);
 uint16_t Flash_Get_Friends_Counter();
 void Flash_Set_Level(uint16_t level);
 uint16_t Flash_Get_Level();
+void Flash_Save_Friends(friend_t *friends, uint16_t friends_counter);
+void Flash_Load_Friends(friend_t *friends, uint16_t friends_counter);
 
 #endif

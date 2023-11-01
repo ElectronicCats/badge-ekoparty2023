@@ -342,7 +342,6 @@ void Display_Show_VMenu()
         // APP_DBG("Option %d: %s", i, options[i]);
     }
 
-    // Friends_List();
     ssd1306_refresh();
 }
 
@@ -373,6 +372,8 @@ char **Display_Update_VMenu_Options()
         break;
     case LAYER_FRIENDS_MENU:
         Display_Update_Friends_Counter();
+        // Friends_List();
+        Print_Flash_Addresses(Flash_Get_Friends_Counter());
         options = friendOptions;
         optionsSize = sizeof(friendOptions) / sizeof(friendOptions[0]);
         break;
