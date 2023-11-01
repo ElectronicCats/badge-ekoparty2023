@@ -21,6 +21,7 @@
 #include "app_mesh_config.h"
 #include "app.h"
 #include "display.h"
+#include "flash.h"
 
 /*********************************************************************
  * GLOBAL TYPEDEFS
@@ -102,6 +103,12 @@ int main(void)
     APP_DBG("System clock: %d MHz", SystemCoreClock / 1000000);
     APP_DBG("%s", VER_LIB);
 
+    Flash_Init(); // Must be called before any other function
+    APP_DBG("Reboot Counter: %d", Flash_Get_Reboot_Counter());
+    APP_DBG("Level: %d", Get_Level());
+    // Flash_Erase();
+    // Flash_Test();
+
     WCHBLE_Init();
     HAL_Init();
     bt_mesh_lib_init();
@@ -110,7 +117,7 @@ int main(void)
     APP_DBG("LEDs setup ready!");
     App_Init();
     Display_Init();
-    
+
     Main_Circulation();
 }
 

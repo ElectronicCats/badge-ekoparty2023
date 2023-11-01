@@ -604,6 +604,13 @@ static void centralAddFriend(uint16_t connHandle)
         }
         // Increase friend counter and close connection with badge
         friendsCounter++;
+        
+        if (friendsCounter >= 30)
+        {
+            Flash_Set_Friends_Counter(friendsCounter);
+        }
+
+        // Friends_Add(nearbyDeviceAddress);
     }
 
     if (friendsCounter == FRIENDS_THRESHOLD_1)

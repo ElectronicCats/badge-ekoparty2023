@@ -14,6 +14,7 @@
  * INCLUDES
  */
 #include "ch32v20x_it.h"
+#include "CONFIG.h"
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -56,5 +57,5 @@ void HardFault_Handler(void)
  */
 void BB_IRQHandler(void)
 {
-    PRINT("BB_IRQHandler\n");
+    BB_IRQLibHandler();
 }

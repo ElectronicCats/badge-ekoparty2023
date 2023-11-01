@@ -7,7 +7,12 @@ friend_t friends[FRIENDS_MAX];
 void Friends_Init()
 {
     enableFriendSearch = FALSE;
-    friendsCounter = 0;
+    // Flash_Set_Friends_Counter(29);
+    friendsCounter = Flash_Get_Friends_Counter();
+    APP_DBG("Friends Counter: %d", friendsCounter);
+
+    // Load friends from flash
+    Flash_Load_Friends(friends, friendsCounter);
 }
 
 void Friends_List()
@@ -19,4 +24,26 @@ void Friends_List()
                 friends[i].address[3], friends[i].address[2],
                 friends[i].address[1], friends[i].address[0]);
     }
+}
+
+void Friends_Add(uint8_t nearbyDeviceAddress[B_ADDR_LEN])
+{
+    if (friendsCounter >= FRIENDS_MAX)
+    {
+        APP_DBG("Cannot add friend, maximum number of friends reached");
+        return;
+    }
+
+    // Add friend to array
+    // friends[friendsCounter] = friend;
+    for (uint8_t i = 0; i < 6; i++)
+    {
+        friends[friendsCounter].address[i] = nearbyDeviceAddress[i];
+    }
+
+    friendsCounter++;
+    Flash_Set_Friends_Counter(friendsCounter);
+
+    // Save friends to flash
+    Flash_Save_Friends(friends, friendsCounter);
 }

@@ -44,7 +44,7 @@ char *welcomeLevel2[] = {
     "conmigo ;)      ",
     "TIP: revisa tu  ",
     "direccion MAC   ",
-    "en propiedades. ",
+    "en informacion. ",
     "Te veo en el    ",
     "SC CONTROL POINT"};
 
@@ -105,11 +105,11 @@ char *finishLevel2[] = {
 
 char *mainOptions[] = {
     "1. LEDs",
-    "2. Niveles",
+    "2. Ruta",
     "3. Amigos",
-    "4. Propiedades",
+    "4. Informacion",
     "5. Sensor",
-    "6. Secreto"};
+    "6. Comunicacion"};
 
 /************************ LEDs menu ***************************/
 
@@ -139,15 +139,20 @@ char *levelsOptions[] = {
     "1. Ayuda"};
 
 char *level1Help[] = {
-    "",
-    "Consigue amigos "};
+    "Nos hemos       ",
+    "reunido aqui    ",
+    "para convivir,  ",
+    "unamos nuestros ",
+    "badges y seamos ",
+    "amigos, cuantos ",
+    "amigos tienes   ",
+    "ahora?          "};
 
 /*********************** Friends menu *************************/
 
 char *friendOptions[] = {
     "1. Amigos: ",
-    "2. Buscar",
-    "3. Ayuda"};
+    "2. Buscar"};
 
 char *friendSearch[] = {
     "",
@@ -170,7 +175,7 @@ char *properties[] = {
     "2. Chip:CH32V208",
     "3. MAC:",
     "",
-    "4. Codigo:000000"};
+    "4. PIN: 000000"};
 
 char *credits[] = {
     "Desarrollado por",

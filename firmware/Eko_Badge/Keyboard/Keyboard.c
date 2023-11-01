@@ -399,7 +399,7 @@ Levels_Options()
         {
         case LEVELS_HELP:
             currentLayer = LAYER_LEVEL_1_HELP;
-            vertical = FALSE;
+            vertical = TRUE;
             break;
         default:
             APP_DBG("Missing option");

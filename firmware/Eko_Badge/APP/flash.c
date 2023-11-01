@@ -1,8 +1,7 @@
-#include "flash.h"\n
+#include "flash.h"
 
 /* Private Variable */
-static uint32_t rebootCounter = 0;
-static uint32_t rebootCounterFlag = 0;
+static uint16_t rebootCounter = 0, rebootCounterFlag = 0;
 uint32_t EraseCounter = 0x0, Address = 0x0;
 uint16_t Data = 0xAAAA;
 uint32_t WRPR_Value = 0xFFFFFFFF, ProtectedPages = 0x0;
@@ -16,7 +15,7 @@ void Flash_Init(void)
 {
     FLASH_Unlock();
     // Attempt to read rebootCounterFlag from flash
-    rebootCounterFlag = *((uint32_t *)REBOOT_COUNTER_ADDRESS_FLAG);
+    rebootCounterFlag = *((uint16_t *)REBOOT_COUNTER_ADDRESS_FLAG);
     // printf("Reboot Counter Flag: %d\r\n", rebootCounterFlag);
 
     // Check if the value is not valid (initialized)
@@ -27,17 +26,21 @@ void Flash_Init(void)
         FLASHStatus = FLASH_ErasePage(REBOOT_COUNTER_ADDRESS);
         rebootCounter = 0;
         rebootCounterFlag = 1;
-        FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
-        FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
+        // FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+        FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+        FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
+        Flash_Set_Friends_Counter(0);
+        Flash_Set_Level(1);
     }
     else if (rebootCounterFlag)
     {
-        rebootCounter = *((uint32_t *)REBOOT_COUNTER_ADDRESS);
+        rebootCounter = *((uint16_t *)REBOOT_COUNTER_ADDRESS);
     }
 
     rebootCounter++;
     // printf("Reboot Counter: %d\r\n", rebootCounter);
-    FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+    // FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
+    FLASHStatus = FLASH_ProgramHalfWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
 
     // Erase the page
     // FLASHStatus = FLASH_ErasePage(REBOOT_COUNTER_ADDRESS_FLAG);
@@ -71,13 +74,13 @@ void Flash_Test(void)
 
     FLASH_Unlock();
 
-    NbrOfPage = (PAGE_WRITE_END_ADDR - PAGE_WRITE_START_ADDR) / FLASH_PAGE_SIZE;
+    NbrOfPage = (PAGE_WRITE_END_ADDR - PAGE_WRITE_START_ADDR) / FLASH_PAGE_SIZE_LOCAL;
 
     FLASH_ClearFlag(FLASH_FLAG_BSY | FLASH_FLAG_EOP |FLASH_FLAG_WRPRTERR);
 
     for(EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE); EraseCounter++)
     {
-      FLASHStatus = FLASH_ErasePage(PAGE_WRITE_START_ADDR + (FLASH_PAGE_SIZE * EraseCounter));  //Erase 4KB
+      FLASHStatus = FLASH_ErasePage(PAGE_WRITE_START_ADDR + (FLASH_PAGE_SIZE_LOCAL * EraseCounter));  //Erase 4KB
 
       if(FLASHStatus != FLASH_COMPLETE)
       {
@@ -92,6 +95,7 @@ void Flash_Test(void)
     while((Address < PAGE_WRITE_END_ADDR) && (FLASHStatus == FLASH_COMPLETE))
     {
       FLASHStatus = FLASH_ProgramHalfWord(Address, Data);
+    //   printf("Address: %08x, Data: %04x\r\n", Address, Data);
       Address = Address + 2;
     }
 
@@ -194,5 +198,100 @@ void Flash_Test_Fast(void)
 
 
     FLASH_Lock_Fast();
+    FLASH_Lock();
+}
+
+void Flash_Set_Friends_Counter(uint16_t counter)
+{
+    FLASH_Unlock();
+    FLASHStatus = FLASH_ProgramHalfWord(FRIENDS_COUNTER_ADDRESS, counter);
+    FLASH_Lock();
+}
+
+uint16_t Flash_Get_Friends_Counter()
+{
+    return *((uint16_t *)FRIENDS_COUNTER_ADDRESS);
+}
+
+void Flash_Set_Level(uint16_t level)
+{
+    FLASH_Unlock();
+    FLASHStatus = FLASH_ProgramHalfWord(LEVEL_ADDRESS, level);
+    FLASH_Lock();
+}
+
+uint16_t Flash_Get_Level()
+{
+    return *((uint16_t *)LEVEL_ADDRESS);
+}
+
+void Flash_Save_Friends(friend_t *friends, uint16_t friends_counter)
+{
+    FLASH_Unlock();
+    
+    APP_DBG("Saving friends to flash");
+    for (uint16_t i = 0; i < friends_counter; i++)
+    {
+        APP_DBG("i: %d", i);
+        APP_DBG("Address: %02X:%02X:%02X:%02X:%02X:%02X", 
+                friends[i].address[5], friends[i].address[4], friends[i].address[3], 
+                friends[i].address[2], friends[i].address[1], friends[i].address[0]);
+        
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        for (int j = 0; j < 6; j++) {
+            uint16_t friendAddress = friends[i].address[j];
+            uint16_t flashAddress = address + (j * 2);
+            FLASHStatus = FLASH_ProgramHalfWord(flashAddress, friendAddress);
+            APP_DBG("Flash Address: %08X", flashAddress);
+            APP_DBG("Friend Address: %04X", friendAddress);
+            APP_DBG("Status: %d", FLASHStatus);
+        }
+    }
+    FLASH_Lock();
+    APP_DBG("Done saving friends to flash");
+}
+
+void Print_Flash_Addresses(uint16_t friends_counter) {
+    APP_DBG("Printing flash addresses");
+    
+    for (uint16_t i = 0; i < friends_counter; i++)
+    {
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        
+        APP_DBG("Friend %d:", i);
+        
+        for (int j = 0; j < 6; j++) {
+            uint16_t flashAddress = address + (j * 2);
+            uint16_t friendAddress;
+            FLASH_Unlock();
+            friendAddress = *(__IO uint16_t*)flashAddress;
+            FLASH_Lock();
+            
+            APP_DBG("Byte %d: %04X", j, friendAddress);
+        }
+    }
+    APP_DBG("Done printing flash addresses");
+}
+
+void Flash_Load_Friends(friend_t *friends, uint16_t friends_counter)
+{
+    FLASH_Unlock();
+    APP_DBG("Loading friends from flash");
+    for (uint16_t i = 0; i < friends_counter; i++)
+    {
+        APP_DBG("i: %d", i);
+        uint16_t address = FRIENDS_ADDRESS + (i * 6);
+        
+        for (int j = 0; j < 6; j += 2) {
+            // *((uint16_t *)(friends[i].address + j)) = *((uint16_t *)address);
+            friends[i].address[j] = *((uint16_t *)address);
+            address += 2;
+        }
+
+        APP_DBG("Address: %02X:%02X:%02X:%02X:%02X:%02X", 
+                friends[i].address[5], friends[i].address[4], friends[i].address[3], 
+                friends[i].address[2], friends[i].address[1], friends[i].address[0]);
+    }
+    APP_DBG("Done loading friends from flash");
     FLASH_Lock();
 }

@@ -34,86 +34,74 @@
  *
  */
 
-#include "debug.h"
+/******************************************************************************/
+/* Header file contains */
+#include "CONFIG.h"
+#include "HAL.h"
+#include "gattprofile.h"
+#include "peripheral.h"
+#include "flash.h"
 
-/* Global define */
-#define false 0
-#define true 1
+/*********************************************************************
+ * GLOBAL TYPEDEFS
+ */
+__attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];
 
-typedef enum
+#if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
+const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
+#endif
+
+/*********************************************************************
+ * @fn      Main_Circulation
+ *
+ * @brief   Main loop
+ *
+ * @return  none
+ */
+__attribute__((section(".highcode")))
+__attribute__((noinline))
+void Main_Circulation(void)
 {
-    FAILED = 0,
-    PASSED = !FAILED
-} TestStatus;
-#define PAGE_WRITE_START_ADDR ((uint32_t)0x08008000) /* Start from 32K */
-#define PAGE_WRITE_END_ADDR ((uint32_t)0x08009000)   /* End at 36K */
-#define FLASH_PAGE_SIZE 4096
-#define FLASH_PAGES_TO_BE_PROTECTED FLASH_WRProt_Pages60to63
-
-/* Fast Mode define */
-#define FAST_FLASH_PROGRAM_START_ADDR ((uint32_t)0x08008000)
-#define FAST_FLASH_PROGRAM_END_ADDR ((uint32_t)0x08010000)
-#define FAST_FLASH_SIZE (64 * 1024)
-
-#define REBOOT_COUNTER_ADDRESS ((uint32_t)0x08008000)
-// #define REBOOT_COUNTER_ADDRESS_FLAG ((uint32_t)0x0800A004)
-#define REBOOT_COUNTER_ADDRESS_FLAG ((uint32_t)0x08009000)
-
-/* Global Variable */
-uint32_t rebootCounter = 0;
-uint32_t rebootCounterFlag = 0;
-FLASH_Status FLASHStatus = FLASH_COMPLETE;
+    while(1)
+    {
+        TMOS_SystemProcess();
+    }
+}
 
 /*********************************************************************
  * @fn      main
  *
- * @brief   Main program.
+ * @brief   Main function
  *
  * @return  none
  */
 int main(void)
 {
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     SystemCoreClockUpdate();
     Delay_Init();
-    USART_Printf_Init(115200);
-    printf("SystemClk:%d\r\n", SystemCoreClock);
-    // printf( "ChipID:%08x\r\n", DBGMCU_GetCHIPID() );
+#ifdef DEBUG
+    USART_Printf_Init( 115200 );
+#endif
+    PRINT("%s\r\n", VER_LIB);
+
     printf("Flash Program Test\r\n");
+    // Flash_Test();
+    Flash_Init();
+    printf("Reboot Counter: %d\r\r\n", Flash_Get_Reboot_Counter());
 
-    FLASH_Unlock();
-    // Attempt to read rebootCounterFlag from flash
-    rebootCounterFlag = *((uint32_t *)REBOOT_COUNTER_ADDRESS_FLAG);
-    printf("Reboot Counter Flag: %d\r\n", rebootCounterFlag);
+    printf("1\r\n");
+    WCHBLE_Init();
+    printf("2\r\n");
+    HAL_Init();
+    printf("3\r\n");
+    GAPRole_PeripheralInit();
+    printf("4\r\n");
+    Peripheral_Init();
 
-    // Check if the value is not valid (initialized)
-    if (rebootCounterFlag != true)
-    {
-        // Initialize the value
-        printf("Reboot Counter Flag is not valid\r\n");
-        FLASHStatus = FLASH_ErasePage(REBOOT_COUNTER_ADDRESS);
-        rebootCounter = 0;
-        rebootCounterFlag = true;
-        FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
-        FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS_FLAG, rebootCounterFlag);
-    }
-    else if (rebootCounterFlag)
-    {
-        rebootCounter = *((uint32_t *)REBOOT_COUNTER_ADDRESS);
-    }
+    Flash_Test();
+    printf("Finished\r\n");
 
-    rebootCounter++;
-    printf("Reboot Counter: %d\r\n", rebootCounter);
-    FLASHStatus = FLASH_ProgramWord(REBOOT_COUNTER_ADDRESS, rebootCounter);
-
-    // Erase the page
-    // FLASHStatus = FLASH_ErasePage(REBOOT_COUNTER_ADDRESS_FLAG);
-
-    FLASH_Lock();
-
-    printf("Finish!\r\n");
-
-    while (1)
-    {
-    }
+    Main_Circulation();
 }
+
+/******************************** endfile @ main ******************************/

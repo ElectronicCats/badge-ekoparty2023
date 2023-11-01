@@ -342,7 +342,6 @@ void Display_Show_VMenu()
         // APP_DBG("Option %d: %s", i, options[i]);
     }
 
-    // Friends_List();
     ssd1306_refresh();
 }
 
@@ -373,6 +372,8 @@ char **Display_Update_VMenu_Options()
         break;
     case LAYER_FRIENDS_MENU:
         Display_Update_Friends_Counter();
+        // Friends_List();
+        Print_Flash_Addresses(Flash_Get_Friends_Counter());
         options = friendOptions;
         optionsSize = sizeof(friendOptions) / sizeof(friendOptions[0]);
         break;
@@ -421,6 +422,10 @@ char **Display_Update_VMenu_Options()
     case LAYER_LEVEL_3_OPTONS:
         options = levelsOptions;
         optionsSize = sizeof(levelsOptions) / sizeof(levelsOptions[0]);
+        break;
+    case LAYER_LEVEL_1_HELP:
+        options = level1Help;
+        optionsSize = sizeof(level1Help) / sizeof(level1Help[0]);
         break;
     case LAYER_LEVEL_2_HELP:
         options = welcomeLevel2;
@@ -536,10 +541,6 @@ char **Display_Update_HMenu_Banner()
         banner = bannerSecret;
         bannerSize = sizeof(bannerSecret) / sizeof(bannerSecret[0]);
         break;
-    case LAYER_LEVEL_1_HELP:
-        banner = level1Help;
-        bannerSize = sizeof(level1Help) / sizeof(level1Help[0]);
-        break;
     case LAYER_GET_50_FRIENDS:
         banner = get50Friends;
         bannerSize = sizeof(get50Friends) / sizeof(get50Friends[0]);
@@ -560,11 +561,10 @@ char **Display_Update_HMenu_Options()
     switch (currentLayer)
     {
     case LAYER_FRIENDS_SEARCH:
-    case LAYER_SECRET_BANNER:
-    case LAYER_LEVEL_1_HELP:
-        options = twoOptions;
+        options = oneOption;
         optionsSize = 0;
         break;
+    case LAYER_SECRET_BANNER:
     case LAYER_SENSOR_QUESTION:
         options = twoOptions;
         optionsSize = sizeof(twoOptions) / sizeof(twoOptions[0]);
