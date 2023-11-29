@@ -1,5 +1,5 @@
 
-# PRIVADO EKO Party Badge
+# EKO Party Badge
 Este es el repositorio PRIVADO para el desarrollo del EKOBAdge 2023
 
 ## Maintainer
